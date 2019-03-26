@@ -1,0 +1,11 @@
+{
+    "input":{
+        "a":{
+            "b":10,
+            "c":"hello"
+        }
+    },
+    "output":{
+        "a2":"success"
+    }
+}
