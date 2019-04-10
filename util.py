@@ -79,7 +79,7 @@ def get_recursive_type(field_name, field_value):
         assert False
 
 
-# 根据字段名和字段的值返回字段的类型，和对应的json指针类型
+# 根据字段名和字段的值返回字段的类型
 def get_type(field_name, field_value):
     type_obj = type(field_value)
     if type_obj == list:

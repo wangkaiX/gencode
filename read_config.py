@@ -7,6 +7,7 @@ import json
 from collections import OrderedDict
 from data_type import get_key_attr
 from util import add_struct
+import test_case
 
 
 def readjson(filename):
@@ -43,12 +44,13 @@ def gen_request_response(filename):
     map_to_interface(request, v1, request_dict)
     response_dict = {}
     map_to_interface(response, v2, response_dict)
-    for k, v in request_dict.items():
-        print(k, v)
-    for k, v in response_dict.items():
-        print(k, v)
+    # for k, v in request_dict.items():
+    #     print(k, v)
+    # for k, v in response_dict.items():
+    #     print(k, v)
+    test_case.gen_test_case(filename)
     return request_dict, response_dict
 
 
-gen_request_response("/home/ubuntu/service/interface/api.json")
-gen_request_response("/home/ubuntu/service/interface/save_worktable.json")
+# gen_request_response("/home/ubuntu/service/interface/api.json")
+# gen_request_response("/home/ubuntu/service/interface/save_worktable.json")

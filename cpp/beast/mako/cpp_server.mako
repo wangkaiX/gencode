@@ -1,4 +1,4 @@
-#include "core.h"
+#include "service/http_server.h"
 #include "interface/${request}.h"
 #include "interface/${response}.h"
 

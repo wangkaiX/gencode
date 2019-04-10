@@ -7,6 +7,7 @@ from data_type import err_code, err_msg, gen_title_name
 from mako.template import Template
 from util import add_struct, stable_unique
 from read_config import gen_request_response
+# import test_case
 # import pdb
 
 
@@ -123,6 +124,7 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
     # 数据整理
     print(filenames)
     for filename in filenames:
+        # test_case.gen_test_case(filename)
         basename = os.path.basename(filename)
         interface_name = basename.split(".")[0]
         req, resp = gen_request_response(filename)
