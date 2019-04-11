@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
-# import copy
-# import os
 from collections import OrderedDict
 from data_type import get_key_attr
-from util import add_struct
+# from util import add_struct
 import test_case
-
-
-def readjson(filename):
-    json_str = open(filename).read()
-    j = json.loads(json_str, object_pairs_hook=OrderedDict)
-    return j
+import util
 
 
 def list_to_interface(field_name, from_list, to_dict):
@@ -27,7 +19,7 @@ def list_to_interface(field_name, from_list, to_dict):
 def map_to_interface(field_name, field_value, to_dict):
     if type(field_value) in (dict, OrderedDict):
         field_name, _, _, _type, _ = get_key_attr(field_name, field_value)
-        add_struct(to_dict, _type)
+        util.add_struct(to_dict, _type)
 
         for k, v in field_value.items():
             to_dict[_type].add_attribute(k, v)
@@ -38,7 +30,7 @@ def map_to_interface(field_name, field_value, to_dict):
 
 
 def gen_request_response(filename):
-    json_map = readjson(filename)
+    json_map = util.readjson(filename)
     (request, v1), (response, v2) = json_map.items()
     request_dict = {}
     map_to_interface(request, v1, request_dict)

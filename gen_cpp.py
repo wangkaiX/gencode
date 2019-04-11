@@ -2,19 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-# import test_case
 from data_type import err_code, err_msg, gen_title_name
 from mako.template import Template
-from util import add_struct, stable_unique
+import util
 from read_config import gen_request_response
-# import test_case
-# import pdb
-
-
-def check_file(filename):
-    if not os.path.exists(filename):
-        print("文件[%s]不存在" % (filename))
-        assert False
 
 
 def gen_header(struct_info, mako_dir, defines_out_dir):
@@ -27,13 +18,13 @@ def gen_header(struct_info, mako_dir, defines_out_dir):
         if field.is_string():
             include_files.append("string")
     # set为随机无序，导致代码不完全一致而引发重新编译
-    include_files = stable_unique(include_files)
+    include_files = util.stable_unique(include_files)
     ctx = {
             "include_files": include_files,
             "fields": struct_info.fields(),
           }
     mako_file = mako_dir + "/cpp_header.mako"
-    check_file(mako_file)
+    util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding='utf8')
     include_dir = defines_out_dir
     if not os.path.exists(include_dir):
@@ -65,7 +56,7 @@ def gen_server(interface_name, req, resp, mako_dir, server_out_dir):
     if not os.path.exists(server_out_dir):
         os.makedirs(server_out_dir)
     mako_file = mako_dir + "/cpp_server.mako"
-    check_file(mako_file)
+    util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding="utf8")
     filename = interface_name + ".cpp"
     sfile = open(server_out_dir + "/" + filename, "w")
@@ -85,7 +76,7 @@ def gen_client(filename, req_resp_list, mako_dir):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    check_file(mako_file)
+    util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filename, "w")
     include_files = []
@@ -96,7 +87,7 @@ def gen_client(filename, req_resp_list, mako_dir):
         include_files.append(req.get_type() + ".h")
         include_files.append(resp.get_type() + ".h")
         r_p_list.append([interface_name, req, resp])
-    include_files = stable_unique(include_files)
+    include_files = util.stable_unique(include_files)
 
     ctx = {
             "include_files": include_files,
@@ -130,12 +121,12 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
         req, resp = gen_request_response(filename)
         req_resp_list.append([interface_name, req, resp])
         for k, v in req.items():
-            add_struct(reqs, k)
+            util.add_struct(reqs, k)
             for field in v.fields():
                 reqs[k].add_field(field)
 
         for k, v in resp.items():
-            add_struct(resps, k)
+            util.add_struct(resps, k)
             for field in v.fields():
                 resps[k].add_field(field)
             resps[k].add_field(err_code)

@@ -5,6 +5,39 @@
 from util import get_type, gen_title_name, get_base_type
 
 
+class Type:
+    def __init__(self, _type, specified_type=None):
+        self._type = _type
+        self._type_go = None
+        self._type_cpp = None
+        self._type_graphql = None
+        if _type == 'string':
+            self._type_go = 'string'
+            self._type_cpp = 'std::string'
+            self._type_graphql = 'String'
+        elif _type == 'float':
+            self._type_go = 'float32'
+            self._type_cpp = 'float'
+            self._type_graphql = 'Float'
+        elif _type == 'double':
+            self._type_go = 'float64'
+            self._type_cpp = 'double'
+            self._type_graphql = 'Float'
+        elif _type == 'bool':
+            self._type_go = 'bool'
+            self._type_cpp = 'bool'
+            self._type_graphql = 'Boolean'
+        elif _type == 'time':
+            self._type_go = 'time.Time'
+            self._type_cpp = ''
+            self._type_graphql = 'Time'
+        elif _type == 'object':
+            assert specified_type
+            self._type_go = specified_type
+            self._type_cpp = specified_type
+            self._type_graphql = specified_type
+
+
 # 类属性
 class Field:
     def __init__(self, name, _type, base_type, is_necessary, comment):
