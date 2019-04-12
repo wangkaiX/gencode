@@ -46,130 +46,71 @@ def stable_unique(l1):
     return l2
 
 
-def get_base_type(field_name, field_value):
+def get_type_name(type_name, specified_type):
+    if specified_type:
+        return specified_type
+    return type_name
+
+
+def make_type(type_name, specified_type):
+    if type_name == 'object':
+        field_name, specified_type = specified_type
+        specified_type = get_type(gen_title_name(field_name), specified_type)
+    else:
+        type_name = get_type_name(type_name, specified_type)
+    return data_type.Type(type_name, specified_type)
+
+
+# 查找最后一级的类型名
+def get_base_type(field_name, field_value, specified_type=None):
     type_obj = type(field_value)
     if type_obj == float:
-        return data_type.Type('double')
+        return make_type("double", specified_type)
     elif type_obj == str:
-        return data_type.Type('string')
+        return make_type("string", specified_type)
     elif type_obj == int:
-        return data_type.Type('int')
+        return make_type("int", specified_type)
     elif type_obj == bool:
-        return data_type.Type('bool')
+        return make_type("bool", specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        type_name = gen_title_name(field_name)
-        return data_type.Type('object', type_name)
+        return make_type('object', (field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            type_name = get_base_type(field_name, field_value[0])
+            return get_base_type(field_name, field_value[0])
         else:
-            type_name = gen_title_name(field_name), "object"
-        return data_type.Type('object', type_name)
+            return make_type('object', (field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
 
 
-def get_recursive_type(field_name, field_value):
+def get_recursive_type(field_name, field_value, specified_type):
     type_obj = type(field_value)
     if type_obj == float:
-        return "double"
+        return make_type("double", specified_type)
     elif type_obj == str:
-        return "std::string"
+        return make_type("string", specified_type)
     elif type_obj == int:
-        return "int"
+        return make_type("int", specified_type)
     elif type_obj == bool:
-        return "bool"
+        return make_type("bool", specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        type_name = gen_title_name(field_name)
-        return type_name
+        return make_type('object', (field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            type_name = get_cpp_type(field_name, field_value[0])
+            return get_type(field_name, field_value[0])
         else:
-            type_name = gen_title_name(field_name)
-        return type_name
-    else:
-        print("未知类型:", type_obj)
-        assert False
-
-
-# 根据字段名和字段的值返回字段的类型
-def get_cpp_type(field_name, field_value):
-    type_obj = type(field_value)
-    if type_obj == list:
-        type_name = get_cpp_recursive_type(field_name, field_value)
-        type_name = "std::vector<" + type_name + ">"
-        return type_name
-    else:
-        return get_cpp_recursive_type(field_name, field_value)
-
-
-def get_graphql_recursive_type(field_name, field_value):
-    type_obj = type(field_value)
-    if type_obj == float:
-        return "double"
-    elif type_obj == str:
-        return "String"
-    elif type_obj == int:
-        return "Int"
-    elif type_obj == bool:
-        return "Boolean"
-    elif type_obj in(dict, collections.OrderedDict):
-        type_name = gen_title_name(field_name)
-        return type_name
-    elif type_obj == list:
-        if type(field_value[0]) in [float, str, bool, int, list]:
-            type_name = get_graphql_type(field_name, field_value[0])
-        else:
-            type_name = gen_title_name(field_name)
-        return type_name
+            return make_type('object', (field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
 
 
 # 根据字段名和字段的值返回字段的类型
-def get_graphql_type(field_name, field_value):
+def get_type(field_name, field_value, specified_type=None):
     type_obj = type(field_value)
     if type_obj == list:
-        type_name = get_graphql_recursive_type(field_name, field_value)
-        type_name = "[" + type_name + "]"
-        return type_name
+        type_name = get_recursive_type(field_name, field_value)
+        return data_type.Type('list', type_name)
     else:
-        return get_graphql_recursive_type(field_name, field_value)
-
-
-def get_go_recursive_type(field_name, field_value):
-    type_obj = type(field_value)
-    if type_obj == float:
-        return "double"
-    elif type_obj == str:
-        return "string"
-    elif type_obj == int:
-        return "int32"
-    elif type_obj == bool:
-        return "bool"
-    elif type_obj in(dict, collections.OrderedDict):
-        type_name = gen_title_name(field_name)
-        return type_name
-    elif type_obj == list:
-        if type(field_value[0]) in [float, str, bool, int, list]:
-            type_name = get_go_type(field_name, field_value[0])
-        else:
-            type_name = gen_title_name(field_name)
-        return type_name
-    else:
-        print("未知类型:", type_obj)
-        assert False
-
-
-# 根据字段名和字段的值返回字段的类型
-def get_go_type(field_name, field_value):
-    type_obj = type(field_value)
-    if type_obj == list:
-        type_name = get_go_recursive_type(field_name, field_value)
-        type_name = "[]" + type_name
-        return type_name
-    else:
-        return get_go_recursive_type(field_name, field_value)
+        return get_recursive_type(field_name, field_value)

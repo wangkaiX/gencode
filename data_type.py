@@ -36,6 +36,11 @@ class Type:
             self._type_go = specified_type
             self._type_cpp = specified_type
             self._type_graphql = specified_type
+        elif _type == 'list':
+            assert specified_type
+            self._type_go = '[]' + specified_type
+            self._type_cpp = 'std::vector<' + specified_type + '>'
+            self._type_graphql = '[' + specified_type + ']'
 
 
 # 类属性
@@ -114,10 +119,11 @@ def get_key_attr(name, value):
         necessary = False
 
     _type = get_type(field_name, value)
-    base_type, _ = get_base_type(field_name, value)
+    base_type = get_base_type(field_name, value)
     if specified_type:
         _type = _type.replace(base_type, specified_type, 1)
         base_type = specified_type
+        # base_type = data_type.Type("object", specified_type)
 
     field_name = field_name.lower()
     return field_name, necessary, comment, _type, base_type
