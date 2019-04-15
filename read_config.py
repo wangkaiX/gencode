@@ -18,11 +18,11 @@ def list_to_interface(field_name, from_list, to_dict):
 
 def map_to_interface(field_name, field_value, to_dict):
     if type(field_value) in (dict, OrderedDict):
-        field_name, _, _, _type, _ = get_key_attr(field_name, field_value)
-        util.add_struct(to_dict, _type)
+        field_name, _, _, _type, base_type = get_key_attr(field_name, field_value)
+        util.add_struct(to_dict, base_type.get_type_name())
 
         for k, v in field_value.items():
-            to_dict[_type].add_attribute(k, v)
+            to_dict[base_type.get_type_name()].add_attribute(k, v)
             map_to_interface(k, v, to_dict)
 
     elif type(field_value) == list:

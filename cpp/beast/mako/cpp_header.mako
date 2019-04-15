@@ -12,7 +12,7 @@ struct ${class_name}
     % if field.get_comment():
     // ${field.get_comment()}
     % endif
-    ${field.get_type()} ${field.get_name()};
+    ${field.get_type()._type_cpp} ${field.get_name()};
 % endfor
 };
 

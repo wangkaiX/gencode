@@ -31,10 +31,10 @@ def gen_header(struct_info, mako_dir, defines_out_dir):
         # os.mkdir(include_dir)
         os.makedirs(include_dir)
 
-    head_file = include_dir + "/" + struct_info.get_name() + ".h"
+    head_file = include_dir + "/" + struct_info.get_type() + ".h"
     # print(head_file)
     hfile = open(head_file, "w")
-    hfile.write(t.render(class_name=struct_info.get_name(), **ctx))
+    hfile.write(t.render(class_name=struct_info.get_type(), **ctx))
     hfile.close()
 
 

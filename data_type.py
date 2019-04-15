@@ -11,10 +11,41 @@ class Type:
         self._type_go = None
         self._type_cpp = None
         self._type_graphql = None
+        self._specified_type = specified_type
+        if _type == 'object':
+            assert specified_type
+            self._type_go = specified_type
+            self._type_cpp = specified_type
+            self._type_graphql = specified_type
+            return
+        elif _type == 'list':
+            assert specified_type
+            self._type_go = '[]' + specified_type._type_go
+            self._type_cpp = 'std::vector<' + specified_type._type_cpp + '>'
+            self._type_graphql = '[' + specified_type._type_graphql + ']'
+            return
+
+        if specified_type:
+            if specified_type == 'time':
+                self._type = specified_type
+                self._type_go = 'time.Time'
+                self._type_cpp = 'std::string'
+                self._type_graphql = 'Time'
+                return
+
+            self._type_go = specified_type
+            self._type_cpp = specified_type
+            self._type_graphql = specified_type
+            return
+
         if _type == 'string':
             self._type_go = 'string'
             self._type_cpp = 'std::string'
             self._type_graphql = 'String'
+        elif _type == 'int':
+            self._type_go = 'int'
+            self._type_cpp = 'int'
+            self._type_graphql = 'Int'
         elif _type == 'float':
             self._type_go = 'float32'
             self._type_cpp = 'float'
@@ -27,20 +58,26 @@ class Type:
             self._type_go = 'bool'
             self._type_cpp = 'bool'
             self._type_graphql = 'Boolean'
-        elif _type == 'time':
-            self._type_go = 'time.Time'
-            self._type_cpp = ''
-            self._type_graphql = 'Time'
-        elif _type == 'object':
-            assert specified_type
-            self._type_go = specified_type
-            self._type_cpp = specified_type
-            self._type_graphql = specified_type
-        elif _type == 'list':
-            assert specified_type
-            self._type_go = '[]' + specified_type
-            self._type_cpp = 'std::vector<' + specified_type + '>'
-            self._type_graphql = '[' + specified_type + ']'
+
+    def get_type_name(self):
+        if self.is_object():
+            return self._specified_type
+        return self._type
+
+    def is_object(self):
+        return self._type == 'object'
+
+    def is_string(self):
+        return self._type == 'string'
+
+    def is_bool(self):
+        return self._type == 'bool'
+
+    def is_list(self):
+        return self._type == 'list'
+
+    def __str__(self):
+        return "type:%s\n go_type:%s\n cpp_type:%s\n graphql_type:%s\n" % (self._type, self._type_go, self._type_cpp, self._type_graphql)
 
 
 # 类属性
@@ -50,13 +87,10 @@ class Field:
         self.__type = _type
         self.__base_type = base_type
         self.__is_necessary = is_necessary
-        self.__is_object = False
-        self.__is_list = False
-        self.__is_string = False
         self.__comment = comment
 
     def get_base_type(self):
-        return self.__base_type
+        return self.__base_type.get_type_name()
 
     def get_name(self):
         return self.__name
@@ -67,26 +101,17 @@ class Field:
     def get_type(self):
         return self.__type
 
-    def set_string(self, b):
-        self.__is_string = b
-
     def is_string(self):
-        return self.__is_string
+        return self.__base_type.is_string()
 
     def is_necessary(self):
         return self.__is_necessary
 
-    def set_object(self, b):
-        self.__is_object = b
-
     def is_object(self):
-        return self.__is_object
-
-    def set_list(self, b):
-        self.__is_list = b
+        return self.__base_type.is_object()
 
     def is_list(self):
-        return self.__is_list
+        return self.__type.is_list()
 
     def __eq__(self, other):
         return self.__name == other.__name
@@ -95,13 +120,15 @@ class Field:
         return hash(self.__name)
 
     def __str__(self):
+        # return "%s %s %s %s %s %s\n" % (self.__name, self.__base_type.get_type_name())
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
-err_code = Field("error_code", "std::string", "string", True, "错误码")
-err_msg = Field("error_msg", "std::string",  "string", True, "错误信息")
+err_code = Field("error_code", Type("string"), Type("string"), True, "错误码")
+err_msg = Field("error_msg", Type("string"), Type("string"), True, "错误信息")
 
 
+# 根据key, value推导类型
 def get_key_attr(name, value):
     assert name
     finalAttrs = [None, None, None, None]
@@ -118,12 +145,8 @@ def get_key_attr(name, value):
     else:
         necessary = False
 
-    _type = get_type(field_name, value)
-    base_type = get_base_type(field_name, value)
-    if specified_type:
-        _type = _type.replace(base_type, specified_type, 1)
-        base_type = specified_type
-        # base_type = data_type.Type("object", specified_type)
+    _type = get_type(field_name, value, specified_type)
+    base_type = get_base_type(field_name, value, specified_type)
 
     field_name = field_name.lower()
     return field_name, necessary, comment, _type, base_type
@@ -138,13 +161,7 @@ class StructInfo:
 
     def add_attribute(self, name, value):
         field_name, necessary, comment, _type, base_type = get_key_attr(name, value)
-
         field = Field(field_name, _type, base_type, necessary, comment)
-        if type(value) == list:
-            field.set_list(True)
-        _, o = get_base_type(name, value)
-        field.set_object(is_object(o))
-        field.set_string(is_string(o))
         self.add_field(field)
 
     def add_field(self, field):
@@ -166,18 +183,6 @@ class StructInfo:
             s += str(field) + ' '
         s += "\n"
         return s
-
-
-def is_object(o):
-    return o == "object"
-
-
-def is_string(o):
-    return o == "string"
-
-
-def is_list(o):
-    return o == "list"
 
 
 # 接口文件的定义

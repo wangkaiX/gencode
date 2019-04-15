@@ -21,9 +21,9 @@ def readjson(filename):
     return j
 
 
-def add_struct(to_dict, class_name):
-    if class_name not in to_dict.keys():
-        to_dict[class_name] = data_type.StructInfo(class_name)
+def add_struct(to_dict, struct_name):
+    if struct_name not in to_dict.keys():
+        to_dict[struct_name] = data_type.StructInfo(struct_name)
 
 
 # 生成驼峰类型的类型名
@@ -49,15 +49,10 @@ def stable_unique(l1):
 def get_type_name(type_name, specified_type):
     if specified_type:
         return specified_type
-    return type_name
+    return gen_title_name(type_name)
 
 
 def make_type(type_name, specified_type):
-    if type_name == 'object':
-        field_name, specified_type = specified_type
-        specified_type = get_type(gen_title_name(field_name), specified_type)
-    else:
-        type_name = get_type_name(type_name, specified_type)
     return data_type.Type(type_name, specified_type)
 
 
@@ -73,12 +68,12 @@ def get_base_type(field_name, field_value, specified_type=None):
     elif type_obj == bool:
         return make_type("bool", specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type('object', (field_name, specified_type))
+        return make_type('object', get_type_name(field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_base_type(field_name, field_value[0])
+            return get_base_type(field_name, field_value[0], specified_type)
         else:
-            return make_type('object', (field_name, specified_type))
+            return make_type('object', get_type_name(field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
@@ -95,22 +90,23 @@ def get_recursive_type(field_name, field_value, specified_type):
     elif type_obj == bool:
         return make_type("bool", specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type('object', (field_name, specified_type))
+        return make_type('object', get_type_name(field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_type(field_name, field_value[0])
+            return get_type(field_name, field_value[0], specified_type)
         else:
-            return make_type('object', (field_name, specified_type))
+            return make_type('object', get_type_name(field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
 
 
 # 根据字段名和字段的值返回字段的类型
-def get_type(field_name, field_value, specified_type=None):
+def get_type(field_name, field_value, specified_type):
     type_obj = type(field_value)
     if type_obj == list:
-        type_name = get_recursive_type(field_name, field_value)
-        return data_type.Type('list', type_name)
+        _type = get_recursive_type(field_name, field_value, specified_type)
+        print(_type)
+        return data_type.Type('list', _type)
     else:
-        return get_recursive_type(field_name, field_value)
+        return get_recursive_type(field_name, field_value, specified_type)
