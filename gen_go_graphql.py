@@ -8,12 +8,13 @@ import util
 from read_config import gen_request_response
 
 
-def gen_define(st, mako_dir, defines_out_dir):
+def gen_define(st, mako_dir, defines_out_dir, is_response=False):
     # set为随机无序，导致代码不完全一致而引发重新编译
-    print(st)
+    # print(st)
     ctx = {
             "st": st,
             "gen_title_name": util.gen_title_name,
+            "is_response": is_response,
           }
     mako_file = mako_dir + "/defines.mako"
     util.check_file(mako_file)
@@ -23,7 +24,7 @@ def gen_define(st, mako_dir, defines_out_dir):
         os.makedirs(include_dir)
 
     head_file = "%s/%s.go" % (include_dir, st.get_name())
-    print(head_file)
+    # print(head_file)
     hfile = open(head_file, "w")
     hfile.write(t.render(**ctx))
     hfile.close()
@@ -33,7 +34,7 @@ def gen_defines(reqs, resps, mako_dir, defines_out_dir):
     for k, v in reqs.items():
         gen_define(v, mako_dir, defines_out_dir)
     for k, v in resps.items():
-        gen_define(v, mako_dir, defines_out_dir)
+        gen_define(v, mako_dir, defines_out_dir, is_response=True)
     # for interface_name, req, resp in req_resp_list:
     #    gen_define(interface_name, list(req.values())[0], list(resp.values())[0], mako_dir, defines_out_dir)
 
@@ -110,7 +111,7 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
     #
 
     # 数据整理
-    print(filenames)
+    # print(filenames)
     for filename in filenames:
         # test_case.gen_test_case(filename)
         basename = os.path.basename(filename)

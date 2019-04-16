@@ -24,7 +24,7 @@ def gen_test_case(file_name):
         rdquote_index = json_str.find('":', key_end_index + 2)
     test_file_name = file_name.split('.')[0] + "_test.json"
     test_file = open(test_file_name, "w", encoding='utf8')
-    print(json_str)
+    # print(json_str)
     test_file.write(json_str)
     test_file.close()
 

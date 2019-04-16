@@ -17,7 +17,11 @@ enum ${enum.name()} {
 % for interface_name, req, resp in services:
 input ${req.get_name()} {
     % for field in req.fields():
+% if field.is_necessary():
+    ${field.get_name()}:${field.get_type()._type_graphql}!
+% else:
     ${field.get_name()}:${field.get_type()._type_graphql}
+% endif
     % endfor
 }
 
@@ -26,7 +30,7 @@ input ${req.get_name()} {
 % for interface_name, req, resp in services:
 type ${resp.get_name()} {
     % for field in resp.fields():
-    ${field.get_name()}:${field.get_type()._type_graphql}
+    ${field.get_name()}:${field.get_type()._type_graphql}!
     % endfor
 }
 
