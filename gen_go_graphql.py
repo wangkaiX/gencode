@@ -8,34 +8,34 @@ import util
 from read_config import gen_request_response
 
 
-def gen_define(interface_name, req, resp, mako_dir, defines_out_dir):
+def gen_define(st, mako_dir, defines_out_dir):
     # set为随机无序，导致代码不完全一致而引发重新编译
-    print(req)
-    print(resp)
+    print(st)
     ctx = {
-            "req": req,
-            "resp": resp,
+            "st": st,
             "gen_title_name": util.gen_title_name,
-            # "fields": struct_info.fields(),
           }
     mako_file = mako_dir + "/defines.mako"
     util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding='utf8')
     include_dir = defines_out_dir
     if not os.path.exists(include_dir):
-        # os.mkdir(include_dir)
         os.makedirs(include_dir)
 
-    head_file = "%s/%s.go" % (include_dir, interface_name)
+    head_file = "%s/%s.go" % (include_dir, st.get_name())
     print(head_file)
     hfile = open(head_file, "w")
     hfile.write(t.render(**ctx))
     hfile.close()
 
 
-def gen_headers(req_resp_list, mako_dir, defines_out_dir):
-    for interface_name, req, resp in req_resp_list:
-        gen_define(interface_name, list(req.values())[0], list(resp.values())[0], mako_dir, defines_out_dir)
+def gen_defines(reqs, resps, mako_dir, defines_out_dir):
+    for k, v in reqs.items():
+        gen_define(v, mako_dir, defines_out_dir)
+    for k, v in resps.items():
+        gen_define(v, mako_dir, defines_out_dir)
+    # for interface_name, req, resp in req_resp_list:
+    #    gen_define(interface_name, list(req.values())[0], list(resp.values())[0], mako_dir, defines_out_dir)
 
 
 def gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir):
@@ -130,7 +130,7 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
             resps[k].add_field(err_msg)
 
     # 生成.h文件
-    gen_headers(req_resp_list, mako_dir, defines_out_dir)
+    gen_defines(reqs, resps, mako_dir, defines_out_dir)
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir)
