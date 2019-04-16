@@ -16,8 +16,8 @@ enum ${enum.name()} {
 
 % for interface_name, req, resp in services:
 input ${req.get_name()} {
-    % for field in req.get_fields():
-    ${field.get_name()}:${field.get_type()}
+    % for field in req.fields():
+    ${field.get_name()}:${field.get_type()._type_graphql}
     % endfor
 }
 
@@ -25,8 +25,8 @@ input ${req.get_name()} {
 
 % for interface_name, req, resp in services:
 type ${resp.get_name()} {
-    % for field in resp.get_fields():
-    ${field.get_name()}:${field.get_type()}
+    % for field in resp.fields():
+    ${field.get_name()}:${field.get_type()._type_graphql}
     % endfor
 }
 
@@ -34,7 +34,7 @@ type ${resp.get_name()} {
 
 type Query {
 % for interface_name, req, resp in services:
-    ${interface_name}(${req.get_name()}:${gen_title(req.get_name())}!):${resp.get_name()}
+    ${interface_name}(${req.get_name()}:${gen_title_name(req.get_name())}!):${resp.get_name()}
 % endfor
 
 }
