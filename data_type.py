@@ -86,7 +86,7 @@ class Field:
         self.__name = name
         self.__type = _type
         self.__base_type = base_type
-        print("necessary:", name, is_necessary)
+        # print("necessary:", name, is_necessary)
         self.__is_necessary = is_necessary
         self.__comment = comment
 
@@ -177,6 +177,9 @@ class StructInfo:
 
     def fields(self):
         return self.__fields
+
+    def __eq__(self, value):
+        return self.__name == value.__name
 
     def __str__(self):
         s = ""

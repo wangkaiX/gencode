@@ -105,13 +105,22 @@ def gen_schema(filename, req_resp_list, mako_dir, query_list):
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open('schema.graphql', "w")
     r_p_list = []
+    reqs = []
+    resps = []
     for interface_name, req, resp in req_resp_list:
         req = list(req.values())[0]
+        reqs.append(req)
         resp = list(resp.values())[0]
+        resps.append(resp)
         r_p_list.append([interface_name, req, resp])
+
+    reqs = util.stable_unique(reqs)
+    resps = util.stable_unique(resps)
 
     ctx = {
             "services": r_p_list,
+            "reqs": reqs,
+            "resps": resps,
             "gen_title_name": util.gen_title_name,
             "enums": [],
             "query_list": query_list,
