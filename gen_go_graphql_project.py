@@ -20,4 +20,5 @@ if __name__ == '__main__':
                      server=True,
                      client=None,
                      code_type='go',
+                     query_list=['create_crontab_job'],
                      )

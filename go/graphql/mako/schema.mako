@@ -38,7 +38,18 @@ type ${resp.get_name()} {
 
 type Query {
 % for interface_name, req, resp in services:
-    ${interface_name}(${req.get_name()}:${gen_title_name(req.get_name())}!):${resp.get_name()}
+    % if interface_name in query_list:
+    ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
+    % endif
+% endfor
+
+}
+
+type Mutation{
+% for interface_name, req, resp in services:
+    % if interface_name not in query_list:
+    ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
+    % endif
 % endfor
 
 }

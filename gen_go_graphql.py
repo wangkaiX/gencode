@@ -39,14 +39,46 @@ def gen_defines(reqs, resps, mako_dir, defines_out_dir):
     #    gen_define(interface_name, list(req.values())[0], list(resp.values())[0], mako_dir, defines_out_dir)
 
 
-def gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir):
+def gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir, query_list):
     for interface_name, req, resp in req_resp_list:
         req = list(req.values())[0]
         resp = list(resp.values())[0]
-        gen_server(interface_name, reqs[req.get_name()], resps[resp.get_name()], mako_dir, server_out_dir)
+        gen_resolver(interface_name, reqs[req.get_name()], resps[resp.get_name()], mako_dir, server_out_dir)
+        gen_func(interface_name, reqs[req.get_name()], resps[resp.get_name()], mako_dir, server_out_dir, query_list)
 
 
-def gen_server(interface_name, req, resp, mako_dir, server_out_dir):
+def gen_func(interface_name, req, resp, mako_dir, server_out_dir, query_list):
+    if not os.path.exists(server_out_dir):
+        os.makedirs(server_out_dir)
+
+    if interface_name in query_list:
+        filename = interface_name + "_query"
+    else:
+        filename = interface_name + "_mutation"
+    filepath = server_out_dir + "/" + filename + ".go"
+    if os.path.exists(filepath):
+        return
+
+    mako_file = mako_dir + "/func.mako"
+    util.check_file(mako_file)
+    t = Template(filename=mako_file, input_encoding="utf8")
+
+    sfile = open(filepath, "w")
+    sfile.write(t.render(
+        request=req.get_name(),
+        response=resp.get_name(),
+        class_name=gen_title_name(interface_name),
+        req=req,
+        resp=resp,
+        struct_request=req.get_type(),
+        struct_response=resp.get_type(),
+        interface_name=interface_name,
+        gen_title_name=util.gen_title_name,
+        ))
+    sfile.close()
+
+
+def gen_resolver(interface_name, req, resp, mako_dir, server_out_dir):
     if not os.path.exists(server_out_dir):
         os.makedirs(server_out_dir)
     mako_file = mako_dir + "/resolver.mako"
@@ -68,7 +100,7 @@ def gen_server(interface_name, req, resp, mako_dir, server_out_dir):
     sfile.close()
 
 
-def gen_schema(filename, req_resp_list, mako_dir):
+def gen_schema(filename, req_resp_list, mako_dir, query_list):
     mako_file = mako_dir + "/schema.mako"
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
@@ -90,6 +122,7 @@ def gen_schema(filename, req_resp_list, mako_dir):
             "services": r_p_list,
             "gen_title_name": util.gen_title_name,
             "enums": [],
+            "query_list": query_list,
             }
     sfile.write(t.render(
         # module_name='ProjectManagerClient',
@@ -97,7 +130,7 @@ def gen_schema(filename, req_resp_list, mako_dir):
         ))
 
 
-def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, client_out_file, server=None, client=None):
+def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, client_out_file, server=None, client=None, query_list=[]):
     req_resp_list = []
     reqs = {}
     resps = {}
@@ -134,5 +167,5 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
     gen_defines(reqs, resps, mako_dir, defines_out_dir)
     if server:
         # 生成服务端接口实现文件
-        gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir)
-        gen_schema(client_out_file, req_resp_list, mako_dir)
+        gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir, query_list)
+        gen_schema(client_out_file, req_resp_list, mako_dir, query_list)
