@@ -9,8 +9,6 @@ from read_config import gen_request_response
 
 
 def gen_define(st, mako_dir, defines_out_dir, is_response=False):
-    # set为随机无序，导致代码不完全一致而引发重新编译
-    # print(st)
     ctx = {
             "st": st,
             "gen_title_name": util.gen_title_name,
@@ -35,8 +33,6 @@ def gen_defines(reqs, resps, mako_dir, defines_out_dir):
         gen_define(v, mako_dir, defines_out_dir)
     for k, v in resps.items():
         gen_define(v, mako_dir, defines_out_dir, is_response=True)
-    # for interface_name, req, resp in req_resp_list:
-    #    gen_define(interface_name, list(req.values())[0], list(resp.values())[0], mako_dir, defines_out_dir)
 
 
 def gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir, query_list):
@@ -112,20 +108,15 @@ def gen_schema(filename, req_resp_list, mako_dir, query_list):
     for interface_name, req, resp in req_resp_list:
         req = list(req.values())[0]
         resp = list(resp.values())[0]
-        # include_files.append(req.get_type() + ".h")
-        # include_files.append(resp.get_type() + ".h")
         r_p_list.append([interface_name, req, resp])
-    # include_files = util.stable_unique(include_files)
 
     ctx = {
-            # "include_files": include_files,
             "services": r_p_list,
             "gen_title_name": util.gen_title_name,
             "enums": [],
             "query_list": query_list,
             }
     sfile.write(t.render(
-        # module_name='ProjectManagerClient',
         **ctx,
         ))
 
@@ -140,8 +131,6 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
     config_dir = os.path.abspath(config_dir)
     defines_out_dir = os.path.abspath(defines_out_dir)
     server_out_dir = os.path.abspath(server_out_dir)
-
-    #
 
     # 数据整理
     # print(filenames)
