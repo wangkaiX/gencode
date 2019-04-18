@@ -6,4 +6,8 @@
 6、配置格式为key value, key的完整格式为[key, necessary, description, type] 除key外为可选如"name|||string"
 7、在生成目录中直接执行scons即可编译，需要本地有对scons的支持
 
+
+sudo apt install python3
+pip3 install mako -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 export PYTHONPATH=$PYTHONPATH:${HOME}/gencode
