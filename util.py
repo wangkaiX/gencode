@@ -9,6 +9,20 @@ import os
 from collections import OrderedDict
 
 
+def get_first_value(m):
+    vs = list(m.values())
+    if len(vs) == 0:
+        return None
+    else:
+        return vs[0]
+
+
+def abs_path(path):
+    if path[0] == '~':
+        path = os.environ['HOME'] + path[1:]
+    return os.path.abspath(path)
+
+
 def check_file(filename):
     if not os.path.exists(filename):
         print("文件[%s]不存在" % (filename))
@@ -106,7 +120,7 @@ def get_type(field_name, field_value, specified_type):
     type_obj = type(field_value)
     if type_obj == list:
         _type = get_recursive_type(field_name, field_value, specified_type)
-        print(_type)
+        # print(_type)
         return data_type.Type('list', _type)
     else:
         return get_recursive_type(field_name, field_value, specified_type)

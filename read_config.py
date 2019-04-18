@@ -36,10 +36,6 @@ def gen_request_response(filename):
     map_to_interface(request, v1, request_dict)
     response_dict = {}
     map_to_interface(response, v2, response_dict)
-    # for k, v in request_dict.items():
-    #     print(k, v)
-    # for k, v in response_dict.items():
-    #     print(k, v)
     test_case.gen_test_case(filename)
     return request_dict, response_dict
 

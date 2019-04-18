@@ -43,7 +43,7 @@ class Type:
             self._type_cpp = 'std::string'
             self._type_graphql = 'String'
         elif _type == 'int':
-            self._type_go = 'int'
+            self._type_go = 'int32'
             self._type_cpp = 'int'
             self._type_graphql = 'Int'
         elif _type == 'float':
@@ -86,7 +86,6 @@ class Field:
         self.__name = name
         self.__type = _type
         self.__base_type = base_type
-        # print("necessary:", name, is_necessary)
         self.__is_necessary = is_necessary
         self.__comment = comment
 
