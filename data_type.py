@@ -178,6 +178,8 @@ class StructInfo:
         return self.__fields
 
     def __eq__(self, value):
+        if not value:
+            return False
         return self.__name == value.__name
 
     def __str__(self):
