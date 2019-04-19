@@ -35,7 +35,15 @@ input ${req.get_name()} {
 % for resp in resps:
 type ${resp.get_name()} {
     % for field in resp.fields():
+        % if field.is_list():
+            % if field.is_object():
+    ${field.get_name()}:[${field.get_base_type()}]
+            % else:
+    ${field.get_name()}:[${field.get_base_type()}!]!
+            % endif
+        % else:
     ${field.get_name()}:${field.get_type()._type_graphql}!
+        % endif
     % endfor
 }
 

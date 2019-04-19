@@ -39,8 +39,9 @@ def gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir, query_list
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
         resp = util.get_first_value(resp)
-        gen_resolver(resps[resp.get_name()], mako_dir, server_out_dir)
         gen_func(interface_name, req, resp, mako_dir, server_out_dir, query_list)
+    for k, v in resps.items():
+        gen_resolver(v, mako_dir, server_out_dir)
 
 
 def gen_func(interface_name, req, resp, mako_dir, server_out_dir, query_list):
@@ -83,7 +84,7 @@ def gen_resolver(resp, mako_dir, server_out_dir):
     sfile.close()
 
 
-def gen_schema(schema_out_path, req_resp_list, mako_dir, query_list):
+def gen_schema(schema_out_path, reqs, resps, req_resp_list, mako_dir, query_list):
     mako_file = mako_dir + "/schema.mako"
     print("filename", schema_out_path)
     # dirname = os.path.dirname(schema_out_path)
@@ -93,15 +94,13 @@ def gen_schema(schema_out_path, req_resp_list, mako_dir, query_list):
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(schema_out_path + '/schema.go', "w")
     r_p_list = []
-    reqs = []
-    resps = []
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
-        reqs.append(req)
         resp = util.get_first_value(resp)
-        resps.append(resp)
         r_p_list.append([interface_name, req, resp])
 
+    reqs = list(reqs.values())
+    resps = list(resps.values())
     reqs = util.stable_unique(reqs)
     resps = util.stable_unique(resps)
 
@@ -154,4 +153,4 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, s
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir, query_list)
-        gen_schema(schema_out_path, req_resp_list, mako_dir, query_list)
+        gen_schema(schema_out_path, reqs, resps, req_resp_list, mako_dir, query_list)

@@ -65,7 +65,12 @@ class Type:
         return self._type
 
     def is_object(self):
-        return self._type == 'object'
+        if self._type == 'object':
+            return True
+        elif self._type == 'list':
+            if self._specified_type in ['string', 'int', 'float', 'double', 'bool']:
+                return True
+        return False
 
     def is_string(self):
         return self._type == 'string'
@@ -148,7 +153,7 @@ def get_key_attr(name, value):
     _type = get_type(field_name, value, specified_type)
     base_type = get_base_type(field_name, value, specified_type)
 
-    field_name = field_name.lower()
+    # field_name = field_name.lower()
     return field_name, necessary, comment, _type, base_type
 
 
