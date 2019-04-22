@@ -30,6 +30,7 @@ def check_file(filename):
 
 
 def readjson(filename):
+    print("json file:", filename)
     json_str = open(filename).read()
     j = json.loads(json_str, object_pairs_hook=OrderedDict)
     return j

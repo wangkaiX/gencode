@@ -8,8 +8,7 @@ import os
 
 if __name__ == '__main__':
     env = os.environ
-    pro = env['PRONAME'] + "/"
-    config_dir = pro + "interface"
+    config_dir = "cmd"
     gen_code.gen_code(
             config_dir=config_dir,
             filenames=[x for x in glob.glob(config_dir + "/*.json") if x not in glob.glob(config_dir + "/*_test.json")],
@@ -21,5 +20,5 @@ if __name__ == '__main__':
             server=True,
             client=None,
             code_type='go',
-            query_list=['create_crontab_job'],
+            query_list=['getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
             )
