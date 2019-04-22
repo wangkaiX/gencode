@@ -46,6 +46,7 @@ def gen_define(st, mako_dir, defines_out_dir, is_response=False):
             "st": st,
             "gen_title_name": util.gen_title_name,
             "is_response": is_response,
+            "to_underline": util.to_underline,
           }
     mako_file = mako_dir + "/defines.mako"
     util.check_file(mako_file)

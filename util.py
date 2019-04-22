@@ -7,6 +7,23 @@ import data_type
 import json
 import os
 from collections import OrderedDict
+import re
+# import pdb
+
+
+def to_underline(name):
+    pos_underline = name.find('_')
+    if -1 == pos_underline:
+        pos = re.search('[A-Z]', name)
+        if pos:
+            pos = pos.start()
+        # pdb.set_trace()
+        while pos:
+            name = name[0:pos].lower() + '_' + name[pos:].lower()
+            pos = re.search('[A-Z]', name)
+            if pos:
+                pos = pos.start()
+    return name
 
 
 def get_first_value(m):
