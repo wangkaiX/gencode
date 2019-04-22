@@ -14,7 +14,7 @@ if __name__ == '__main__':
             filenames=[x for x in glob.glob(config_dir + "/*.json") if x not in glob.glob(config_dir + "/*_test.json")],
             mako_dir="go/graphql/mako",
             defines_out_dir="example/define",
-            server_out_dir="example/server",
+            resolver_out_dir="example/server",
             schema_out_path="example/mako",
             # client_out_file=None,
             server=True,
