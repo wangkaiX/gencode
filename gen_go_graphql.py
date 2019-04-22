@@ -8,6 +8,39 @@ import util
 from read_config import gen_request_response
 
 
+def get_resolver_type(_type):
+    return _type + "Resolver"
+
+
+def get_list_type(field):
+    if field.is_list():
+        if field.is_object():
+            return "[]*" + field.get_base_type() + "Resolver"
+        else:
+            return field.get_type()._go
+
+
+def get_addr_op(field):
+    if field.is_list():
+        if field.is_object():
+            return "&"
+        else:
+            return ""
+    return ""
+
+
+def get_resolver_rettype(field):
+    if field.get_type()._type == 'time':
+        return "graphql.Time"
+    if field.is_object():
+        if field.is_list():
+            return "*[]*" + field.get_base_type() + "Resolver"
+        else:
+            return field.get_type()._go + "Resolver"
+    else:
+        return field.get_type()._go
+
+
 def gen_define(st, mako_dir, defines_out_dir, is_response=False):
     ctx = {
             "st": st,
@@ -80,6 +113,10 @@ def gen_resolver(resp, mako_dir, server_out_dir):
     sfile.write(t.render(
         resp=resp,
         gen_title_name=util.gen_title_name,
+        get_resolver_type=get_resolver_type,
+        get_list_type=get_list_type,
+        get_addr_op=get_addr_op,
+        get_resolver_rettype=get_resolver_rettype,
         ))
     sfile.close()
 

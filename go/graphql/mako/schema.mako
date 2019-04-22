@@ -22,9 +22,9 @@ enum ${enum.name()} {
 input ${req.get_name()} {
     % for field in req.fields():
         % if field.is_necessary():
-    ${field.get_name()}:${field.get_type()._type_graphql}!
+    ${field.get_name()}:${field.get_type()._graphql}!
         % else:
-    ${field.get_name()}:${field.get_type()._type_graphql}
+    ${field.get_name()}:${field.get_type()._graphql}
         % endif
     % endfor
 }
@@ -42,7 +42,7 @@ type ${resp.get_name()} {
     ${field.get_name()}:[${field.get_base_type()}!]!
             % endif
         % else:
-    ${field.get_name()}:${field.get_type()._type_graphql}!
+    ${field.get_name()}:${field.get_type()._graphql}!
         % endif
     % endfor
 }

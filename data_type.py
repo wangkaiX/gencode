@@ -8,58 +8,59 @@ from util import get_type, gen_title_name, get_base_type
 class Type:
     def __init__(self, _type, specified_type=None):
         self._type = _type
-        self._type_go = None
-        self._type_cpp = None
-        self._type_graphql = None
+        self._go = None
+        self._cpp = None
+        self._graphql = None
+        # self._graphql_resolver = None
         self._specified_type = specified_type
         if _type == 'object':
             assert specified_type
-            self._type_go = specified_type
-            self._type_cpp = specified_type
-            self._type_graphql = specified_type
+            self._go = specified_type
+            self._cpp = specified_type
+            self._graphql = specified_type
             return
         elif _type == 'list':
             assert specified_type
-            self._type_go = '[]' + specified_type._type_go
-            self._type_cpp = 'std::vector<' + specified_type._type_cpp + '>'
-            self._type_graphql = '[' + specified_type._type_graphql + ']'
+            self._go = '[]' + specified_type._go
+            self._cpp = 'std::vector<' + specified_type._cpp + '>'
+            self._graphql = '[' + specified_type._graphql + ']'
             return
 
         if specified_type:
             if specified_type == 'time':
                 self._type = specified_type
-                self._type_go = 'time.Time'
-                self._type_cpp = 'std::string'
-                self._type_graphql = 'Time'
+                self._go = 'time.Time'
+                self._cpp = 'std::string'
+                self._graphql = 'Time'
                 return
 
-            self._type_go = specified_type
-            self._type_cpp = specified_type
-            self._type_graphql = specified_type
+            self._go = specified_type
+            self._cpp = specified_type
+            self._graphql = specified_type
             return
 
         if _type == 'string':
-            self._type_go = 'string'
-            self._type_cpp = 'std::string'
-            self._type_graphql = 'String'
+            self._go = 'string'
+            self._cpp = 'std::string'
+            self._graphql = 'String'
         elif _type == 'int':
-            self._type_go = 'int32'
-            self._type_cpp = 'int'
-            self._type_graphql = 'Int'
+            self._go = 'int32'
+            self._cpp = 'int'
+            self._graphql = 'Int'
         elif _type == 'float':
-            self._type_go = 'float32'
-            self._type_cpp = 'float'
-            self._type_graphql = 'Float'
+            self._go = 'float32'
+            self._cpp = 'float'
+            self._graphql = 'Float'
         elif _type == 'double':
-            self._type_go = 'float64'
-            self._type_cpp = 'double'
-            self._type_graphql = 'Float'
+            self._go = 'float64'
+            self._cpp = 'double'
+            self._graphql = 'Float'
         elif _type == 'bool':
-            self._type_go = 'bool'
-            self._type_cpp = 'bool'
-            self._type_graphql = 'Boolean'
+            self._go = 'bool'
+            self._cpp = 'bool'
+            self._graphql = 'Boolean'
 
-    def get_type_name(self):
+    def get_name(self):
         if self.is_object():
             return self._specified_type
         return self._type
@@ -82,29 +83,39 @@ class Type:
         return self._type == 'list'
 
     def __str__(self):
-        return "type:%s\n go_type:%s\n cpp_type:%s\n graphql_type:%s\n" % (self._type, self._type_go, self._type_cpp, self._type_graphql)
+        return "type:%s\n go_type:%s\n cpp_type:%s\n graphql_type:%s\n" % (self._type, self._go, self._cpp, self._graphql)
 
 
 # 类属性
 class Field:
     def __init__(self, name, _type, base_type, is_necessary, comment):
         self.__name = name
+        # self.__resolver_name = name + "_resolver"
         self.__type = _type
         self.__base_type = base_type
         self.__is_necessary = is_necessary
         self.__comment = comment
 
     def get_base_type(self):
-        return self.__base_type.get_type_name()
+        return self.__base_type.get_name()
+
+    # def get_base_resolver_type(self):
+    #    return self.__base_type.get_name() + "Resolver"
 
     def get_name(self):
         return self.__name
+
+    def get_resolver_name(self):
+        return self.__resolver_name
 
     def get_comment(self):
         return self.__comment
 
     def get_type(self):
         return self.__type
+
+    def get_resolver_type(self):
+        return self.__type + "Resolver"
 
     def is_string(self):
         return self.__base_type.is_string()
@@ -125,7 +136,7 @@ class Field:
         return hash(self.__name)
 
     def __str__(self):
-        # return "%s %s %s %s %s %s\n" % (self.__name, self.__base_type.get_type_name())
+        # return "%s %s %s %s %s %s\n" % (self.__name, self.__base_type.get_name())
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
