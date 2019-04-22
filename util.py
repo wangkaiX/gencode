@@ -8,21 +8,21 @@ import json
 import os
 from collections import OrderedDict
 import re
-# import pdb
+import pdb
 
 
 def to_underline(name):
     pos_underline = name.find('_')
     if -1 == pos_underline:
         pos = re.search('[A-Z]', name)
-        if pos:
-            pos = pos.start()
         # pdb.set_trace()
         while pos:
-            name = name[0:pos].lower() + '_' + name[pos:].lower()
+            if pos.start() == 0:
+                name = name[0].lower() + name[1:]
+            else:
+                name = name[0:pos.start()+1].lower() + name[pos.start()+1:]
+                name = name[0:pos.start()].lower() + '_' + name[pos.start():]
             pos = re.search('[A-Z]', name)
-            if pos:
-                pos = pos.start()
     return name
 
 

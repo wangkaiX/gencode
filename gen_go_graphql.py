@@ -122,15 +122,15 @@ def gen_resolver(resp, mako_dir, resolver_out_dir):
     sfile.close()
 
 
-def gen_schema(schema_out_path, reqs, resps, req_resp_list, mako_dir, query_list):
+def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list):
     mako_file = mako_dir + "/schema.mako"
-    print("filename", schema_out_path)
-    # dirname = os.path.dirname(schema_out_path)
-    if not os.path.exists(schema_out_path):
-        os.makedirs(schema_out_path)
+    print("filename", schema_out_dir)
+    # dirname = os.path.dirname(schema_out_dir)
+    if not os.path.exists(schema_out_dir):
+        os.makedirs(schema_out_dir)
     util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding="utf8")
-    sfile = open(schema_out_path + '/schema.go', "w")
+    sfile = open(schema_out_dir + '/schema.go', "w")
     r_p_list = []
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
@@ -155,7 +155,46 @@ def gen_schema(schema_out_path, reqs, resps, req_resp_list, mako_dir, query_list
         ))
 
 
-def gen_code(config_dir, filenames, mako_dir, defines_out_dir, resolver_out_dir, schema_out_path, server=None, client=None, query_list=[]):
+def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list):
+    # import pdb; pdb.set_trace()
+    for interface_name, req, resp in req_resp_list:
+        req = util.get_first_value(req)
+        resp = util.get_first_value(resp)
+        gen_test(interface_name, req, resp, mako_dir, go_test_dir, query_list)
+
+
+def gen_test(interface_name, req, resp, mako_dir, go_test_dir, query_list):
+    if not os.path.exists(go_test_dir):
+        os.makedirs(go_test_dir)
+
+    if interface_name in query_list:
+        query_type = 'query'
+    else:
+        query_type = 'mutation'
+    filepath = go_test_dir + "/" + interface_name + "_test.go"
+
+    mako_file = mako_dir + "/test.mako"
+    util.check_file(mako_file)
+    t = Template(filename=mako_file, input_encoding="utf8")
+
+    sfile = open(filepath, "w")
+    print("test file:", filepath)
+    sfile.write(t.render(
+        class_name=gen_title_name(interface_name),
+        req=req,
+        resp=resp,
+        query_type=query_type,
+        gen_title_name=util.gen_title_name,
+        interface_name=interface_name,
+        ))
+    sfile.close()
+
+
+def gen_code(
+        config_dir, filenames, mako_dir,
+        defines_out_dir, resolver_out_dir, schema_out_dir,
+        go_test_dir,
+        server=None, client=None, query_list=[]):
     req_resp_list = []
     reqs = {}
     resps = {}
@@ -191,4 +230,5 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, resolver_out_dir,
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
-        gen_schema(schema_out_path, reqs, resps, req_resp_list, mako_dir, query_list)
+        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
+        gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)

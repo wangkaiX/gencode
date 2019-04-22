@@ -5,12 +5,9 @@ import json
 
 
 def gen_test_case(file_name):
-    # print("filename:", file_name)
     ifile = open(file_name, "r")
     json_map = json.loads(ifile.read(), encoding='utf8')
     (res, vres), (resp, vresp) = json_map.items()
-    # print(res, vres)
-    # print(resp, vresp)
     json_str = json.dumps(json_map, separators=(',', ':'), indent=4, ensure_ascii=False)
     beg = 0
     rdquote_index = json_str.find('":', beg)
@@ -22,9 +19,9 @@ def gen_test_case(file_name):
             key_end_index = rdquote_index
         json_str = json_str[:key_end_index] + json_str[rdquote_index:]
         rdquote_index = json_str.find('":', key_end_index + 2)
-    test_file_name = file_name.split('.')[0] + "_test.json"
+    index = file_name.find(".json")
+    test_file_name = file_name[:index] + "_test.json"
     test_file = open(test_file_name, "w", encoding='utf8')
-    # print(json_str)
     test_file.write(json_str)
     test_file.close()
 
