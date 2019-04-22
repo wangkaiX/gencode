@@ -17,19 +17,30 @@ enum ${enum.name()} {
 
 % endfor
 
+<%def name='getflag(field)'>
+    % if field.is_necessary():
+        <% return '!' %>
+    % endif
+</%def>
+
 % for req in reqs:
-% if req:
+    % if req:
 input ${req.get_name()} {
-    % for field in req.fields():
-        % if field.is_necessary():
-    ${field.get_name()}:${field.get_type()._graphql}!
-        % else:
-    ${field.get_name()}:${field.get_type()._graphql}
-        % endif
-    % endfor
+        % for field in req.fields():
+            % if field.is_necessary():
+                <%
+                    flag = '!'
+                %>
+            % else:
+                <%
+                    flag = ''
+                %>
+            % endif
+    ${field.get_name()}:${field.get_type()._graphql}${flag}
+        % endfor
 }
 
-% endif
+    % endif
 % endfor
 
 % for resp in resps:

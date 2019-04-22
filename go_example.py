@@ -16,7 +16,6 @@ if __name__ == '__main__':
             defines_out_dir="example/define",
             resolver_out_dir="example/server",
             schema_out_path="example/mako",
-            # client_out_file=None,
             server=True,
             client=None,
             code_type='go',
