@@ -169,12 +169,13 @@ def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list):
         gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list)
 
 
-def get_field(fields, resps):
+def get_field(fields, resps, fieldstr):
     for field in fields:
         if field.is_object():
-            return get_field(resps[field.get_type()], resps)
+            fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_base_type()].fields(), resps, fieldstr) + "\n}"
         else:
-            return util.gen_title_name(field.get_name())
+            fieldstr = fieldstr + '\t' * 3 + util.gen_title_name(field.get_name()) + "\n"
+    return fieldstr
 
 
 def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list):
@@ -246,5 +247,5 @@ def gen_code(
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
-        # gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
+        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
         gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)

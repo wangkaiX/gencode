@@ -35,7 +35,7 @@ func Test${resp.get_name()}(t *testing.T) {
     client := graphql.NewClient("http://localhost:40011/graphql")
     req := graphql.NewRequest(`${query_type} {
         ${interface_name} {
-            ${get_field(resp.fields())}
+${get_field(resp.fields(), resps, "")}
         }
     }
     `)

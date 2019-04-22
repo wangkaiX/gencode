@@ -26,4 +26,4 @@ def gen_test_case(file_name):
     test_file.close()
 
 
-gen_test_case("/home/ubuntu/service/interface/create_project.json")
+# gen_test_case("/home/ubuntu/service/interface/create_project.json")
