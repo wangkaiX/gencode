@@ -8,10 +8,10 @@ schema {
 
 scalar Time
 
-% for enum in enums:
-enum ${enum.name()} {
-    % for value, comment in enum.values:
-    ${value}  # ${comment}
+% for name, es in enums.items():
+enum ${name} {
+    % for e in es:
+    ${e}
     % endfor
 }
 

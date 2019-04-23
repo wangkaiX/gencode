@@ -10,6 +10,7 @@ from read_config import gen_request_response
 
 all_type = {}
 inputs = []
+g_enums = []
 g_package = None
 
 
@@ -70,9 +71,6 @@ def gen_define(st, mako_dir, defines_out_dir, is_response=False):
 
 
 def gen_defines(reqs, resps, mako_dir, defines_out_dir):
-    # for k, v in reqs.items():
-    #     if len(v.fields()) != 0:
-    #         gen_define(v, mako_dir, defines_out_dir)
     for k, v in all_type.items():
         if len(v.fields()) != 0:
             if k in resps.keys():
@@ -162,11 +160,11 @@ def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
             "reqs": reqs,
             "resps": resps,
             "gen_title_name": util.gen_title_name,
-            "enums": [],
             "query_list": query_list,
             "all_type": all_type,
             "inputs": inputs,
             "package": g_package,
+            "enums": g_enums,
             }
     sfile.write(t.render(
         **ctx,
@@ -257,10 +255,14 @@ def gen_code(
         config_dir, filenames, mako_dir,
         defines_out_dir, resolver_out_dir, schema_out_dir,
         go_test_dir,
+        enums,
         package=None,
         server=None, client=None, query_list=[]):
     assert package
+    assert enums
     global g_package
+    global g_enums
+    g_enums = enums
     g_package = package
     req_resp_list = []
     reqs = {}

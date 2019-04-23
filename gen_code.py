@@ -14,6 +14,7 @@ def gen_code(
         resolver_out_dir=None,
         go_test_dir=None,
         package=None,
+        enums=None,
         client_out_file=None, server=None, client=None, query_list=[]):
     config_dir = util.abs_path(config_dir)
     defines_out_dir = util.abs_path(defines_out_dir)
@@ -51,4 +52,5 @@ def gen_code(
                 query_list=query_list,
                 go_test_dir=go_test_dir,
                 package=package,
+                enums=enums,
                 )

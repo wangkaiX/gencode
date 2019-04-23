@@ -5,10 +5,10 @@ schema {
 
 scalar Time
 
-% for enum in enums:
-enum ${enum.name()} {
-    % for value, comment in enum.values:
-    ${value}  # ${comment}
+% for name, es in enums.items():
+enum ${name} {
+    % for e in es:
+    ${e}
     % endfor
 }
 
@@ -42,9 +42,9 @@ type ${t.get_name()} {
     % for field in t.fields():
         % if field.is_list():
             % if field.is_object():
-    ${field.get_name()}:[${field.get_base_type()}]
+    ${field.get_name()}:[${field.get_base_type()._graphql}]
             % else:
-    ${field.get_name()}:[${field.get_base_type()}!]!
+    ${field.get_name()}:[${field.get_base_type()._graphql}!]!
             % endif
         % else:
     ${field.get_name()}:${field.get_type()._graphql}!

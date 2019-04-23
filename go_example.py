@@ -6,6 +6,12 @@ import glob
 import os
 
 
+enums = {
+        'ENUM1': ['OPEN', 'CLOSE', 'ERR'],
+        'ENUM2': ['OPEN2', 'CLOSE2', 'ERR2'],
+        }
+
+
 if __name__ == '__main__':
     env = os.environ
     config_dir = "cmd"
@@ -22,4 +28,5 @@ if __name__ == '__main__':
             code_type='go',
             package='git.ucloudadmin.com/securityhouse/dataflow/dataviewer',
             query_list=['getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
+            enums=enums,
             )
