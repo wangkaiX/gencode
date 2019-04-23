@@ -213,7 +213,7 @@ def get_input_args(req):
     field_inputs = req.get_name()[0].lower() + req.get_name()[1:] + ":{\n"
     for field in req.fields():
         if field.is_object():
-            field_inputs = field_inputs + field.get_name \
+            field_inputs = field_inputs + field.get_name() \
                 + ":{\n" + get_input_args(all_type[field.get_base_type().get_name()]) \
                 + "\n}\n"
         else:
