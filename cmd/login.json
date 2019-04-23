@@ -1,0 +1,13 @@
+
+{
+	"loginReq": {
+		"username|Y": "zhangsan",
+		"password|Y": "Passwordmd5"
+	},
+	"loginResp": {
+		"result": "success",
+		"token": "asdfadsfw4342323432!#@$#@35",
+		"userid": "123456",
+		"username": "zhangsan"
+	}
+}

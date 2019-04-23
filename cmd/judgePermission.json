@@ -1,0 +1,19 @@
+
+{
+	"judgePermissionReq": {
+		"token|Y": "asdfadsfw4342323432!#@$#@35",
+		"userid|Y": "123456",
+		"resource|Y": {
+				"name": "url2",
+				"action":1
+			}
+	},
+	"judgePermissionResp": {
+		"resource": {
+				"name": "url2",
+				"action":1
+			},
+		"Request":"allow",
+		"userid": "123456"
+	}
+}
