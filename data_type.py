@@ -6,7 +6,7 @@ from util import get_type, gen_title_name, get_base_type
 
 
 class Type:
-    def __init__(self, _type, specified_type=None):
+    def __init__(self, _type, enums, specified_type):
         self._type = _type
         self._go = None
         self._cpp = None
@@ -26,12 +26,19 @@ class Type:
             self._graphql = '[' + specified_type._graphql + ']'
             return
 
+        print("enums:", enums)
         if specified_type:
             if specified_type == 'time':
                 self._type = specified_type
                 self._go = 'time.Time'
                 self._cpp = 'std::string'
                 self._graphql = 'Time'
+                return
+            elif specified_type in enums.keys():
+                self._type = "enum"
+                self._go = 'string'
+                self._cpp = 'std::string'
+                self._graphql = specified_type
                 return
 
             self._go = specified_type
@@ -59,6 +66,11 @@ class Type:
             self._go = 'bool'
             self._cpp = 'bool'
             self._graphql = 'Boolean'
+
+    def set_enum(self, b):
+        if b:
+            self._go = 'string'
+            self._cpp = 'std::string'
 
     def get_name(self):
         if self.is_object():
@@ -143,12 +155,12 @@ class Field:
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
-err_code = Field("error_code", Type("string"), Type("string"), "SUCCESS", True, "错误码")
-err_msg = Field("error_msg", Type("string"), Type("string"), "成功", True, "错误信息")
+err_code = Field("error_code", Type("string", [], ""), Type("string", [], ""), "SUCCESS", True, "错误码")
+err_msg = Field("error_msg", Type("string", [], ""), Type("string", [], ""), "成功", True, "错误信息")
 
 
 # 根据key, value推导类型
-def get_key_attr(name, value):
+def get_key_attr(name, value, enums):
     assert name
     finalAttrs = [None, None, None, None]
     attrs = name.split("|")
@@ -164,8 +176,8 @@ def get_key_attr(name, value):
     else:
         necessary = False
 
-    _type = get_type(field_name, value, specified_type)
-    base_type = get_base_type(field_name, value, specified_type)
+    _type = get_type(field_name, value, enums, specified_type)
+    base_type = get_base_type(field_name, value, enums, specified_type)
 
     # field_name = field_name.lower()
     return field_name, necessary, comment, _type, base_type
@@ -179,8 +191,8 @@ class StructInfo:
         self.__type = gen_title_name(name)
         self.__is_req = False
 
-    def add_attribute(self, name, value):
-        field_name, necessary, comment, _type, base_type = get_key_attr(name, value)
+    def add_attribute(self, name, value, enums):
+        field_name, necessary, comment, _type, base_type = get_key_attr(name, value, enums)
         field = Field(field_name, _type, base_type, value, necessary, comment)
         self.add_field(field)
 

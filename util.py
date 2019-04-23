@@ -8,7 +8,7 @@ import json
 import os
 from collections import OrderedDict
 import re
-import pdb
+# import pdb
 
 
 def to_underline(name):
@@ -84,61 +84,61 @@ def get_type_name(type_name, specified_type):
     return gen_title_name(type_name)
 
 
-def make_type(type_name, specified_type):
-    return data_type.Type(type_name, specified_type)
+def make_type(type_name, enums, specified_type):
+    return data_type.Type(type_name, enums, specified_type)
 
 
 # 查找最后一级的类型名
-def get_base_type(field_name, field_value, specified_type=None):
+def get_base_type(field_name, field_value, enums, specified_type):
     type_obj = type(field_value)
     if type_obj == float:
-        return make_type("double", specified_type)
+        return make_type("double", enums, specified_type)
     elif type_obj == str:
-        return make_type("string", specified_type)
+        return make_type("string", enums, specified_type)
     elif type_obj == int:
-        return make_type("int", specified_type)
+        return make_type("int", enums, specified_type)
     elif type_obj == bool:
-        return make_type("bool", specified_type)
+        return make_type("bool", enums, specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type('object', get_type_name(field_name, specified_type))
+        return make_type('object', enums, get_type_name(field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_base_type(field_name, field_value[0], specified_type)
+            return get_base_type(field_name, field_value[0], enums, specified_type)
         else:
-            return make_type('object', get_type_name(field_name, specified_type))
+            return make_type('object', enums, get_type_name(field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
 
 
-def get_recursive_type(field_name, field_value, specified_type):
+def get_recursive_type(field_name, field_value, enums, specified_type):
     type_obj = type(field_value)
     if type_obj == float:
-        return make_type("double", specified_type)
+        return make_type("double", enums, specified_type)
     elif type_obj == str:
-        return make_type("string", specified_type)
+        return make_type("string", enums, specified_type)
     elif type_obj == int:
-        return make_type("int", specified_type)
+        return make_type("int", enums, specified_type)
     elif type_obj == bool:
-        return make_type("bool", specified_type)
+        return make_type("bool", enums, specified_type)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type('object', get_type_name(field_name, specified_type))
+        return make_type('object', enums, get_type_name(field_name, specified_type))
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_type(field_name, field_value[0], specified_type)
+            return get_type(field_name, field_value[0], enums, specified_type)
         else:
-            return make_type('object', get_type_name(field_name, specified_type))
+            return make_type('object', enums, get_type_name(field_name, specified_type))
     else:
         print("未知类型:", type_obj)
         assert False
 
 
 # 根据字段名和字段的值返回字段的类型
-def get_type(field_name, field_value, specified_type):
+def get_type(field_name, field_value, enums, specified_type):
     type_obj = type(field_value)
     if type_obj == list:
-        _type = get_recursive_type(field_name, field_value, specified_type)
+        _type = get_recursive_type(field_name, field_value, enums, specified_type)
         # print(_type)
-        return data_type.Type('list', _type)
+        return data_type.Type('list', enums, _type)
     else:
-        return get_recursive_type(field_name, field_value, specified_type)
+        return get_recursive_type(field_name, field_value, enums, specified_type)

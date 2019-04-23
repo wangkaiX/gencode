@@ -280,7 +280,7 @@ def gen_code(
         # test_case.gen_test_case(filename)
         basename = os.path.basename(filename)
         interface_name = basename.split(".")[0]
-        req, resp = gen_request_response(filename)
+        req, resp = gen_request_response(filename, enums)
         req_resp_list.append([interface_name, req, resp])
         keys = list(req.keys())
         if len(keys) != 0:
