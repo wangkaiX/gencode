@@ -83,24 +83,28 @@ class Type:
         return self._type == 'list'
 
     def __str__(self):
-        return "type:%s\n go_type:%s\n cpp_type:%s\n graphql_type:%s\n" % (self._type, self._go, self._cpp, self._graphql)
+        return "type:%s go_type:%s cpp_type:%s graphql_type:%s\n" % (self._type, self._go, self._cpp, self._graphql)
 
 
 # 类属性
 class Field:
-    def __init__(self, name, _type, base_type, is_necessary, comment):
+    def __init__(self, name, _type, base_type, value, is_necessary, comment):
         self.__name = name
         # self.__resolver_name = name + "_resolver"
         self.__type = _type
+        self.__value = value
         self.__base_type = base_type
         self.__is_necessary = is_necessary
         self.__comment = comment
 
     def get_base_type(self):
-        return self.__base_type.get_name()
+        return self.__base_type
 
     # def get_base_resolver_type(self):
     #    return self.__base_type.get_name() + "Resolver"
+
+    def get_value(self):
+        return self.__value
 
     def get_name(self):
         return self.__name
@@ -136,12 +140,11 @@ class Field:
         return hash(self.__name)
 
     def __str__(self):
-        # return "%s %s %s %s %s %s\n" % (self.__name, self.__base_type.get_name())
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
-err_code = Field("error_code", Type("string"), Type("string"), True, "错误码")
-err_msg = Field("error_msg", Type("string"), Type("string"), True, "错误信息")
+err_code = Field("error_code", Type("string"), Type("string"), "SUCCESS", True, "错误码")
+err_msg = Field("error_msg", Type("string"), Type("string"), "成功", True, "错误信息")
 
 
 # 根据key, value推导类型
@@ -174,15 +177,25 @@ class StructInfo:
         self.__name = name
         self.__member_classs = []
         self.__type = gen_title_name(name)
+        self.__is_req = False
 
     def add_attribute(self, name, value):
         field_name, necessary, comment, _type, base_type = get_key_attr(name, value)
-        field = Field(field_name, _type, base_type, necessary, comment)
+        field = Field(field_name, _type, base_type, value, necessary, comment)
         self.add_field(field)
 
     def add_field(self, field):
         if field not in self.__fields:
             self.__fields.append(field)
+
+    def set_request(self, b):
+        self.__is_req = b
+
+    def is_request(self):
+        if self.__is_req is None:
+            print("未设置对象属于")
+            assert False
+        return self.__is_req
 
     def get_name(self):
         return self.__name

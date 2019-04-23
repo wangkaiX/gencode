@@ -1,6 +1,6 @@
 package resolver
 
-import "git.ucloudadmin.com/securehouse/dataflow/dataviewer/app/define"
+import "${package}/app/define"
 % for field in resp.fields():
     % if 'time' == field.get_type()._type:
 import graphql "github.com/graph-gophers/graphql-go"

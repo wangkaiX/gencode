@@ -7,35 +7,23 @@ import (
 
     "context"
 
-    "git.ucloudadmin.com/securehouse/dataflow/dataviewer/app/define"
+    "${package}/app/define"
     "github.com/machinebox/graphql"
 )
 
 type ${resp.get_name()}Struct struct {
-    ${resp.get_name()} define.${resp.get_type()}
+    ${gen_title_name(interface_name)} define.${resp.get_type()}
 }
-
-##<%def name='get_field(fields)'>
-##    % for field in fields:
-##        % if field.is_object():
-##            // 对象
-##            ${field.get_name()}{
-##                <% return get_field(resps[field.get_type()].fields()) %>
-##            }
-##        % elif field.is_list():
-##            <% pass %>
-##        % else:
-##            // 不是对象
-##            ${gen_title_name(field.get_name())}
-##        % endif
-##    % endfor
-##</%def>
 
 func Test${resp.get_name()}(t *testing.T) {
     client := graphql.NewClient("http://localhost:40011/graphql")
     req := graphql.NewRequest(`${query_type} {
-        ${interface_name} {
-${get_field(resp.fields(), resps, "")}
+% if input_args == "":
+    ${interface_name}() {
+% else:
+    ${interface_name}(${input_args}) {
+% endif
+${get_field(resp.fields(), resps)}
         }
     }
     `)
@@ -46,6 +34,7 @@ ${get_field(resp.fields(), resps, "")}
         log.Fatal(err)
     }   
 % for field in resp.fields():
-    fmt.Println(respData.${resp.get_name()}.${gen_title_name(field.get_name())})
+    fmt.Println(respData.${gen_title_name(interface_name)}.${gen_title_name(field.get_name())})
 % endfor
+    fmt.Println("***********************************************************************************")
 }

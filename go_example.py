@@ -20,5 +20,6 @@ if __name__ == '__main__':
             server=True,
             client=None,
             code_type='go',
+            package='git.ucloudadmin.com/securityhouse/dataflow/dataviewer',
             query_list=['getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
             )

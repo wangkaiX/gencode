@@ -23,10 +23,10 @@ enum ${enum.name()} {
     % endif
 </%def>
 
-% for req in reqs:
-    % if req:
-input ${req.get_name()} {
-        % for field in req.fields():
+% for k, t in all_type.items():
+    % if k in inputs:
+input ${t.get_name()} {
+        % for field in t.fields():
             % if field.is_necessary():
                 <%
                     flag = '!'
@@ -40,17 +40,14 @@ input ${req.get_name()} {
         % endfor
 }
 
-    % endif
-% endfor
-
-% for resp in resps:
-type ${resp.get_name()} {
-    % for field in resp.fields():
+    % else:
+type ${t.get_name()} {
+    % for field in t.fields():
         % if field.is_list():
             % if field.is_object():
-    ${field.get_name()}:[${field.get_base_type()}]
+    ${field.get_name()}:[${field.get_base_type()._graphql}]
             % else:
-    ${field.get_name()}:[${field.get_base_type()}!]!
+    ${field.get_name()}:[${field.get_base_type()._graphql}!]!
             % endif
         % else:
     ${field.get_name()}:${field.get_type()._graphql}!
@@ -58,7 +55,11 @@ type ${resp.get_name()} {
     % endfor
 }
 
+    % endif
 % endfor
+
+
+
 
 type Query {
 % for interface_name, req, resp in services:

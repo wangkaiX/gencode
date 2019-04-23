@@ -1,6 +1,6 @@
 package resolver
 
-import "git.ucloudadmin.com/securehouse/dataflow/dataviewer/app/define"
+import "${package}/app/define"
 import "context"
 
 % if req:

@@ -8,14 +8,21 @@ import util
 from read_config import gen_request_response
 
 
+all_type = {}
+inputs = []
+g_package = None
+
+
 def get_resolver_type(_type):
-    return _type + "Resolver"
+    if type(_type) == str:
+        return _type + "Resolver"
+    return _type.get_name() + "Resolver"
 
 
 def get_list_type(field):
     if field.is_list():
         if field.is_object():
-            return "[]*" + field.get_base_type() + "Resolver"
+            return "[]*" + field.get_base_type().get_name() + "Resolver"
         else:
             return field.get_type()._go
 
@@ -34,7 +41,7 @@ def get_resolver_rettype(field):
         return "graphql.Time"
     if field.is_object():
         if field.is_list():
-            return "*[]*" + field.get_base_type() + "Resolver"
+            return "*[]*" + field.get_base_type().get_name() + "Resolver"
         else:
             return field.get_type()._go + "Resolver"
     else:
@@ -47,6 +54,7 @@ def gen_define(st, mako_dir, defines_out_dir, is_response=False):
             "gen_title_name": util.gen_title_name,
             "is_response": is_response,
             "to_underline": util.to_underline,
+            "package": g_package,
           }
     mako_file = mako_dir + "/defines.mako"
     util.check_file(mako_file)
@@ -62,11 +70,16 @@ def gen_define(st, mako_dir, defines_out_dir, is_response=False):
 
 
 def gen_defines(reqs, resps, mako_dir, defines_out_dir):
-    for k, v in reqs.items():
+    # for k, v in reqs.items():
+    #     if len(v.fields()) != 0:
+    #         gen_define(v, mako_dir, defines_out_dir)
+    for k, v in all_type.items():
         if len(v.fields()) != 0:
-            gen_define(v, mako_dir, defines_out_dir)
-    for k, v in resps.items():
-        gen_define(v, mako_dir, defines_out_dir, is_response=True)
+            if k in resps.keys():
+                is_response = True
+            else:
+                is_response = False
+            gen_define(v, mako_dir, defines_out_dir, is_response)
 
 
 def gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list):
@@ -99,6 +112,7 @@ def gen_func(interface_name, req, resp, mako_dir, resolver_out_dir, query_list):
         class_name=gen_title_name(interface_name),
         req=req,
         resp=resp,
+        package=g_package,
         ))
     sfile.close()
 
@@ -118,13 +132,13 @@ def gen_resolver(resp, mako_dir, resolver_out_dir):
         get_list_type=get_list_type,
         get_addr_op=get_addr_op,
         get_resolver_rettype=get_resolver_rettype,
+        package=g_package,
         ))
     sfile.close()
 
 
 def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list):
     mako_file = mako_dir + "/schema.mako"
-    schema_mako_file = mako_dir + "/schema_graphql.mako"
     print("filename", schema_out_dir)
     # dirname = os.path.dirname(schema_out_dir)
     if not os.path.exists(schema_out_dir):
@@ -132,17 +146,16 @@ def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
     util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(schema_out_dir + '/schema.go', "w")
-    schemafile = open(schema_out_dir + '/schema.graphql', "w")
     r_p_list = []
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
         resp = util.get_first_value(resp)
         r_p_list.append([interface_name, req, resp])
 
-    reqs = list(reqs.values())
-    resps = list(resps.values())
-    reqs = util.stable_unique(reqs)
-    resps = util.stable_unique(resps)
+    # reqs = list(reqs.values())
+    # resps = list(resps.values())
+    # reqs = util.stable_unique(reqs)
+    # resps = util.stable_unique(resps)
 
     ctx = {
             "services": r_p_list,
@@ -151,10 +164,16 @@ def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
             "gen_title_name": util.gen_title_name,
             "enums": [],
             "query_list": query_list,
+            "all_type": all_type,
+            "inputs": inputs,
+            "package": g_package,
             }
     sfile.write(t.render(
         **ctx,
         ))
+
+    schemafile = open(schema_out_dir + '/schema.graphql', "w")
+    schema_mako_file = mako_dir + "/schema_graphql.mako"
     tschema = Template(filename=schema_mako_file, input_encoding="utf8")
     schemafile.write(tschema.render(
         **ctx,
@@ -169,13 +188,38 @@ def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list):
         gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list)
 
 
-def get_field(fields, resps, fieldstr):
+def get_field(fields, resps):
+    fieldstr = ""
     for field in fields:
+        # import pdb; pdb.set_trace()
         if field.is_object():
-            fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_base_type()].fields(), resps, fieldstr) + "\n}"
+            fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_base_type().get_name()].fields(), resps) + "\n}\n"
         else:
-            fieldstr = fieldstr + '\t' * 3 + util.gen_title_name(field.get_name()) + "\n"
+            fieldstr = fieldstr + '\t' * 3 + field.get_name() + "\n"
     return fieldstr
+
+
+def get_value(field):
+    if field.get_base_type()._type in ["int", "float", "double", "bool"]:
+        return str(field.get_value())
+    return '"' + str(field.get_value()) + '"'
+
+
+def get_input_args(req):
+    if req is None:
+        return ""
+    field_inputs = ""
+    # import pdb; pdb.set_trace()
+    field_inputs = req.get_name()[0].lower() + req.get_name()[1:] + ":{\n"
+    for field in req.fields():
+        if field.is_object():
+            field_inputs = field_inputs + field.get_name \
+                + ":{\n" + get_input_args(all_type[field.get_base_type().get_name()]) \
+                + "\n}\n"
+        else:
+            field_inputs = field_inputs + '\t' * 3 + field.get_name() + ":" + get_value(field) + ",\n"
+    field_inputs = field_inputs + "\n}\n"
+    return field_inputs
 
 
 def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list):
@@ -203,6 +247,8 @@ def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list
         gen_title_name=util.gen_title_name,
         interface_name=interface_name,
         get_field=get_field,
+        input_args=get_input_args(req),
+        package=g_package,
         ))
     sfile.close()
 
@@ -211,7 +257,11 @@ def gen_code(
         config_dir, filenames, mako_dir,
         defines_out_dir, resolver_out_dir, schema_out_dir,
         go_test_dir,
+        package=None,
         server=None, client=None, query_list=[]):
+    assert package
+    global g_package
+    g_package = package
     req_resp_list = []
     reqs = {}
     resps = {}
@@ -230,17 +280,26 @@ def gen_code(
         interface_name = basename.split(".")[0]
         req, resp = gen_request_response(filename)
         req_resp_list.append([interface_name, req, resp])
+        keys = list(req.keys())
+        if len(keys) != 0:
+            inputs.append(keys[0])
         for k, v in req.items():
             util.add_struct(reqs, k)
+            util.add_struct(all_type, k)
             for field in v.fields():
                 reqs[k].add_field(field)
+                all_type[k].add_field(field)
 
         for k, v in resp.items():
             util.add_struct(resps, k)
+            util.add_struct(all_type, k)
             for field in v.fields():
                 resps[k].add_field(field)
+                all_type[k].add_field(field)
             resps[k].add_field(err_code)
             resps[k].add_field(err_msg)
+            all_type[k].add_field(err_code)
+            all_type[k].add_field(err_msg)
 
     # 生成.h文件
     gen_defines(reqs, resps, mako_dir, defines_out_dir)
