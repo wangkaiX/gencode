@@ -251,6 +251,24 @@ def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list
     sfile.close()
 
 
+def gen_enums(mako_dir, defines_out_dir, enums):
+    if not os.path.exists(mako_dir):
+        print(mako_dir, "not exists")
+        assert False
+    if not os.path.exists(defines_out_dir):
+        os.makedirs(defines_out_dir)
+
+    filepath = defines_out_dir + "/" + "vars_gen.go"
+    mako_file = mako_dir + "/enum.mako"
+    t = Template(filename=mako_file, input_encoding="utf8")
+    sfile = open(filepath, "w")
+    sfile.write(t.render(
+        enums=enums,
+        ))
+
+    sfile.close()
+
+
 def gen_code(
         config_dir, filenames, mako_dir,
         defines_out_dir, resolver_out_dir, schema_out_dir,
@@ -298,13 +316,14 @@ def gen_code(
             for field in v.fields():
                 resps[k].add_field(field)
                 all_type[k].add_field(field)
-            resps[k].add_field(err_code)
-            resps[k].add_field(err_msg)
-            all_type[k].add_field(err_code)
-            all_type[k].add_field(err_msg)
+            # resps[k].add_field(err_code)
+            # resps[k].add_field(err_msg)
+            # all_type[k].add_field(err_code)
+            # all_type[k].add_field(err_msg)
 
     # 生成.h文件
     gen_defines(reqs, resps, mako_dir, defines_out_dir)
+    gen_enums(mako_dir, defines_out_dir, enums)
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
