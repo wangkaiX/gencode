@@ -14,10 +14,10 @@ enums = {
 
 if __name__ == '__main__':
     env = os.environ
-    config_dir = "cmd"
+    api_dir = "cmd"
     gen_code.gen_code(
-            config_dir=config_dir,
-            filenames=[x for x in glob.glob(config_dir + "/*.json") if x not in glob.glob(config_dir + "/*_test.json")],
+            api_dir=api_dir,
+            filenames=[x for x in glob.glob(api_dir + "/*.json") if x not in glob.glob(api_dir + "/*_test.json")],
             mako_dir="go/graphql/mako",
             defines_out_dir="example/define",
             resolver_out_dir="example/server",

@@ -12,7 +12,7 @@ def gen_header(struct_info, mako_dir, defines_out_dir):
     include_files = []
     for field in struct_info.fields():
         if field.is_object():
-            include_files.append("interface/" + field.get_base_type() + ".h")
+            include_files.append("interface/" + field.get_base_type()._cpp + ".h")
         if field.is_list():
             include_files.append("vector")
         if field.is_string():
@@ -99,14 +99,15 @@ def gen_client(filename, req_resp_list, mako_dir):
         ))
 
 
-def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, client_out_file, server=None, client=None):
+def gen_code(api_dir, filenames, mako_dir, defines_out_dir, server_out_dir, client_out_file, enums, server=None, client=None):
+    assert enums is not None
     req_resp_list = []
     reqs = {}
     resps = {}
 
     #
     mako_dir = os.path.abspath(mako_dir)
-    config_dir = os.path.abspath(config_dir)
+    api_dir = os.path.abspath(api_dir)
     defines_out_dir = os.path.abspath(defines_out_dir)
     server_out_dir = os.path.abspath(server_out_dir)
 
@@ -118,7 +119,7 @@ def gen_code(config_dir, filenames, mako_dir, defines_out_dir, server_out_dir, c
         # test_case.gen_test_case(filename)
         basename = os.path.basename(filename)
         interface_name = basename.split(".")[0]
-        req, resp = gen_request_response(filename)
+        req, resp = gen_request_response(filename, enums)
         req_resp_list.append([interface_name, req, resp])
         for k, v in req.items():
             util.add_struct(reqs, k)

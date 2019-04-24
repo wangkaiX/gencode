@@ -2,16 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import os
-from data_type import err_code, err_msg, gen_title_name
+from data_type import gen_title_name
 from mako.template import Template
 import util
 from read_config import gen_request_response
+import json
 
 
 all_type = {}
 inputs = []
 g_enums = []
 g_package = None
+g_api_dir = None
 
 
 def get_resolver_type(_type):
@@ -203,21 +205,33 @@ def get_value(field):
     return '"' + str(field.get_value()) + '"'
 
 
-def get_input_args(req):
-    if req is None:
-        return ""
-    field_inputs = ""
-    # import pdb; pdb.set_trace()
-    field_inputs = req.get_name()[0].lower() + req.get_name()[1:] + ":{\n"
-    for field in req.fields():
-        if field.is_object():
-            field_inputs = field_inputs + field.get_name() \
-                + ":{\n" + get_input_args(all_type[field.get_base_type().get_name()]) \
-                + "\n}\n"
+def remove_quotes(json_str):
+    json_str = str(json_str)
+    lines = ""
+    for line in json_str.splitlines(True):
+        index = line.find(":")
+        if -1 == index:
+            pass
         else:
-            field_inputs = field_inputs + '\t' * 3 + field.get_name() + ":" + get_value(field) + ",\n"
-    field_inputs = field_inputs + "\n}\n"
-    return field_inputs
+            line = line.replace('"', '', 2)
+        lines = lines + line
+    print("lines:", lines[1:-1])
+    return lines[1:-1]
+
+
+def get_input_args(interface_name):
+    if not os.path.exists(g_api_dir):
+        print(g_api_dir, "not exists")
+        assert False
+    print("api_dir:", g_api_dir)
+    jmap = util.readjson("%s/%s_test.json" % (g_api_dir, interface_name))
+    # 只保留请求
+    del jmap[list(jmap.keys())[1]]
+    if not jmap[list(jmap.keys())[0]]:
+        return ""
+    json_str = json.dumps(jmap, separators=(',', ':'), indent=4, ensure_ascii=False)
+    # 去除key的 "
+    return remove_quotes(json_str)
 
 
 def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list):
@@ -245,7 +259,7 @@ def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list
         gen_title_name=util.gen_title_name,
         interface_name=interface_name,
         get_field=get_field,
-        input_args=get_input_args(req),
+        input_args=get_input_args(interface_name),
         package=g_package,
         ))
     sfile.close()
@@ -270,7 +284,7 @@ def gen_enums(mako_dir, defines_out_dir, enums):
 
 
 def gen_code(
-        config_dir, filenames, mako_dir,
+        api_dir, filenames, mako_dir,
         defines_out_dir, resolver_out_dir, schema_out_dir,
         go_test_dir,
         enums,
@@ -278,8 +292,11 @@ def gen_code(
         server=None, client=None, query_list=[]):
     assert package
     assert enums
+    assert api_dir
     global g_package
     global g_enums
+    global g_api_dir
+    g_api_dir = api_dir
     g_enums = enums
     g_package = package
     req_resp_list = []
@@ -288,7 +305,7 @@ def gen_code(
 
     #
     mako_dir = os.path.abspath(mako_dir)
-    config_dir = os.path.abspath(config_dir)
+    api_dir = os.path.abspath(api_dir)
     defines_out_dir = os.path.abspath(defines_out_dir)
     resolver_out_dir = os.path.abspath(resolver_out_dir)
 
@@ -327,5 +344,5 @@ def gen_code(
     if server:
         # 生成服务端接口实现文件
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
-        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
         gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
+        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
