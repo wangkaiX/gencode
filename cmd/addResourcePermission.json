@@ -1,6 +1,7 @@
 
 {
 	"addResourcePermissionReq": {
+        "testbool":true,
         "testEnum|||ENUM1":"OPEN",
 		"token|Y": "asdfadsfw4342323432!#@$#@35",
 		"userid|Y": "123456",

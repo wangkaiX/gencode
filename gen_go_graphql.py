@@ -36,6 +36,8 @@ def get_addr_op(field):
             return "&"
         else:
             return ""
+    if field.is_object():
+        return "&"
     return ""
 
 

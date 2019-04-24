@@ -3,7 +3,7 @@ package resolver
 import "${package}/app/define"
 import "context"
 
-% if req:
+% if req.fields():
 func (r *Resolver)${class_name}(ctx context.Context, args struct{
     ${req.get_type()} *define.${req.get_type()}
 })(*${resp.get_type()}Resolver, error) {

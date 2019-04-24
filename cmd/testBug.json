@@ -1,0 +1,13 @@
+{
+    "testReq":{},
+    "testResp":{
+        "obj1":{
+            "str1":"str",
+            "obj2":{
+                "a":10,
+                "b":"str",
+                "c":"str2"
+            }
+        }
+    }
+}
