@@ -21,11 +21,13 @@ func (r *${get_resolver_type(resp.get_type())}) ${gen_title_name(field.get_name(
         ${field.get_name()}Resolver = append(${field.get_name()}Resolver, ${get_addr_op(field)}t)
     }
     return ${get_addr_op(field)}${field.get_name()}Resolver
+    % elif field.is_object():
+func (r *${get_resolver_type(resp.get_type())}) ${gen_title_name(field.get_name())}() *${get_resolver_rettype(field)} {
+    return &${get_resolver_rettype(field)}{${get_addr_op(field)}r.r.${gen_title_name(field.get_name())}}
     % else:
 func (r *${get_resolver_type(resp.get_type())}) ${gen_title_name(field.get_name())}() ${get_resolver_rettype(field)} {
-        % if field.is_object() or field.get_type()._type == 'time':
+        % if field.get_type()._type == 'time':
     return ${get_resolver_rettype(field)}{${get_addr_op(field)}r.r.${gen_title_name(field.get_name())}}
-        % elif field.get_type()._type == 'time':
         % else:
     return r.r.${gen_title_name(field.get_name())}
         % endif

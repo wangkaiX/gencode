@@ -1,0 +1,10 @@
+{
+	"actionDataReleaseReq": {
+		"releaseID|Y": "rel00002",
+		"releaseStatusEnum|||ReleaseStatusEnum": "RELEASE"
+	},
+	"commonResp": {
+		"code": 100012,
+		"msg": "success"
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"createDataResouceReq": {
+		"resouceName|Y": "文件测试",
+		"mainType|Y": "结构化数据",
+		"subType|Y": "mysql",
+		"connInfo|Y": "这里是一个json字符串，注意转移符",
+		"description": "一个数据源"
+	},
+	"commonResp": {
+		"code": 100012,
+		"msg": "success"
+	}
+}

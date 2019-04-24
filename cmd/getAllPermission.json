@@ -6,7 +6,7 @@
 		"userid|Y": "123456"	
 	},
 	"getAllPermissionResp": {
-		"resource": [{
+		"resourceResp": [{
 				"name": "url1",
 				"action":1
 			},	

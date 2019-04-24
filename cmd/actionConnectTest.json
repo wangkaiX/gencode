@@ -1,0 +1,15 @@
+{
+	"actionConnTestReq": {
+		"resouceName|Y": "文件测试",
+		"subType|Y": "mysql",
+		"connInfo|Y": "这里是一个json字符串，注意转移符"
+	},
+	"actionConnTestResp": {
+		"code": 100012,
+		"msg": "success",
+		"connTestRespData": {
+			"connStatusEnum|||ConnectStatusEnum": "SUCCESS",
+			"connStatusDescription": "connect successfully"
+		}
+	}
+}

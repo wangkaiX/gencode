@@ -24,6 +24,7 @@ enum ${name} {
 </%def>
 
 % for k, t in all_type.items():
+% if t.fields():
     % if k in inputs:
 input ${t.get_name()} {
         % for field in t.fields():
@@ -56,6 +57,7 @@ type ${t.get_name()} {
 }
 
     % endif
+% endif
 % endfor
 
 
@@ -64,7 +66,7 @@ type ${t.get_name()} {
 type Query {
 % for interface_name, req, resp in services:
     % if interface_name in query_list:
-        % if req:
+        % if req.fields():
     ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
     ${interface_name}():${resp.get_name()}
@@ -77,7 +79,7 @@ type Query {
 type Mutation{
 % for interface_name, req, resp in services:
     % if interface_name not in query_list:
-        % if req:
+        % if req.fields():
     ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
     ${interface_name}():${resp.get_name()}

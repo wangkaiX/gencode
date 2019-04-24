@@ -1,0 +1,34 @@
+{
+	"queryDataReleaseDetailReq": {
+		"releaseID|Y": "rel00002"
+	},
+	"queryDataReleaseDetailResp": {
+		"code": 100012,
+		"msg": "success",
+		"dataReleaseRespDetailData": [{
+			"releaseID": "rel00002",
+			"tableID": "tbl00003",
+			"tableName": "country",
+			"tableAliasName": "中国城市表",
+			"fieldList|||FieldResp": [{
+				"fieldID": 123,
+				"fieldName": "city"
+			}],
+			"fieldSelectedList|||FieldResp": [{
+				"fieldID": 123
+			}],
+			"releasePolicyResp": [{
+				"policyID": 12312,
+				"policyName": "我是策略",
+				"roleID": 1231,
+				"roleName": "角色名称",
+				"policyRuleResp": [{
+					"fieldID": 123,
+					"fieldName": "city",
+					"plicyRuleEnum|||PlicyRuleEnum": "RULETYPERANGE",
+					"fieldController": "121212,1211221"
+				}]
+			}]
+		}]
+	}
+}

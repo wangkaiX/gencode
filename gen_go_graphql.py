@@ -320,14 +320,15 @@ def gen_code(
         req, resp = gen_request_response(filename, enums)
         req_resp_list.append([interface_name, req, resp])
         keys = list(req.keys())
-        if len(keys) != 0:
-            inputs.append(keys[0])
+        # if len(keys) != 0:
+        #     inputs.append(keys[0])
         for k, v in req.items():
             util.add_struct(reqs, k)
             util.add_struct(all_type, k)
             for field in v.fields():
                 reqs[k].add_field(field)
                 all_type[k].add_field(field)
+            inputs.append(k)
 
         for k, v in resp.items():
             util.add_struct(resps, k)

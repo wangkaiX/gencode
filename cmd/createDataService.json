@@ -1,0 +1,26 @@
+{
+	"createDataServiceReq": {
+		"resouceID|Y": "drid00001",
+		"tableName|Y": "country",
+		"tableAliasName|Y": "中国城市表",
+		"partition|Y": true,
+		"description": "怎么办，我是一个数据服务。",
+		"coverage|Y": "中国",
+		"rowCount|Y": 1000,
+		"rowUnit|Y": "百万条",
+		"updatePeriodEnum|Y||UpdatePeriodEnum": "UNKOWN",
+		"fieldList|Y||Field": [{
+			"fieldID|Y": 123,
+			"fieldName|Y": "city",
+			"fieldType|Y": "bigint",
+			"fieldLength|Y": 10,
+			"partition|Y": false,
+			"description": "我是一个字段"
+		}],
+		"sampleData": "select * from table"
+	},
+	"commonResp": {
+		"code": 100012,
+		"msg": "success"
+	}
+}

@@ -9,7 +9,7 @@
 		]
 	},
 	"queryResourcePermissionResp": {
-		"resource": [{
+		"resourceResp": [{
 				"name": "url1",
 				"action":1
 			},	

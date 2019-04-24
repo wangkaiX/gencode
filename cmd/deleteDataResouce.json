@@ -1,0 +1,9 @@
+{
+	"deleteDataResouceReq": {
+        "resouceID|Y": "drid00001"
+	},
+	"commonResp": {
+		"code": 100012,
+		"msg": "success"
+	}
+}

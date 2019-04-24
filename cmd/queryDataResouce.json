@@ -1,0 +1,19 @@
+{
+	"queryDataResouceReq": {
+		"resouceID": "drid00001"
+	},
+	"queryDataResouceResp": {
+		"code": 100012,
+		"msg": "success",
+		"dataResouceRespData": [{
+			"resouceID": "drid00001",
+			"resouceName": "文件测试",
+			"mainType|Y": "结构化数据",
+			"subType|Y": "mysql",
+			"connInfo": "这里是一个json字符串，注意转移符",
+			"updateTime": "2019-04-24 11:11:11",
+			"updateUserName": "小王",
+			"connStatusEnum|||ConnectStatusEnum": "SUCCESS"
+		}]
+	}
+}

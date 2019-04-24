@@ -9,7 +9,7 @@
 			}
 	},
 	"judgePermissionResp": {
-		"resource": {
+		"resourceResp": {
 				"name": "url2",
 				"action":1
 			},
