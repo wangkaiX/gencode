@@ -285,6 +285,24 @@ def gen_enums(mako_dir, defines_out_dir, enums):
     sfile.close()
 
 
+def gen_main(mako_dir, schema_out_dir, package):
+    if not os.path.exists(mako_dir):
+        print(mako_dir, "not exists")
+        assert False
+    if not os.path.exists(schema_out_dir):
+        os.makedirs(schema_out_dir)
+
+    filepath = schema_out_dir + "/" + "main.go"
+    mako_file = mako_dir + "/main.mako"
+    t = Template(filename=mako_file, input_encoding="utf8")
+    sfile = open(filepath, "w")
+    sfile.write(t.render(
+        package=package,
+        ))
+
+    sfile.close()
+
+
 def gen_code(
         api_dir, filenames, mako_dir,
         defines_out_dir, resolver_out_dir, schema_out_dir,
@@ -319,7 +337,7 @@ def gen_code(
         interface_name = basename.split(".")[0]
         req, resp = gen_request_response(filename, enums)
         req_resp_list.append([interface_name, req, resp])
-        keys = list(req.keys())
+        # keys = list(req.keys())
         # if len(keys) != 0:
         #     inputs.append(keys[0])
         for k, v in req.items():
@@ -346,6 +364,7 @@ def gen_code(
     gen_enums(mako_dir, defines_out_dir, enums)
     if server:
         # 生成服务端接口实现文件
+        gen_main(mako_dir, schema_out_dir, package)
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
         gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
         gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
