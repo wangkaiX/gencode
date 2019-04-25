@@ -1,10 +1,8 @@
 package define
 
-% for k, v in enums.items():
+% for e in es:
 const (
-% for e in v:
     ${e} = "${e}"
-% endfor
 )
 
 % endfor

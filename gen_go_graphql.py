@@ -287,8 +287,13 @@ def gen_enums(mako_dir, defines_out_dir, enums):
     mako_file = mako_dir + "/enum.mako"
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filepath, "w")
+    es = []
+    for k, vs in enums.items():
+        for v in vs:
+            es.append(v)
+    es = util.stable_unique(es)
     sfile.write(t.render(
-        enums=enums,
+        es=es,
         ))
 
     sfile.close()
