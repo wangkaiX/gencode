@@ -11,7 +11,7 @@ import (
     "github.com/machinebox/graphql"
 )
 
-type ${resp.get_name()}Struct struct {
+type ${interface_name}${resp.get_name()}Struct struct {
     ${gen_title_name(interface_name)} define.${resp.get_type()}
 }
 
@@ -21,7 +21,7 @@ type ${resp.get_name()}Struct struct {
 % endfor
 </%def>
 
-func Test${resp.get_name()}(t *testing.T) {
+func Test${gen_title_name(interface_name)}${resp.get_name()}(t *testing.T) {
     client := graphql.NewClient("http://localhost:40011/graphql")
     req := graphql.NewRequest(`${query_type} {
 % if input_args == "":
@@ -34,7 +34,7 @@ ${get_field(resp.fields(), resps)}
     }
     `)
     req.Header.Set("Cache-Control", "no-cache")
-    var respData ${resp.get_name()}Struct
+    var respData ${interface_name}${resp.get_name()}Struct
     ctx := context.Background()
     if err := client.Run(ctx, req, &respData); err != nil {
         log.Fatal(err)
