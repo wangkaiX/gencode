@@ -307,6 +307,8 @@ def gen_main(mako_dir, schema_out_dir, package):
         os.makedirs(schema_out_dir)
 
     filepath = schema_out_dir + "/" + "main.go"
+    if os.path.exists(filepath):
+        return
     mako_file = mako_dir + "/main.mako"
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filepath, "w")
