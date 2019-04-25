@@ -34,6 +34,7 @@ ${get_field(resp.fields(), resps)}
     }
     `)
     req.Header.Set("Cache-Control", "no-cache")
+    req.Header.Set("sf_user_id", "622212323")
     var respData ${interface_name}${resp.get_name()}Struct
     ctx := context.Background()
     if err := client.Run(ctx, req, &respData); err != nil {
