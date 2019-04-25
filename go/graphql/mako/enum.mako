@@ -1,8 +1,8 @@
 package define
 
-% for e in es:
 const (
+% for e in es:
     ${e} = "${e}"
+% endfor
 )
 
-% endfor
