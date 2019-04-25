@@ -7,6 +7,7 @@ from mako.template import Template
 import util
 from read_config import gen_request_response
 import json
+import shutil
 
 
 all_type = {}
@@ -85,6 +86,9 @@ def gen_defines(reqs, resps, mako_dir, defines_out_dir):
 
 
 def gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list):
+    if not os.path.exists(resolver_out_dir):
+        os.makedirs(resolver_out_dir)
+    shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
         resp = util.get_first_value(resp)
