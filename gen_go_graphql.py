@@ -186,12 +186,12 @@ def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
         ))
 
 
-def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list):
+def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list, enum_fields):
     # import pdb; pdb.set_trace()
     for interface_name, req, resp in req_resp_list:
         req = util.get_first_value(req)
         resp = util.get_first_value(resp)
-        gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list)
+        gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list, enum_fields)
 
 
 def get_field(fields, resps):
@@ -211,7 +211,7 @@ def get_value(field):
     return '"' + str(field.get_value()) + '"'
 
 
-def remove_quotes(json_str):
+def remove_quotes(json_str, enum_fields):
     json_str = str(json_str)
     lines = ""
     for line in json_str.splitlines(True):
@@ -220,12 +220,16 @@ def remove_quotes(json_str):
             pass
         else:
             line = line.replace('"', '', 2)
+            key = line.split(":")[0]
+            key = key.strip()
+            if key in enum_fields:
+                line = line.replace('"', '', 2)
         lines = lines + line
     print("lines:", lines[1:-1])
     return lines[1:-1]
 
 
-def get_input_args(interface_name):
+def get_input_args(interface_name, enum_fields):
     if not os.path.exists(g_api_dir):
         print(g_api_dir, "not exists")
         assert False
@@ -237,10 +241,10 @@ def get_input_args(interface_name):
         return ""
     json_str = json.dumps(jmap, separators=(',', ':'), indent=4, ensure_ascii=False)
     # 去除key的 "
-    return remove_quotes(json_str)
+    return remove_quotes(json_str, enum_fields)
 
 
-def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list):
+def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list, enum_fields):
     if not os.path.exists(go_test_dir):
         os.makedirs(go_test_dir)
 
@@ -265,8 +269,9 @@ def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list
         gen_title_name=util.gen_title_name,
         interface_name=interface_name,
         get_field=get_field,
-        input_args=get_input_args(interface_name),
+        input_args=get_input_args(interface_name, enum_fields),
         package=g_package,
+        enum_fields=enum_fields,
         ))
     sfile.close()
 
@@ -362,6 +367,12 @@ def gen_code(
             # resps[k].add_field(err_msg)
             # all_type[k].add_field(err_code)
             # all_type[k].add_field(err_msg)
+    enum_fields = []
+    for k, v in all_type.items():
+        for field in v.fields():
+            if field.get_type()._graphql in enums.keys():
+                enum_fields.append(field.get_name())
+    enum_fields = util.stable_unique(enum_fields)
 
     # 生成.h文件
     gen_defines(reqs, resps, mako_dir, defines_out_dir)
@@ -371,4 +382,4 @@ def gen_code(
         gen_main(mako_dir, schema_out_dir, package)
         gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
         gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
-        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list)
+        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list, enum_fields)
