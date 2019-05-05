@@ -1,0 +1,13 @@
+{
+    "createJob2|创建作业2":{
+        "createJobReq":{
+            "projectID||项目ID":"prj21231",
+            "algorithmID||算法ID":"alg32232",
+            "description":"测试作业"
+        },
+        "createJob2Resp":{
+            "id":"job321321"
+        }
+    },
+    "JobStatus|作业状态|ENUM":["READY", "RUNNING|运行中", "END"]
+}

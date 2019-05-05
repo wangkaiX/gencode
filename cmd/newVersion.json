@@ -1,0 +1,22 @@
+{
+    "createJob|创建作业":{
+        "createJobReq|req":{
+            "projectID|Y|项目ID":"prj21231",
+            "algorithmID|Y|算法ID":"alg32232",
+            "description":"测试作业"
+        },
+        "createJobResp|resp":{
+            "id":"job321321"
+        }
+    },
+    "createJob3|创建作业3":{
+        "createJobReq":{
+            "projectID||项目ID":"prj21231",
+            "algorithmID|Y|算法ID":"alg32232",
+            "description":"测试作业"
+        },
+        "createJob3Resp":{
+            "id":"job321321"
+        }
+    }
+}

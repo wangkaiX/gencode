@@ -2,118 +2,78 @@
 # -*- coding: utf-8 -*-
 
 
-from util import get_type, gen_title_name, get_base_type
+import util
+from enum import Enum
+
+
+TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum bool")
+enums = []
 
 
 class Type:
-    def __init__(self, _type, enums, specified_type):
-        self._type = _type
+    def __init__(self, kind, _type):
+        assert _type
+        assert kind in TypeEnum
         self._go = None
         self._cpp = None
         self._graphql = None
-        # self._graphql_resolver = None
-        self._specified_type = specified_type
-        if _type == 'object':
-            assert specified_type
-            self._go = specified_type
-            self._cpp = specified_type
-            self._graphql = specified_type
-            return
-        elif _type == 'list':
-            assert specified_type
-            self._go = '[]' + specified_type._go
-            self._cpp = 'std::vector<' + specified_type._cpp + '>'
-            self._graphql = '[' + specified_type._graphql + ']'
-            return
+        self._kind = kind
+        self.set_type(kind, _type)
 
-        print("enums:", enums)
-        if specified_type:
-            if specified_type == 'time':
-                self._type = specified_type
-                self._go = 'time.Time'
-                self._cpp = 'std::string'
-                self._graphql = 'Time'
-                return
-            elif specified_type in enums.keys():
-                self._type = "enum"
-                self._go = 'string'
-                self._cpp = 'std::string'
-                self._graphql = specified_type
-                return
-
-            self._go = specified_type
-            self._cpp = specified_type
-            self._graphql = specified_type
-            return
-
-        if _type == 'string':
+    def set_type(self, kind, _type):
+        if _type == TypeEnum.string:
             self._go = 'string'
             self._cpp = 'std::string'
             self._graphql = 'String'
-        elif _type == 'int':
+        elif _type == TypeEnum.int:
             self._go = 'int32'
             self._cpp = 'int'
             self._graphql = 'Int'
-        elif _type == 'float':
+        elif _type == TypeEnum.float:
             self._go = 'float32'
             self._cpp = 'float'
             self._graphql = 'Float'
-        elif _type == 'double':
+        elif _type == TypeEnum.double:
             self._go = 'float64'
             self._cpp = 'double'
             self._graphql = 'Float'
-        elif _type == 'bool':
+        elif _type == TypeEnum.bool:
             self._go = 'bool'
             self._cpp = 'bool'
             self._graphql = 'Boolean'
-
-    def set_enum(self, b):
-        if b:
-            self._go = 'string'
+        elif kind == TypeEnum.object or kind == TypeEnum.enum or kind == TypeEnum.list_object:
+            self._go = _type
+            self._cpp = _type
+            self._graphql = _type
+        elif _type == TypeEnum.time:
+            self._go = 'time.Time'
             self._cpp = 'std::string'
-
-    def get_name(self):
-        if self.is_object():
-            return self._specified_type
-        return self._type
+            self._graphql = 'Time'
 
     def is_object(self):
-        if self._type == 'object':
-            return True
-        elif self._type == 'list':
-            if self._specified_type in ['string', 'int', 'float', 'double', 'bool']:
-                return True
-        return False
+        return self._kind == TypeEnum.object or self._kind == TypeEnum.list_object
 
     def is_string(self):
-        return self._type == 'string'
+        return self._kind == TypeEnum.string
 
     def is_bool(self):
-        return self._type == 'bool'
+        return self._type == TypeEnum.bool
 
     def is_list(self):
-        return self._type == 'list'
+        return self._kind == TypeEnum.list or self._kind == TypeEnum.list_object
 
     def __str__(self):
-        return "type:%s go_type:%s cpp_type:%s graphql_type:%s\n" % (self._type, self._go, self._cpp, self._graphql)
+        return "kind:%s go_type:%s cpp_type:%s graphql_type:%s\n" % (self._kind, self._go, self._cpp, self._graphql)
 
 
 # 类属性
 class Field:
-    def __init__(self, name, _type, base_type, value, is_necessary, comment):
+    def __init__(self, name, type_kind, type_type, value, is_necessary, comment):
         self.__name = name
-        # self.__resolver_name = name + "_resolver"
-        self.__type = _type
         self.__value = value
-        self.__base_type = base_type
+        self.__type = Type(type_kind, type_type)
         self.__is_necessary = is_necessary
         self.__comment = comment
-
-    def get_base_type(self):
-        return self.__base_type
-
-    # def get_base_resolver_type(self):
-    #    return self.__base_type.get_name() + "Resolver"
 
     def get_value(self):
         return self.__value
@@ -121,26 +81,17 @@ class Field:
     def get_name(self):
         return self.__name
 
-    def get_resolver_name(self):
-        return self.__resolver_name
-
     def get_comment(self):
         return self.__comment
 
     def get_type(self):
         return self.__type
 
-    def get_resolver_type(self):
-        return self.__type + "Resolver"
-
-    def is_string(self):
-        return self.__base_type.is_string()
-
     def is_necessary(self):
         return self.__is_necessary
 
     def is_object(self):
-        return self.__base_type.is_object()
+        return self.__type.is_object()
 
     def is_list(self):
         return self.__type.is_list()
@@ -155,12 +106,12 @@ class Field:
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
-err_code = Field("error_code", Type("string", [], ""), Type("string", [], ""), "SUCCESS", True, "错误码")
-err_msg = Field("error_msg", Type("string", [], ""), Type("string", [], ""), "成功", True, "错误信息")
+err_code = Field("error_code", TypeEnum.string, TypeEnum.string, "SUCCESS", True, "错误码")
+err_msg = Field("error_msg", TypeEnum.string, TypeEnum.string, "成功", True, "错误信息")
 
 
 # 根据key, value推导类型
-def get_key_attr(name, value, enums):
+def get_key_attr(name, value):
     assert name
     finalAttrs = [None, None, None, None]
     attrs = name.split("|")
@@ -169,31 +120,31 @@ def get_key_attr(name, value, enums):
     assert finalAttrs[0] is not None
     # 获取用户指定数据
     field_name, necessary, comment, specified_type = finalAttrs
-    # print(field_name, necessary, comment, specified_type)
 
     if necessary == 'Y' or necessary == 'y':
         necessary = True
     else:
         necessary = False
 
-    _type = get_type(field_name, value, enums, specified_type)
-    base_type = get_base_type(field_name, value, enums, specified_type)
+    type_kind, type_type = util.get_type(field_name, value, specified_type)
+    # base_type = get_base_type(field_name, value, enums, specified_type)
 
-    # field_name = field_name.lower()
-    return field_name, necessary, comment, _type, base_type
+    return field_name, necessary, comment, type_kind, type_type
 
 
 class StructInfo:
-    def __init__(self, name):
+    def __init__(self, name, is_req, comment):
         self.__fields = []
         self.__name = name
         self.__member_classs = []
-        self.__type = gen_title_name(name)
-        self.__is_req = False
+        self.__type = util.gen_title_name(name)
+        self.__is_req = is_req
+        # self.__is_resp = is_resp
+        self.__comment = comment
 
-    def add_attribute(self, name, value, enums):
-        field_name, necessary, comment, _type, base_type = get_key_attr(name, value, enums)
-        field = Field(field_name, _type, base_type, value, necessary, comment)
+    def add_attribute(self, name, value):
+        field_name, necessary, comment, type_kind, type_type = get_key_attr(name, value, enums)
+        field = Field(field_name, type_kind, type_type, value, necessary, comment)
         self.add_field(field)
 
     def add_field(self, field):
@@ -229,6 +180,22 @@ class StructInfo:
             s += str(field) + ' '
         s += "\n"
         return s
+
+
+class InterfaceInfo:
+    def __init__(self, comment, req_st, resp_st):
+        self.__comment = comment
+        self.__req_st = req_st
+        self.__resp_st = resp_st
+
+    def get_comment(self):
+        return self.__comment
+
+    def get_req_st(self):
+        return self.__req_st
+
+    def get_resp_st(self):
+        return self.__resp_st
 
 
 # 接口文件的定义
