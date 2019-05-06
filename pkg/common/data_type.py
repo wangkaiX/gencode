@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-import util
+from pkg.common import util
+# from pkg.common import data_type
 from enum import Enum
 
 
@@ -68,10 +69,10 @@ class Type:
 
 # 类属性
 class Field:
-    def __init__(self, name, type_kind, type_type, value, is_necessary, comment):
+    def __init__(self, name, _type, value, is_necessary, comment):
         self.__name = name
         self.__value = value
-        self.__type = Type(type_kind, type_type)
+        self.__type = _type
         self.__is_necessary = is_necessary
         self.__comment = comment
 
@@ -106,8 +107,8 @@ class Field:
         return str(self.__name) + ' ' + str(self.__type) + ' ' + str(self.__is_necessary)
 
 
-err_code = Field("error_code", TypeEnum.string, TypeEnum.string, "SUCCESS", True, "错误码")
-err_msg = Field("error_msg", TypeEnum.string, TypeEnum.string, "成功", True, "错误信息")
+err_code = Field("error_code", Type(TypeEnum.string, TypeEnum.string), "SUCCESS", True, "错误码")
+err_msg = Field("error_msg", Type(TypeEnum.string, TypeEnum.string), "成功", True, "错误信息")
 
 
 # 根据key, value推导类型
@@ -126,39 +127,52 @@ def get_key_attr(name, value):
     else:
         necessary = False
 
-    type_kind, type_type = util.get_type(field_name, value, specified_type)
+    _type = util.get_type(field_name, value, specified_type)
     # base_type = get_base_type(field_name, value, enums, specified_type)
 
-    return field_name, necessary, comment, type_kind, type_type
+    return field_name, necessary, comment, _type
 
 
 class StructInfo:
-    def __init__(self, name, is_req, comment):
+    def __init__(self, name, comment, is_req=False, is_resp=False):
         self.__fields = []
         self.__name = name
         self.__member_classs = []
+        self.__is_necessary = False
         self.__type = util.gen_title_name(name)
+        self.__is_list = None
         self.__is_req = is_req
-        # self.__is_resp = is_resp
+        self.__is_resp = is_resp
         self.__comment = comment
 
+    def set_list(self, b):
+        self.__is_list = b
+
+    def is_list(self):
+        return self.__is_list
+
     def add_attribute(self, name, value):
-        field_name, necessary, comment, type_kind, type_type = get_key_attr(name, value, enums)
-        field = Field(field_name, type_kind, type_type, value, necessary, comment)
-        self.add_field(field)
+        field_name, necessary, comment, _type = get_key_attr(name, value)
+        if _type.is_object():
+            self.__member_classs.append(StructInfo(field_name, comment))
+            self.__is_necessary = necessary
+            self.__list = _type.is_list()
+        else:
+            field = Field(field_name, _type, value, necessary, comment)
+            self.add_field(field)
+
+    def member_classs(self):
+        return self.__member_classs
 
     def add_field(self, field):
         if field not in self.__fields:
             self.__fields.append(field)
 
-    def set_request(self, b):
-        self.__is_req = b
-
     def is_request(self):
-        if self.__is_req is None:
-            print("未设置对象属于")
-            assert False
         return self.__is_req
+
+    def is_response(self):
+        return self.__is_resp
 
     def get_name(self):
         return self.__name
@@ -175,27 +189,31 @@ class StructInfo:
         return self.__name == value.__name
 
     def __str__(self):
-        s = ""
+        s = "%s:%s\n" % (self.__name, "list" if self.__is_list else "not list")
         for field in self.__fields:
-            s += str(field) + ' '
-        s += "\n"
+            s += str(field) + '\n'
+        s += '\n'
+        for member in self.__member_classs:
+            s += "%s" % str(member)
         return s
 
 
 class InterfaceInfo:
-    def __init__(self, comment, req_st, resp_st):
-        self.__comment = comment
-        self.__req_st = req_st
-        self.__resp_st = resp_st
+    def __init__(self):
+        self.comment = None
+        self.req_st = None
+        self.resp_st = None
 
-    def get_comment(self):
-        return self.__comment
+    def __str__(self):
+        return "interfaceinfo:%s\n%s\n%s\n" % (self.comment, str(self.req_st), str(self.resp_st))
+    # def get_comment(self):
+    #     return self.comment
 
-    def get_req_st(self):
-        return self.__req_st
+    # def get_req_st(self):
+    #     return self.req_st
 
-    def get_resp_st(self):
-        return self.__resp_st
+    # def get_resp_st(self):
+    #     return self.resp_st
 
 
 # 接口文件的定义

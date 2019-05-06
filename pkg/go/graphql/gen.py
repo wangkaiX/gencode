@@ -4,17 +4,17 @@
 import os
 from data_type import gen_title_name
 from mako.template import Template
-import util
-from read_config import gen_request_response
+from pkg.common import util
+from pkg.common.read_config import gen_request_response
 import json
 import shutil
 
 
 all_type = {}
 inputs = []
-g_enums = []
+# g_enums = []
 g_package = None
-g_api_dir = None
+# g_api_dir = None
 
 
 def get_resolver_type(_type):
@@ -320,30 +320,27 @@ def gen_main(mako_dir, schema_out_dir, package):
 
 
 def gen_code(
-        api_dir, filenames, mako_dir,
-        defines_out_dir, resolver_out_dir, schema_out_dir,
+        filenames, mako_dir,
+        data_type_out_dir, resolver_out_dir, schema_out_dir,
         go_test_dir,
-        enums,
         package=None,
-        server=None, client=None, query_list=[]):
+        gen_server=None, gen_client=None):
     assert package
-    assert enums
-    assert api_dir
+    # assert api_dir
     global g_package
     global g_enums
-    global g_api_dir
-    g_api_dir = api_dir
-    g_enums = enums
+    # global g_api_dir
+    # g_api_dir = api_dir
     g_package = package
     req_resp_list = []
     reqs = {}
     resps = {}
 
     #
-    mako_dir = os.path.abspath(mako_dir)
-    api_dir = os.path.abspath(api_dir)
-    defines_out_dir = os.path.abspath(defines_out_dir)
-    resolver_out_dir = os.path.abspath(resolver_out_dir)
+    mako_dir = util.abs_path(mako_dir)
+    # api_dir = os.path.abspath(api_dir)
+    defines_out_dir = util.abs_path(defines_out_dir)
+    resolver_out_dir = util.abs_path(resolver_out_dir)
 
     # 数据整理
     print(filenames)

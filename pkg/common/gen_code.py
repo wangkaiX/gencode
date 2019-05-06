@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+'''
 import gen_cpp
 import gen_go_graphql
 import util
@@ -56,3 +57,4 @@ def gen_code(
                 enums=enums,
                 api_dir=api_dir,
                 )
+                '''
