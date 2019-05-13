@@ -84,7 +84,7 @@ def gen_request_response(filename):
     # test_case.gen_test_case(filename)
 
 
-res = gen_request_response("/home/ubuntu/gencode/json/newVersion.json")
+res = gen_request_response("../../json/newVersion.json")
 for k, v in res.items():
     print(k, v)
 # gen_request_response("/home/ubuntu/gencode/json/newVersion2.json")

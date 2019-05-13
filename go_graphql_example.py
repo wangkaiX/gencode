@@ -19,10 +19,8 @@ from pkg.go.graphql import gen
 
 if __name__ == '__main__':
     # env = os.environ
-    # json_dir = "json"
     gosrc = "./"  # env['GOPATH'] + "/src/"
     gen.gen_code(
-            # json_dir=api_dir,
             filenames=["json/newVersion.json", "json/newVersion2.json"],
             mako_dir="mako/go/graphql",
             data_type_out_dir=gosrc + "go_example/app/define",
@@ -31,8 +29,6 @@ if __name__ == '__main__':
             go_test_dir=gosrc + "go_example/app/test",
             gen_server=True,
             gen_client=None,
-            # code_type='go_graphql',
             package='example',
             # query_list=['getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
-            # enums=enums,
             )
