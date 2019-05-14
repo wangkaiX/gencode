@@ -35,9 +35,6 @@ def kv_to_interface(field_name, field_value, struct_info):
         list_to_interface(field_name, field_value, struct_info)
 
 
-# def get_req_resp()
-
-
 def map_to_interface(json_map):
     interfaces = {}
     for interface_name, interface_info in json_map.items():
@@ -52,6 +49,7 @@ def map_to_interface(json_map):
             comment = strs[1]
         interfaces[interface_name].comment = comment
 
+        print(interface_info)
         for struct_name, struct_info in interface_info.items():
             # print(json_map)
             # print(interface_name)

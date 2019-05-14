@@ -7,7 +7,18 @@
             "userInfos":[{
                 "id":"id123",
                 "age":32,
-                "address":"shanghai"
+                "address":"shanghai",
+                "students":[{
+                    "name":"xhansan",
+                    "age":19,
+                    "high":170
+                },
+                {
+                    "name":"shansan",
+                    "age":20,
+                    "high":180
+                }
+                ]
             }],
             "ids":[1,2,3,4,5]
         },
