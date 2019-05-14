@@ -151,10 +151,6 @@ def get_recursive_type(field_name, field_value, specified_type):
         return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type)
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            # return get_type(field_name, field_value[0], specified_type)
-            # if field_name == 'ids':
-            #     import pdb
-            #     pdb.set_trace()
             return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type)
         else:
             return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type)
