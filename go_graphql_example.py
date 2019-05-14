@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from pkg.go.graphql import gen
+from gencode_pkg.go.graphql import gen
 # import glob
 # import os
 

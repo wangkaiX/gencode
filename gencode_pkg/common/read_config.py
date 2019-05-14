@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict
-from pkg.common import data_type
+from gencode_pkg.common import data_type
 # from util import add_struct
 # import test_case
-from pkg.common import util
+from gencode_pkg.common import util
 
 
 def list_to_interface(field_name, field_value, struct_info):

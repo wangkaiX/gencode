@@ -4,8 +4,8 @@
 import os
 from data_type import gen_title_name
 from mako.template import Template
-from pkg.common import util
-from pkg.common.read_config import gen_request_response
+from gencode_pkg.common import util
+from gencode_pkg.common.read_config import gen_request_response
 import json
 import shutil
 

@@ -3,7 +3,7 @@
 
 
 import collections
-from pkg.common import data_type
+from gencode_pkg.common import data_type
 import json
 import os
 from collections import OrderedDict

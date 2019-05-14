@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-from pkg.common import util
-# from pkg.common import data_type
+from gencode_pkg.common import util
+# from gencode_pkg.common import data_type
 from enum import Enum
 
 
