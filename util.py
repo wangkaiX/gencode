@@ -141,4 +141,4 @@ def get_type(field_name, field_value, enums, specified_type):
         # print(_type)
         return data_type.Type('list', enums, _type)
     else:
-        return get_recursive_type(field_name, field_value, enums, specified_type)
+        return get_recursive_type(field_name, field_value, enums, specified_type) 
