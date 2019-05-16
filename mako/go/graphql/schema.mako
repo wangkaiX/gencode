@@ -5,22 +5,18 @@ schema {
 
 scalar Time
 
-% for name, es in enums.items():
-enum ${name} {
-    % for e in es:
-    ${e}
+% for interface in all_interface:
+    % for enum in interface.get_enums():
+enum ${enum.get_name()} {
+    % for v in enum.get_values():
+    ${v.get_value()} # ${v.get_comment()}
     % endfor
 }
+    %endfor
 
 % endfor
 
-<%def name='getflag(field)'>
-    % if field.is_necessary():
-        <% return '!' %>
-    % endif
-</%def>
-
-% for k, t in all_type.items():
+% for st in all_type:
     % if k in inputs:
 input ${t.get_name()} {
         % for field in t.fields():

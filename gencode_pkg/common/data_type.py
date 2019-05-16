@@ -221,8 +221,11 @@ class InterfaceInfo:
         self.req_st = None
         self.resp_st = None
         self._type = None
-        self.sts = []
-        self.enums = []
+        self.__sts = []
+        self.__enums = []
+
+    def get_enums(self):
+        return self.__enums
 
     def get_name(self):
         return self.__name
@@ -235,7 +238,7 @@ class InterfaceInfo:
         return "interfaceinfo:%s\n%s\n%s\n" % (self.comment, str(self.req_st), str(self.resp_st))
 
     def get_types(self):
-        return self.sts
+        return self.__sts
 
     def get_comment(self):
         return self.comment
