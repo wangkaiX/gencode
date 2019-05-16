@@ -4,6 +4,11 @@
             "projectID|Y|项目ID":"prj21231",
             "algorithmID|Y|算法ID":"alg32232",
             "description":"测试作业",
+            "userInfo":{
+                "id":"id123",
+                "age":32,
+                "address":"shanghai"
+            },
             "userInfos":[{
                 "id":"id123",
                 "age":32,
@@ -35,5 +40,6 @@
         "createJob3Resp|resp":{
             "id":"job321321"
         }
-    }
+    },
+    "TestEnum|枚举|ENUM":["Enum1|comment1", "Enum2|comment2", "Enum3|comment3", "Enum4"]
 }

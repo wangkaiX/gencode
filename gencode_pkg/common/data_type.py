@@ -111,8 +111,7 @@ err_code = Field("error_code", Type(TypeEnum.string, TypeEnum.string), "SUCCESS"
 err_msg = Field("error_msg", Type(TypeEnum.string, TypeEnum.string), "成功", True, "错误信息")
 
 
-# 根据key, value推导类型
-def get_key_attr(name, value):
+def get_key_attr(name):
     assert name
     finalAttrs = [None, None, None, None]
     attrs = name.split("|")
@@ -126,7 +125,12 @@ def get_key_attr(name, value):
         necessary = True
     else:
         necessary = False
+    return field_name, necessary, comment, specified_type
 
+
+# 根据key, value推导类型
+def get_key_value_attr(name, value):
+    field_name, necessary, comment, specified_type = get_key_attr(name)
     _type = util.get_type(field_name, value, specified_type)
     # base_type = get_base_type(field_name, value, enums, specified_type)
 
@@ -136,49 +140,61 @@ def get_key_attr(name, value):
 class StructInfo:
     def __init__(self, name, comment, is_req=False, is_resp=False):
         self.__fields = []
-        self.__name = name
-        self.__member_classs = []
-        self.__is_necessary = False
-        self.__type = util.gen_title_name(name)
-        self.__is_list = None
+        if name.find("|") != -1:
+            field_name, _, self.comment, specified_type = get_key_attr(name)
+            if specified_type:
+                self.__name = specified_type
+            else:
+                self.__name = field_name
+        else:
+            self.__name = name
+            self.__comment = comment
+        # self.__member_classs = []
+        # self.__is_necessary = False
+        # self.__type = util.gen_title_name(name)
+        # self.__is_list = None
         self.__is_req = is_req
         self.__is_resp = is_resp
-        self.__comment = comment
 
-    def set_list(self, b):
-        self.__is_list = b
+    # def set_list(self, b):
+    #     self.__is_list = b
 
-    def is_list(self):
-        return self.__is_list
+    # def is_list(self):
+    #     return self.__is_list
 
     def add_attribute(self, name, value):
-        field_name, necessary, comment, _type = get_key_attr(name, value)
-        if _type.is_object():
-            self.__member_classs.append(StructInfo(field_name, comment))
-            self.__is_necessary = necessary
-            self.__list = _type.is_list()
-        else:
-            field = Field(field_name, _type, value, necessary, comment)
-            self.add_field(field)
+        field_name, necessary, comment, _type = get_key_value_attr(name, value)
+        # if _type.is_object():
+        #     self.__member_classs.append(StructInfo(field_name, comment))
+        #     self.__is_necessary = necessary
+        #     self.__list = _type.is_list()
+        # else:
+        field = Field(field_name, _type, value, necessary, comment)
+        self.add_field(field)
 
-    def member_classs(self):
-        return self.__member_classs
+    # def member_classs(self):
+    #     return self.__member_classs
 
     def add_field(self, field):
         if field not in self.__fields:
             self.__fields.append(field)
 
-    def is_request(self):
+    def get_comment(self):
+        if self.__comment:
+            return self.__comment
+        return "定义"
+
+    def is_req(self):
         return self.__is_req
 
-    def is_response(self):
+    def is_resp(self):
         return self.__is_resp
 
     def get_name(self):
-        return self.__name
+        return util.gen_title_name(self.__name)
 
-    def get_type(self):
-        return self.__type
+    # def get_type(self):
+    #     return self.__type
 
     def fields(self):
         return self.__fields
@@ -186,34 +202,104 @@ class StructInfo:
     def __eq__(self, value):
         if not value:
             return False
-        return self.__name == value.__name
+        return self.get_name() == value.get_name()
 
     def __str__(self):
         s = "%s:%s\n" % (self.__name, "list" if self.__is_list else "not list")
         for field in self.__fields:
             s += str(field) + '\n'
-        s += '\n'
-        for member in self.__member_classs:
-            s += "%s" % str(member)
+        # s += '\n'
+        # for member in self.__member_classs:
+        #     s += "%s" % str(member)
         return s
 
 
 class InterfaceInfo:
-    def __init__(self):
+    def __init__(self, name):
+        self.__name = name
         self.comment = None
         self.req_st = None
         self.resp_st = None
+        self._type = None
+        self.sts = []
+        self.enums = []
+
+    def get_name(self):
+        return self.__name
+
+    def __eq__(self, th):
+        print("interface __eq__")
+        return self.__name == th.__name
 
     def __str__(self):
         return "interfaceinfo:%s\n%s\n%s\n" % (self.comment, str(self.req_st), str(self.resp_st))
-    # def get_comment(self):
-    #     return self.comment
 
-    # def get_req_st(self):
-    #     return self.req_st
+    def get_types(self):
+        return self.sts
 
-    # def get_resp_st(self):
-    #     return self.resp_st
+    def get_comment(self):
+        return self.comment
+
+    def get_req(self):
+        print(self.req_st.get_name())
+        return self.req_st
+
+    def get_resp(self):
+        print(self.resp_st.get_name())
+        return self.resp_st
+
+
+class EnumValue:
+    def __init__(self, value, comment):
+        self.__value = value
+        self.__comment = comment
+
+    def __eq__(self, o):
+        return self.__value == o.__value
+
+    def get_value(self):
+        return self.__value
+
+    def get_comment(self):
+        return self.__comment
+
+    def set_comment(self, comment):
+        self.__comment = comment
+
+
+class Enum:
+    def __init__(self, name, comment):
+        if name.find("|") != -1:
+            params = name.split("|", -1)
+            self.__name = params[0]
+            if len(params) > 1:
+                self.__comment = params[1]
+        else:
+            self.__name = name
+            self.__comment = comment
+        self.__values = []
+
+    def __eq__(self, o):
+        return self.__name == o.__name
+
+    def get_name(self):
+        return self.__name
+
+    def add_value(self, v):
+        if v in self.__values:
+            i = self.__values.index(v)
+            if not self.__values[i].get_comment():
+                self.__values[i].set_comment(v.get_comment())
+        else:
+            self.__values.append(v)
+
+    def get_values(self):
+        return self.__values
+
+    def get_comment(self):
+        if self.__comment:
+            return self.__comment
+        return ""
 
 
 # 接口文件的定义

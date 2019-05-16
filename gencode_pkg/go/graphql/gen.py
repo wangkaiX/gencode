@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from data_type import gen_title_name
+# from gencode_pkg.common.data_type import gen_title_name
 from mako.template import Template
 from gencode_pkg.common import util
 from gencode_pkg.common.read_config import gen_request_response
@@ -10,7 +10,6 @@ import json
 import shutil
 
 
-all_type = {}
 inputs = []
 # g_enums = []
 g_package = None
@@ -54,35 +53,31 @@ def get_resolver_rettype(field):
         return field.get_type()._go
 
 
-def gen_define(st, mako_dir, defines_out_dir, is_response=False):
+def gen_define(st, mako_dir, data_type_out_dir):
+    package = os.path.basename(data_type_out_dir)
     ctx = {
             "st": st,
             "gen_title_name": util.gen_title_name,
-            "is_response": is_response,
             "to_underline": util.to_underline,
-            "package": g_package,
+            "package": package,
           }
-    mako_file = mako_dir + "/defines.mako"
+    mako_file = mako_dir + "/define.mako"
     util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding='utf8')
-    include_dir = defines_out_dir
-    if not os.path.exists(include_dir):
-        os.makedirs(include_dir)
+    # include_dir = defines_out_dir
+    if not os.path.exists(data_type_out_dir):
+        os.makedirs(data_type_out_dir)
 
-    head_file = "%s/%s.go" % (include_dir, st.get_name())
-    hfile = open(head_file, "w")
+    data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
+    hfile = open(data_type_file, "w")
     hfile.write(t.render(**ctx))
     hfile.close()
 
 
-def gen_defines(reqs, resps, mako_dir, defines_out_dir):
-    for k, v in all_type.items():
-        if len(v.fields()) != 0:
-            if k in resps.keys():
-                is_response = True
-            else:
-                is_response = False
-            gen_define(v, mako_dir, defines_out_dir, is_response)
+def gen_defines(all_type, mako_dir, data_type_out_dir):
+    for st in all_type:
+        if len(st.fields()) != 0:
+            gen_define(st, mako_dir, data_type_out_dir)
 
 
 def gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list):
@@ -143,47 +138,40 @@ def gen_resolver(resp, mako_dir, resolver_out_dir):
     sfile.close()
 
 
-def gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list):
+def gen_schema(all_interface, all_type, schema_out_dir, mako_dir, query_list):
     mako_file = mako_dir + "/schema.mako"
-    print("filename", schema_out_dir)
-    # dirname = os.path.dirname(schema_out_dir)
+    util.check_file(mako_file)
     if not os.path.exists(schema_out_dir):
         os.makedirs(schema_out_dir)
-    util.check_file(mako_file)
-    t = Template(filename=mako_file, input_encoding="utf8")
-    sfile = open(schema_out_dir + '/schema.go', "w")
-    r_p_list = []
-    for interface_name, req, resp in req_resp_list:
-        req = util.get_first_value(req)
-        resp = util.get_first_value(resp)
-        r_p_list.append([interface_name, req, resp])
 
-    # reqs = list(reqs.values())
-    # resps = list(resps.values())
-    # reqs = util.stable_unique(reqs)
-    # resps = util.stable_unique(resps)
+    t = Template(filename=mako_file, input_encoding="utf8")
 
     ctx = {
-            "services": r_p_list,
-            "reqs": reqs,
-            "resps": resps,
+            "all_interface": all_interface,
+            "all_type": all_type,
             "gen_title_name": util.gen_title_name,
             "query_list": query_list,
-            "all_type": all_type,
-            "inputs": inputs,
-            "package": g_package,
-            "enums": g_enums,
+            }
+
+    schema_str = t.render(
+            **ctx,
+            )
+    # schema
+    sfile = open(schema_out_dir + '/schema_graphql', "w")
+    sfile.write(schema_str)
+    sfile.close()
+
+    # schema_go
+    sfile = open(schema_out_dir + '/schema.go', "w")
+    mako_file = mako_dir + "/schema_go.mako"
+    t = Template(filename=mako_file, input_encoding="utf8")
+    ctx = {
+            "schema": schema_str,
             }
     sfile.write(t.render(
         **ctx,
         ))
-
-    schemafile = open(schema_out_dir + '/schema.graphql', "w")
-    schema_mako_file = mako_dir + "/schema_graphql.mako"
-    tschema = Template(filename=schema_mako_file, input_encoding="utf8")
-    schemafile.write(tschema.render(
-        **ctx,
-        ))
+    sfile.close()
 
 
 def gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list, enum_fields):
@@ -276,24 +264,17 @@ def gen_test(interface_name, req, resp, resps, mako_dir, go_test_dir, query_list
     sfile.close()
 
 
-def gen_enums(mako_dir, defines_out_dir, enums):
-    if not os.path.exists(mako_dir):
-        print(mako_dir, "not exists")
-        assert False
-    if not os.path.exists(defines_out_dir):
-        os.makedirs(defines_out_dir)
+def gen_enums(all_enum, mako_dir, data_type_out_dir):
+    util.check_file(mako_dir)
+    if not os.path.exists(data_type_out_dir):
+        os.makedirs(data_type_out_dir)
 
-    filepath = defines_out_dir + "/" + "vars_gen.go"
+    filepath = data_type_out_dir + "/" + "enums_gen.go"
     mako_file = mako_dir + "/enum.mako"
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filepath, "w")
-    es = []
-    for k, vs in enums.items():
-        for v in vs:
-            es.append(v)
-    es = util.stable_unique(es)
     sfile.write(t.render(
-        es=es,
+        all_enum = all_enum,
         ))
 
     sfile.close()
@@ -322,68 +303,73 @@ def gen_main(mako_dir, schema_out_dir, package):
 def gen_code(
         filenames, mako_dir,
         data_type_out_dir, resolver_out_dir, schema_out_dir,
-        go_test_dir,
-        package=None,
-        gen_server=None, gen_client=None):
+        go_test_out_dir,
+        package,
+        gen_server, gen_client):
+    assert filenames
+    assert mako_dir
+    assert data_type_out_dir
+    assert resolver_out_dir
+    assert schema_out_dir
+    assert go_test_out_dir
     assert package
-    # assert api_dir
-    global g_package
-    global g_enums
-    # global g_api_dir
     # g_api_dir = api_dir
-    g_package = package
-    req_resp_list = []
-    reqs = {}
-    resps = {}
+    # req_resp_list = []
+    # reqs = {}
+    # resps = {}
+    all_interface = []
+    all_type = []
+    all_enum = []
 
     #
     mako_dir = util.abs_path(mako_dir)
-    # api_dir = os.path.abspath(api_dir)
-    defines_out_dir = util.abs_path(defines_out_dir)
+    data_type_out_dir = os.path.abspath(data_type_out_dir)
     resolver_out_dir = util.abs_path(resolver_out_dir)
+    schema_out_dir = util.abs_path(schema_out_dir)
+    go_test_out_dir = util.abs_path(go_test_out_dir)
 
     # 数据整理
     print(filenames)
     for filename in filenames:
-        # test_case.gen_test_case(filename)
-        basename = os.path.basename(filename)
-        interface_name = basename.split(".")[0]
-        req, resp = gen_request_response(filename, enums)
-        req_resp_list.append([interface_name, req, resp])
-        # keys = list(req.keys())
-        # if len(keys) != 0:
-        #     inputs.append(keys[0])
-        for k, v in req.items():
-            util.add_struct(reqs, k)
-            util.add_struct(all_type, k)
-            for field in v.fields():
-                reqs[k].add_field(field)
-                all_type[k].add_field(field)
-            inputs.append(k)
+        interfaces = gen_request_response(filename)
+        util.add_interface(all_interface, interfaces)
+        for interface in interfaces:
+            for t in interface.get_types():
+                util.add_struct(all_type, t)
+            for enum in interface.enums:
+                util.add_enum(all_enum, enum)
 
-        for k, v in resp.items():
-            util.add_struct(resps, k)
-            util.add_struct(all_type, k)
-            for field in v.fields():
-                resps[k].add_field(field)
-                all_type[k].add_field(field)
+        # for k, v in req.items():
+        #     util.add_struct(reqs, k)
+        #     util.add_struct(all_type, k)
+        #     for field in v.fields():
+        #         reqs[k].add_field(field)
+        #         all_type[k].add_field(field)
+        #     inputs.append(k)
+
+        # for k, v in resp.items():
+        #     util.add_struct(resps, k)
+        #     util.add_struct(all_type, k)
+        #     for field in v.fields():
+        #         resps[k].add_field(field)
+        #         all_type[k].add_field(field)
             # resps[k].add_field(err_code)
             # resps[k].add_field(err_msg)
             # all_type[k].add_field(err_code)
             # all_type[k].add_field(err_msg)
-    enum_fields = []
-    for k, v in all_type.items():
-        for field in v.fields():
-            if field.get_type()._graphql in enums.keys():
-                enum_fields.append(field.get_name())
-    enum_fields = util.stable_unique(enum_fields)
+    # enum_fields = []
+    # for k, v in all_type.items():
+    #     for field in v.fields():
+    #         if field.get_type()._graphql in enums.keys():
+    #             enum_fields.append(field.get_name())
+    # enum_fields = util.stable_unique(enum_fields)
 
     # 生成.h文件
-    gen_defines(reqs, resps, mako_dir, defines_out_dir)
-    gen_enums(mako_dir, defines_out_dir, enums)
-    if server:
+    gen_defines(all_type, mako_dir, data_type_out_dir)
+    gen_enums(all_enum, mako_dir, data_type_out_dir)
+    if gen_server:
         # 生成服务端接口实现文件
-        gen_main(mako_dir, schema_out_dir, package)
-        gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
-        gen_schema(schema_out_dir, reqs, resps, req_resp_list, mako_dir, query_list)
-        gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list, enum_fields)
+        # gen_main(mako_dir, schema_out_dir, package)
+        # gen_servers(req_resp_list, reqs, resps, mako_dir, resolver_out_dir, query_list)
+        gen_schema(all_interface, all_type, schema_out_dir, mako_dir, query_list)
+        # gen_tests(req_resp_list, reqs, resps, mako_dir, go_test_dir, query_list, enum_fields)

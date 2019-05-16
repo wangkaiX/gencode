@@ -8,6 +8,5 @@
         "createJob2Resp|resp":{
             "id":"job321321"
         }
-    },
-    "JobStatus|作业状态|ENUM":["READY", "RUNNING|运行中", "END"]
+    }
 }

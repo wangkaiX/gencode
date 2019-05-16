@@ -53,9 +53,30 @@ def readjson(filename):
     return j
 
 
-def add_struct(to_dict, struct_name):
-    if struct_name not in to_dict.keys():
-        to_dict[struct_name] = data_type.StructInfo(struct_name)
+def add_interface(all_interface, interfaces):
+    if type(interfaces) != list:
+        interfaces = [interfaces]
+    for interface in interfaces:
+        if interface in all_interface:
+            print("接口[%s]重复" % (interface.get_name()))
+            assert False
+        all_interface.append(interface)
+
+
+def add_struct(all_type, t):
+    if t not in all_type:
+        all_type.append(t)
+    else:
+        i = all_type.index(t)
+        for field in t.fields():
+            all_type[i].add_field(field)
+
+
+def add_enum(all_enum, e):
+    if e in all_enum:
+        print("枚举[%s]已存在!" % (e.get_name))
+        assert False
+    all_enum.append(e)
 
 
 # 生成驼峰类型的类型名
