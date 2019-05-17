@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"${package}/app/resolver"
+	"${pro_path}/app/resolver"
 	"git.ucloudadmin.com/securityhouse/dataflow/gencode_pkg/httpserver"
 
 	graphql "github.com/graph-gophers/graphql-go"

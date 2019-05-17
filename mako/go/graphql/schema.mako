@@ -17,9 +17,9 @@ enum ${enum.get_name()} {
 % endfor
 
 % for st in all_type:
-    % if k in inputs:
-input ${t.get_name()} {
-        % for field in t.fields():
+    % if st.is_req():
+input ${st.get_name()} {
+        % for field in st.fields():
             % if field.is_necessary():
                 <%
                     flag = '!'
@@ -34,13 +34,13 @@ input ${t.get_name()} {
 }
 
     % else:
-type ${t.get_name()} {
-    % for field in t.fields():
+type ${st.get_name()} {
+    % for field in st.fields():
         % if field.is_list():
             % if field.is_object():
-    ${field.get_name()}:[${field.get_base_type()._graphql}]
+    ${field.get_name()}:[${field.get_type()._graphql}]
             % else:
-    ${field.get_name()}:[${field.get_base_type()._graphql}!]!
+    ${field.get_name()}:[${field.get_type()._graphql}!]!
             % endif
         % else:
     ${field.get_name()}:${field.get_type()._graphql}!
@@ -55,12 +55,16 @@ type ${t.get_name()} {
 
 
 type Query {
-% for interface_name, req, resp in services:
-    % if interface_name in query_list:
-        % if req:
-    ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
+% for interface in all_interface:
+    % if interface.get_name() in query_list:
+    <%
+    req = interface.get_req()
+    resp = interface.get_resp()
+    %>
+        % if len(req.fields()) > 0:
+    ${interface.get_name()}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
-    ${interface_name}():${resp.get_name()}
+    ${interface.get_name()}():${resp.get_name()}
         % endif
     % endif
 % endfor
@@ -68,12 +72,16 @@ type Query {
 }
 
 type Mutation{
-% for interface_name, req, resp in services:
-    % if interface_name not in query_list:
-        % if req:
-    ${interface_name}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
+% for interface in all_interface:
+    <%
+    req = interface.get_req()
+    resp = interface.get_resp()
+    %>
+    % if interface.get_name() not in query_list:
+        % if len(req.fields()):
+    ${interface.get_name()}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
-    ${interface_name}():${resp.get_name()}
+    ${interface.get_name()}():${resp.get_name()}
         % endif
     % endif
 % endfor

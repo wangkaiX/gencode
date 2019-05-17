@@ -26,7 +26,7 @@ def kv_to_interface(field_name, field_value, struct_info, all_type):
         util.add_struct(all_type, struct_info)
         for k, v in field_value.items():
             struct_info.add_attribute(k, v)
-            kv_to_interface(k, v, data_type.StructInfo(k, ""), all_type)
+            kv_to_interface(k, v, data_type.StructInfo(k, "", struct_info.is_req(), struct_info.is_resp()), all_type)
 
     elif type(field_value) == list:
         list_to_interface(field_name, field_value, struct_info, all_type)
@@ -55,7 +55,6 @@ def map_to_interface(json_map):
         interface_name = strs[0]
         comment = None
         interface = data_type.InterfaceInfo(interface_name)
-        util.add_interface(interfaces, interface)
         # interfaces[interface_name] = data_type.InterfaceInfo(interface_name)
 
         if len(strs) > 1:
@@ -64,9 +63,10 @@ def map_to_interface(json_map):
         if len(strs) > 2:
             interface._type = strs[2]
             if interface._type.upper() == 'ENUM':
-                gen_enum(interface_name, comment, interface_value, interface.enums)
+                gen_enum(interface_name, comment, interface_value, interface.get_enums())
                 continue
 
+        util.add_interface(interfaces, interface)
         print(interface_value)
         for struct_name, struct_value in interface_value.items():
             # print(json_map)
@@ -81,11 +81,11 @@ def map_to_interface(json_map):
                 struct_comment = strs[2]
             if struct_type == 'req':
                 interface.req_st = data_type.StructInfo(struct_name, struct_comment, True, False)
-                kv_to_interface(struct_name, struct_value, interface.req_st, interface.sts)
+                kv_to_interface(struct_name, struct_value, interface.req_st, interface.get_types())
                 print("reqname:", interface.req_st.get_name())
             elif struct_type == 'resp':
                 interface.resp_st = data_type.StructInfo(struct_name, struct_comment, False, True)
-                kv_to_interface(struct_name, struct_value, interface.resp_st, interface.sts)
+                kv_to_interface(struct_name, struct_value, interface.resp_st, interface.get_types())
                 print("respname:", interface.resp_st.get_name())
             else:
                 print("类型不明:", interface_name, struct_name)

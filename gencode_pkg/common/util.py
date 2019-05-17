@@ -26,12 +26,19 @@ def to_underline(name):
     return name
 
 
-def get_first_value(m):
-    vs = list(m.values())
-    if len(vs) == 0:
-        return None
-    else:
-        return vs[0]
+def package_name(dirname):
+    gosrc = "%s/src/" % (os.environ['GOPATH'])
+    if dirname.find(gosrc) != -1:
+        return dirname[len(gosrc):]
+    return dirname
+
+
+# def get_first_value(m):
+#     vs = list(m.values())
+#     if len(vs) == 0:
+#         return None
+#     else:
+#         return vs[0]
 
 
 def abs_path(path):

@@ -27,8 +27,8 @@ if __name__ == '__main__':
             resolver_out_dir=gosrc + "/app/resolver",
             schema_out_dir=gosrc + "/main",
             go_test_out_dir=gosrc + "/app/test",
-            package='example',
+            pro_path='example',
             gen_server=True,
             gen_client=None,
-            # query_list=['getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
+            query_list=['createJob', 'getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
             )

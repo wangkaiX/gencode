@@ -8,13 +8,14 @@ from enum import Enum
 
 
 TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum bool")
-enums = []
+# enums = []
 
 
 class Type:
     def __init__(self, kind, _type):
         assert _type
         assert kind in TypeEnum
+        self._type = _type
         self._go = None
         self._cpp = None
         self._graphql = None
@@ -53,6 +54,9 @@ class Type:
 
     def is_object(self):
         return self._kind == TypeEnum.object or self._kind == TypeEnum.list_object
+
+    def is_list_object(self):
+        return self._kind == TypeEnum.list_object
 
     def is_string(self):
         return self._kind == TypeEnum.string
@@ -244,6 +248,7 @@ class InterfaceInfo:
         return self.comment
 
     def get_req(self):
+        print(self.__name)
         print(self.req_st.get_name())
         return self.req_st
 

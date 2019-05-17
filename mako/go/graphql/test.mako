@@ -11,6 +11,12 @@ import (
     "github.com/machinebox/graphql"
 )
 
+<%
+    interface_name = interface.get_name()
+    resp = interface.get_resp()
+
+%>
+
 type ${interface_name}${resp.get_name()}Struct struct {
     ${gen_title_name(interface_name)} define.${resp.get_type()}
 }

@@ -1,18 +1,24 @@
 package resolver
 
-import "${package}/app/define"
+import "${pro_path}/app/define"
 import "context"
 
-% if req.fields():
-func (r *Resolver)${class_name}(ctx context.Context, args struct{
-    ${req.get_type()} *define.${req.get_type()}
-})(*${resp.get_type()}Resolver, error) {
+<%
+    req = interface.get_req()
+    resp = interface.get_resp()
+    func_name = gen_title_name(interface.get_name())
+%>
+
+% if len(req.fields()) > 0:
+func (r *Resolver)${func_name}(ctx context.Context, args struct{
+    ${req.get_name()} *define.${req.get_name()}
+})(*${resp.get_name()}Resolver, error) {
 % else:
-func (r *Resolver)${class_name}(ctx context.Context)(*${resp.get_type()}Resolver, error) {
+func (r *Resolver)${func_name}(ctx context.Context)(*${resp.get_name()}Resolver, error) {
 % endif
     // code here
-    ${resp.get_name()} := &define.${resp.get_type()}{}
+    ${resp.get_name()} := &define.${resp.get_name()}{}
 
 
-    return &${resp.get_type()}Resolver{${resp.get_name()}}, nil
+    return &${resp.get_name()}Resolver{${resp.get_name()}}, nil
 }
