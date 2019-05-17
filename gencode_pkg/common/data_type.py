@@ -144,6 +144,7 @@ def get_key_value_attr(name, value):
 class StructInfo:
     def __init__(self, name, comment, is_req=False, is_resp=False):
         self.__fields = []
+        self.__comment = None
         if name.find("|") != -1:
             field_name, _, self.comment, specified_type = get_key_attr(name)
             if specified_type:
