@@ -18,37 +18,34 @@ enum ${enum.get_name()} {
 
 % for st in all_type:
     % if st.is_req():
-input ${st.get_name()} {
-        % for field in st.fields():
-            % if field.is_necessary():
-                <%
-                    flag = '!'
-                %>
-            % else:
-                <%
-                    flag = ''
-                %>
-            % endif
-    ${field.get_name()}:${field.get_type()._graphql}${flag}
-        % endfor
-}
-
-    % else:
-type ${st.get_name()} {
+        <%
+            type = 'input'
+        %>
+    % elif st.is_resp():
+        <%
+            type = 'type'
+        %>
+    % endif
+${type} ${st.get_name()} {
     % for field in st.fields():
+        % if (st.is_resp() and not field.is_object()) or field.is_necessary() :
+            <%
+                flag = '!'
+            %>
+        % elif st.is_req() or field.is_object():
+            <%
+                flag = ''
+            %>
+        % endif
+ 
         % if field.is_list():
-            % if field.is_object():
-    ${field.get_name()}:[${field.get_type()._graphql}]
-            % else:
-    ${field.get_name()}:[${field.get_type()._graphql}!]!
-            % endif
+    ${field.get_name()}:[${field.get_type()._graphql}${flag}]${flag}
         % else:
-    ${field.get_name()}:${field.get_type()._graphql}!
+    ${field.get_name()}:${field.get_type()._graphql}${flag}
         % endif
     % endfor
 }
 
-    % endif
 % endfor
 
 

@@ -28,6 +28,7 @@ def to_underline(name):
 
 def package_name(dirname):
     gosrc = "%s/src/" % (os.environ['GOPATH'])
+    print(dirname, gosrc)
     if dirname.find(gosrc) != -1:
         return dirname[len(gosrc):]
     return dirname

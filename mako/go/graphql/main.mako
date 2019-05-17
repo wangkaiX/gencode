@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"${pro_path}/app/resolver"
-	"git.ucloudadmin.com/securityhouse/dataflow/gencode_pkg/httpserver"
+	"git.ucloudadmin.com/securityhouse/dataflow/pkg/httpserver"
 
 	graphql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"

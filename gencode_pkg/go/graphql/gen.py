@@ -217,11 +217,11 @@ def gen_test(interface, mako_dir, go_test_dir, query_list, all_enum, pro_path):
     if not os.path.exists(go_test_dir):
         os.makedirs(go_test_dir)
 
-    if interface_name in query_list:
+    if interface.get_name() in query_list:
         query_type = 'query'
     else:
         query_type = 'mutation'
-    filepath = go_test_dir + "/" + interface_name + "_test.go"
+    filepath = go_test_dir + "/" + interface.get_name() + "_test.go"
 
     mako_file = mako_dir + "/test.mako"
     util.check_file(mako_file)
@@ -234,7 +234,7 @@ def gen_test(interface, mako_dir, go_test_dir, query_list, all_enum, pro_path):
         query_type=query_type,
         gen_title_name=util.gen_title_name,
         get_field=get_field,
-        input_args=get_input_args(interface_name, enum_fields),
+        input_args=get_input_args(interface.get_name(), enum_fields),
         pro_path=pro_path,
         all_enum=all_enum,
         ))
@@ -289,6 +289,8 @@ def gen_code(
     assert schema_out_dir
     assert go_test_out_dir
     assert pro_path
+    pro_path = util.package_name(pro_path)
+    print("pro_path:", pro_path)
     # g_api_dir = api_dir
     # req_resp_list = []
     # reqs = {}
@@ -348,4 +350,4 @@ def gen_code(
         gen_main(mako_dir, schema_out_dir, pro_path)
         gen_servers(all_interface, all_type, mako_dir, resolver_out_dir, query_list, pro_path)
         gen_schema(all_interface, all_type, schema_out_dir, mako_dir, query_list)
-        gen_tests(all_interface, mako_dir, go_test_dir, query_list, all_enum, pro_path)
+        # gen_tests(all_interface, mako_dir, go_test_dir, query_list, all_enum, pro_path)
