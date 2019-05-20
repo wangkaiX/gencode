@@ -46,7 +46,8 @@
                 {
                     "name":"shansan",
                     "age":20,
-                    "high":180
+                    "high":180,
+                    "lalala|Y": "hehehe"
                 }
                 ]
             }],

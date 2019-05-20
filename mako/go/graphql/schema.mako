@@ -75,7 +75,7 @@ type Mutation{
     resp = interface.get_resp()
     %>
     % if interface.get_name() not in query_list:
-        % if len(req.fields()):
+        % if len(req.fields()) > 0:
     ${interface.get_name()}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
     ${interface.get_name()}():${resp.get_name()}

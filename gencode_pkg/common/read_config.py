@@ -11,24 +11,28 @@ from gencode_pkg.common import util
 def list_to_interface(field_name, field_value, struct_info, all_type):
     assert type(field_value) == list
     for l in field_value:
-        if type(l) in (dict, OrderedDict):
-            # struct_info.set_list(True)
-            kv_to_interface(field_name, l, struct_info, all_type)
+        st, obj = struct_info.add_attribute(field_name, l, True)
+        if obj:
+            kv_to_interface(field_name, l, st, all_type)
         elif type(l) == list:
+            print("list in list")
+            assert False
             list_to_interface(field_name, l, struct_info, all_type)
-        else:
-            struct_info.add_attribute(field_name, field_value)
-            break
 
 
 def kv_to_interface(field_name, field_value, struct_info, all_type):
     if type(field_value) in (dict, OrderedDict):
         util.add_struct(all_type, struct_info)
         for k, v in field_value.items():
-            struct_info.add_attribute(k, v)
-            kv_to_interface(k, v, data_type.StructInfo(k, "", struct_info.is_req(), struct_info.is_resp()), all_type)
+            st, obj = struct_info.add_attribute(k, v, False)
+            if obj:
+                kv_to_interface(k, v, st, all_type)
 
     elif type(field_value) == list:
+        # if field_name.index("userInfos") != -1:
+        #    pass
+            # import pdb
+            # pdb.set_trace()
         list_to_interface(field_name, field_value, struct_info, all_type)
 
 
@@ -46,7 +50,6 @@ def gen_enum(enum_type, enum_comment, enum_values, to_enums):
 
 def map_to_interface(json_map):
     interfaces = []
-    # all_type = []
     for interface_name, interface_value in json_map.items():
         if data_type.InterfaceInfo(interface_name) in interfaces:
             print("interface [%s] already existed" % (interface_name))
@@ -55,7 +58,6 @@ def map_to_interface(json_map):
         interface_name = strs[0]
         comment = None
         interface = data_type.InterfaceInfo(interface_name)
-        # interfaces[interface_name] = data_type.InterfaceInfo(interface_name)
 
         if len(strs) > 1:
             comment = strs[1]
@@ -100,7 +102,8 @@ def gen_request_response(filename):
     # test_case.gen_test_case(filename)
 
 
-# res = gen_request_response("../../json/newVersion.json")
-# for k, v in res.items():
-#     print(k, v)
+interfaces = gen_request_response("../../json/newVersion.json")
+for interface in interfaces:
+    print(interface.get_req().to_json())
+    print(interface.get_resp().to_json())
 # gen_request_response("/home/ubuntu/gencode/json/newVersion2.json")
