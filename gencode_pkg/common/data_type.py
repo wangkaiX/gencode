@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import json
 from gencode_pkg.common import util
 # from gencode_pkg.common import data_type
 from enum import Enum
+# import copy
 
 
 TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum bool")
@@ -80,6 +81,11 @@ class Field:
         self.__is_necessary = is_necessary
         self.__comment = comment
 
+    def to_json(self):
+        m = {}
+        m[self.__name] = self.__value
+        return json.dumps(m)
+
     def get_value(self):
         return self.__value
 
@@ -145,37 +151,79 @@ class StructInfo:
     def __init__(self, name, comment, is_req=False, is_resp=False):
         self.__fields = []
         self.__comment = None
+        self.__name = None
+        self.__field_name = None
         if name.find("|") != -1:
             field_name, _, self.comment, specified_type = get_key_attr(name)
+            self.__field_name = field_name
             if specified_type:
                 self.__name = specified_type
             else:
                 self.__name = field_name
         else:
             self.__name = name
+            self.__field_name = name
             self.__comment = comment
-        # self.__member_classs = []
-        # self.__is_necessary = False
-        # self.__type = util.gen_title_name(name)
+        self.__nodes = []
+        self.__is_necessary = False
         # self.__is_list = None
         self.__is_req = is_req
         self.__is_resp = is_resp
+        # self.__map = {}
 
+    def get_nodes(self):
+        return self.__nodes
+
+    def to_json(self):
+        # m[self.__field_name] = {}
+        # self.__map = {}
+        # self.__map[self.__field_name] = self.to_map_r(self.__map)
+        return json.dumps(self.to_map(), separators=(',', ':'), indent=4, ensure_ascii=False)
+
+    # def to_map(self):
+    #     return self.to_map_r()
+
+    def to_map(self):
+        m = {}
+        # print(self.__fields)
+        for field in self.__fields:
+            m["%s|%s" % (field.get_name(), field.is_necessary())] = field.get_value()
+        for node in self.__nodes:
+            if type(node) == list and len(node) > 0:
+                m = [n.to_map() for n in node]
+            else:
+                m["%s|%s" % (node.__field_name, node.__is_necessary)] = node.to_map()
+        return m
+
+        # return json.dumps(m)
     # def set_list(self, b):
     #     self.__is_list = b
 
     # def is_list(self):
     #     return self.__is_list
 
-    def add_attribute(self, name, value):
+    def add_attribute(self, name, value, is_list_object):
         field_name, necessary, comment, _type = get_key_value_attr(name, value)
-        # if _type.is_object():
-        #     self.__member_classs.append(StructInfo(field_name, comment))
-        #     self.__is_necessary = necessary
-        #     self.__list = _type.is_list()
-        # else:
-        field = Field(field_name, _type, value, necessary, comment)
-        self.add_field(field)
+        if is_list_object:
+            st = StructInfo(field_name, comment)
+            st.__is_necessary = necessary
+            print("list_object:[%s][%s]" % (self.__name, st.get_name()))
+            if len(self.__nodes) > 0 and type(self.__nodes[-1]) == list:
+                if self.__nodes[-1][0].__name == st.__name:
+                    self.__nodes[-1].append(st)
+            else:
+                self.__nodes.append([st])
+            return st, True
+        elif _type.is_object():
+            st = StructInfo(field_name, comment)
+            st.__is_necessary = necessary
+            self.__nodes.append(st)
+            return st, True
+            # self.__list = _type.is_list()
+        else:
+            field = Field(field_name, _type, value, necessary, comment)
+            self.add_field(field)
+        return None, False
 
     # def member_classs(self):
     #     return self.__member_classs
