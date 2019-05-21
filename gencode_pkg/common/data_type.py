@@ -5,6 +5,7 @@ import json
 from gencode_pkg.common import util
 # from gencode_pkg.common import data_type
 from enum import Enum
+# import os
 # import copy
 
 
@@ -171,43 +172,110 @@ class StructInfo:
         self.__is_resp = is_resp
         # self.__map = {}
 
+    def get_field_name(self):
+        return self.__field_name
+
     def get_nodes(self):
         return self.__nodes
 
     def to_json(self):
-        # m[self.__field_name] = {}
-        # self.__map = {}
-        # self.__map[self.__field_name] = self.to_map_r(self.__map)
         return json.dumps(self.to_map(), separators=(',', ':'), indent=4, ensure_ascii=False)
-
-    # def to_map(self):
-    #     return self.to_map_r()
 
     def to_map(self):
         m = {}
-        # print(self.__fields)
         for field in self.__fields:
-            m["%s|%s" % (field.get_name(), field.is_necessary())] = field.get_value()
+            m[field.get_name()] = field.get_value()
         for node in self.__nodes:
             if type(node) == list and len(node) > 0:
-                m = [n.to_map() for n in node]
-            else:
-                m["%s|%s" % (node.__field_name, node.__is_necessary)] = node.to_map()
+                m[node[0].get_field_name()] = [n.to_map() for n in node]
+            elif type(node) != list:
+                m[node.get_field_name()] = node.to_map()
         return m
 
-        # return json.dumps(m)
-    # def set_list(self, b):
-    #     self.__is_list = b
+    def to_json_without_i(self, i):
+        return json.dumps(self.to_map_without_i(i), separators=(',', ':'), indent=4, ensure_ascii=False)
 
-    # def is_list(self):
-    #     return self.__is_list
+    def to_map_without_i(self, i):
+        print("start find:", i)
+        m, count = self.to_map_without_i_r(i+1, 0)
+        print("find over:", count-1)
+        return m
+
+    def to_map_without_i_r(self, find, curr):
+        m = {}
+        for field in self.__fields:
+            if not field.is_necessary():
+                curr += 1
+            if curr == find and not field.is_necessary():
+                print("find field:", field.get_name(), find, curr)
+                # m[field.get_name() + "!!!not"] = field.get_value()
+            else:
+                m[field.get_name()] = field.get_value()
+        print("after fields curr:", find, curr)
+        for node in self.__nodes:
+            if type(node) == list and len(node) > 0:
+                if not node[0].__is_necessary:
+                    curr += 1
+            elif type(node) != list:
+                if not node.__is_necessary:
+                    curr += 1
+            if type(node) == list and len(node) > 0:
+                field_name = node[0].get_field_name()
+                if find == curr and not node[0].__is_necessary:
+                    continue
+                    print("find list node:", node[0].get_field_name(), find, curr)
+                    field_name = field_name + "!!!not"
+                m[field_name] = []
+                for n in node:
+                    if not n.__is_necessary:
+                        curr += 1
+                    # print("node in list name:", n.get_field_name(), find, curr)
+                    if curr == find and not n.__is_necessary:
+                        print("find node in list:", n.get_field_name(), find, curr)
+                        temp, curr = n.to_map_without_i_r(find, curr)
+                        # m[field_name].append(str(temp) + "!!!not")
+                    elif not n.__is_necessary:
+                        temp, curr = n.to_map_without_i_r(find, curr)
+                        m[field_name].append(temp)
+            elif type(node) != list:
+                if curr == find and not node.__is_necessary:
+                    print("find node:", node.__field_name, find, curr)
+                    # m[node.__field_name + "!!!not"], curr = node.to_map_without_i_r(find, curr)
+                else:
+                    m[node.__field_name], curr = node.to_map_without_i_r(find, curr)
+        return m, curr
+
+    def get_null_count(self):
+        return self.get_null_count_r(0)
+
+    def get_null_count_r(self, count):
+        for field in self.__fields:
+            if not field.is_necessary():
+                count = count+1
+                print(field.get_name(), count)
+        for node in self.__nodes:
+            if type(node) == list and len(node) > 0:
+                if not node[0].__is_necessary:
+                    count += 1
+                    print(node[0].get_field_name(), count)
+                for n in node:
+                    if not n.__is_necessary:
+                        count = count+1
+                        print(n.get_field_name(), count)
+                    count = n.get_null_count_r(count)
+            else:
+                if not node.__is_necessary:
+                    count += 1
+                print(node.get_field_name(), count)
+                count = node.get_null_count_r(count)
+        return count
 
     def add_attribute(self, name, value, is_list_object):
         field_name, necessary, comment, _type = get_key_value_attr(name, value)
         if is_list_object:
             st = StructInfo(field_name, comment)
             st.__is_necessary = necessary
-            print("list_object:[%s][%s]" % (self.__name, st.get_name()))
+            # print("list_object:[%s][%s]" % (self.__name, st.get_name()))
             if len(self.__nodes) > 0 and type(self.__nodes[-1]) == list:
                 if self.__nodes[-1][0].__name == st.__name:
                     self.__nodes[-1].append(st)
@@ -284,7 +352,6 @@ class InterfaceInfo:
         return self.__name
 
     def __eq__(self, th):
-        print("interface __eq__")
         return self.__name == th.__name
 
     def __str__(self):
@@ -297,12 +364,9 @@ class InterfaceInfo:
         return self.comment
 
     def get_req(self):
-        print(self.__name)
-        print(self.req_st.get_name())
         return self.req_st
 
     def get_resp(self):
-        print(self.resp_st.get_name())
         return self.resp_st
 
 

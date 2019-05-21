@@ -5,9 +5,9 @@
             "algorithmID|Y|算法ID":"alg32232",
             "description":"测试作业",
             "userInfo":{
-                "id":"id123",
-                "age":32,
-                "address":"shanghai"
+                "id1":"id123",
+                "age1":32,
+                "address1":"shanghai"
             },
             "userInfos":[{
                 "id":"id123",
@@ -79,10 +79,10 @@
             "userPassword|Y|密码":"str"
         },
         "loginResp|resp|应答参数":{
-            "userID|Y":"id",
-            "token|Y":"token",
-            "ret|Y":{
-                "code|Y":0,
+            "userID":"id",
+            "token":"token",
+            "ret":{
+                "code":0,
                 "msg":"str"
             }
         }

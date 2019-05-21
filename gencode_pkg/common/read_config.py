@@ -11,28 +11,29 @@ from gencode_pkg.common import util
 def list_to_interface(field_name, field_value, struct_info, all_type):
     assert type(field_value) == list
     for l in field_value:
-        st, obj = struct_info.add_attribute(field_name, l, True)
-        if obj:
-            kv_to_interface(field_name, l, st, all_type)
-        elif type(l) == list:
+        if type(l) == list:
             print("list in list")
             assert False
-            list_to_interface(field_name, l, struct_info, all_type)
+        if type(l) in (dict, OrderedDict):
+            st, obj = struct_info.add_attribute(field_name, l, True)
+            if obj:
+                kv_to_interface(field_name, l, st, all_type)
+        else:
+            struct_info.add_attribute(field_name, field_value, False)
 
 
 def kv_to_interface(field_name, field_value, struct_info, all_type):
     if type(field_value) in (dict, OrderedDict):
         util.add_struct(all_type, struct_info)
         for k, v in field_value.items():
-            st, obj = struct_info.add_attribute(k, v, False)
-            if obj:
-                kv_to_interface(k, v, st, all_type)
+            if type(v) == list:
+                list_to_interface(k, v, struct_info, all_type)
+            else:
+                st, obj = struct_info.add_attribute(k, v, False)
+                if obj:
+                    kv_to_interface(k, v, st, all_type)
 
     elif type(field_value) == list:
-        # if field_name.index("userInfos") != -1:
-        #    pass
-            # import pdb
-            # pdb.set_trace()
         list_to_interface(field_name, field_value, struct_info, all_type)
 
 
@@ -69,7 +70,7 @@ def map_to_interface(json_map):
                 continue
 
         util.add_interface(interfaces, interface)
-        print(interface_value)
+        # print(interface_value)
         for struct_name, struct_value in interface_value.items():
             # print(json_map)
             # print(interface_name)
@@ -84,11 +85,11 @@ def map_to_interface(json_map):
             if struct_type == 'req':
                 interface.req_st = data_type.StructInfo(struct_name, struct_comment, True, False)
                 kv_to_interface(struct_name, struct_value, interface.req_st, interface.get_types())
-                print("reqname:", interface.req_st.get_name())
+                # print("reqname:", interface.req_st.get_name())
             elif struct_type == 'resp':
                 interface.resp_st = data_type.StructInfo(struct_name, struct_comment, False, True)
                 kv_to_interface(struct_name, struct_value, interface.resp_st, interface.get_types())
-                print("respname:", interface.resp_st.get_name())
+                # print("respname:", interface.resp_st.get_name())
             else:
                 print("类型不明:", interface_name, struct_name)
                 assert False
@@ -103,7 +104,13 @@ def gen_request_response(filename):
 
 
 interfaces = gen_request_response("../../json/newVersion.json")
-for interface in interfaces:
-    print(interface.get_req().to_json())
-    print(interface.get_resp().to_json())
+with open("json.txt", "w") as f:
+    for interface in interfaces:
+        print(interface.get_req().to_json(), interface.get_req().get_null_count())
+        for i in range(0, interface.get_req().get_null_count()):
+            f.write("\nbegin " + str(i) + "*" * 30 + "\n")
+            f.write(interface.get_req().to_json_without_i(i))
+            f.write("\nend" + "*" * 30 + "\n")
+            # break
+        break
 # gen_request_response("/home/ubuntu/gencode/json/newVersion2.json")
