@@ -2,20 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gencode_pkg.go.graphql import gen
-# import glob
 import os
-
-
-# enums = {
-#         'ENUM1': ['OPEN', 'CLOSE', 'ERR'],
-#         'ENUM2': ['OPEN2', 'CLOSE2', 'ERR2'],
-#         'ConnectStatusEnum': ['SUCCESS', 'CONNECTING', 'FAIL'],
-#         'UpdatePeriodEnum': ['UNKOWN', 'DAY', 'WEEK', 'MONTH'],
-#         'TableActionEnum': ['ADDCOLUMN', 'DELETECOLUMN', 'CHANGEFIELD', 'DELETEDATA', 'ADDRECORD'],
-#         'PlicyRuleEnum': ['RULETYPERANGE', 'RULETYPEEXACT', 'RULETYPENUMBER', 'RULETYPETIME'],
-#         'ReleaseStatusEnum': ['RELEASE', 'PENDING'],
-#         }
-
 
 if __name__ == '__main__':
     # env = os.environ
@@ -28,6 +15,8 @@ if __name__ == '__main__':
             schema_out_dir=gosrc + "/main",
             go_test_out_dir=gosrc + "/app/test",
             pro_path=gosrc,
+            ip="",
+            port=49001,
             gen_server=True,
             gen_client=None,
             query_list=['createJob', 'getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],

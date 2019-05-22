@@ -72,6 +72,7 @@ def add_interface(all_interface, interfaces):
 
 
 def add_struct(all_type, t):
+    print("add_struct:", t.get_name())
     if t not in all_type:
         all_type.append(t)
     else:
@@ -113,30 +114,33 @@ def get_type_name(type_name, specified_type):
     return gen_title_name(type_name)
 
 
-def make_type(type_kind, type_type, specified_type):
+def make_type(type_kind, type_type, specified_type, all_enum):
     if specified_type:
         type_type = specified_type
+    all_enum_name = [enum.get_name() for enum in all_enum]
+    if type_type in all_enum_name:
+        type_kind = data_type.TypeEnum.enum
     return data_type.Type(type_kind, type_type)
 
 
 # 查找最后一级的类型名
-def get_base_type(field_name, field_value, specified_type):
+def get_base_type(field_name, field_value, specified_type, all_enum):
     type_obj = type(field_value)
     if type_obj == float:
-        return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type)
+        return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type, all_enum)
     elif type_obj == str:
-        return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type)
+        return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type, all_enum)
     elif type_obj == int:
-        return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type)
+        return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type, all_enum)
     elif type_obj == bool:
-        return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type)
+        return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type, all_enum)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type)
+        return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_base_type(field_name, field_value[0], specified_type)
+            return get_base_type(field_name, field_value[0], specified_type, all_enum)
         else:
-            return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type)
+            return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
     else:
         print("未知类型:", type_obj)
         assert False
@@ -166,28 +170,28 @@ def get_base_type_enum(field_value):
         assert False
 
 
-def get_recursive_type(field_name, field_value, specified_type):
+def get_recursive_type(field_name, field_value, specified_type, all_enum):
     type_obj = type(field_value)
     if type_obj == float:
-        return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type)
+        return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type, all_enum)
     elif type_obj == str:
-        return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type)
+        return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type, all_enum)
     elif type_obj == int:
-        return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type)
+        return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type, all_enum)
     elif type_obj == bool:
-        return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type)
+        return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type, all_enum)
     elif type_obj in(dict, collections.OrderedDict):
-        return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type)
+        return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type)
+            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type, all_enum)
         else:
-            return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type)
+            return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
     else:
         print("未知类型:", type_obj)
         assert False
 
 
 # 根据字段名和字段的值返回字段的类型
-def get_type(field_name, field_value, specified_type):
-    return get_recursive_type(field_name, field_value, specified_type)
+def get_type(field_name, field_value, specified_type, all_enum):
+    return get_recursive_type(field_name, field_value, specified_type, all_enum)

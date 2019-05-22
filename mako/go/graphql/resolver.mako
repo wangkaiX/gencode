@@ -16,23 +16,39 @@ type ${resp.get_name()}Resolver struct {
 
 % for field in resp.fields():
     % if field.is_list():
-func (r *${get_resolver_type(resp.get_name())}) ${gen_title_name(field.get_name())}() ${get_resolver_rettype(field)} {
-    ${field.get_name()}Resolver := ${get_list_type(field)}{}
-    for _, v := range r.r.${gen_title_name(field.get_name())} {
-        t := ${get_resolver_type(field.get_type())}{${get_addr_op(field)}v}
-        ${field.get_name()}Resolver = append(${field.get_name()}Resolver, ${get_addr_op(field)}t)
-    }
-    return ${get_addr_op(field)}${field.get_name()}Resolver
-    % elif field.is_object():
-func (r *${get_resolver_type(resp.get_name())}) ${gen_title_name(field.get_name())}() *${get_resolver_rettype(field)} {
-    return &${get_resolver_rettype(field)}{${get_addr_op(field)}r.r.${gen_title_name(field.get_name())}}
+func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() []${field.get_type()._go} {
     % else:
-func (r *${get_resolver_type(resp.get_name())}) ${gen_title_name(field.get_name())}() ${get_resolver_rettype(field)} {
-        % if field.get_type()._type == 'time':
-    return ${get_resolver_rettype(field)}{${get_addr_op(field)}r.r.${gen_title_name(field.get_name())}}
-        % else:
-    return r.r.${gen_title_name(field.get_name())}
-        % endif
+func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() ${field.get_type()._go} {
     % endif
+    return r.r.${gen_title_name(field.get_name())}
 }
+
+% endfor
+
+% for node in resp.get_nodes():
+    % if type(node) == list:
+        <% node_t = node[0] %>
+    % else:
+        <% node_t = node %>
+    % endif
+    <%
+        type_t = gen_title_name(node_t.get_name())
+        type_resolver = type_t + 'Resolver'
+        var = node_t.get_field_name()
+        var_resolver = var + 'Resolver'
+    %>
+    % if type(node) == list:
+func (r *${resp.get_name()}Resolver) ${gen_title_name(var)}() *[]*${type_resolver} {
+   ${var_resolver} := []*${type_resolver}{}
+   for _, v := range r.r.${gen_title_name(var)} {
+       t := ${type_resolver}{&v}
+       ${var_resolver} = append(${var_resolver}, &t) 
+   }   
+   return &${var_resolver}
+}
+    % else:
+func (r *${resp.get_name()}Resolver) ${gen_title_name(var)}() *${type_resolver} {
+    return &${type_resolver}{&r.r.${gen_title_name(var)}}
+}
+    % endif
 % endfor

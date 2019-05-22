@@ -10,7 +10,6 @@ from enum import Enum
 
 
 TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum bool")
-# enums = []
 
 
 class Type:
@@ -45,7 +44,11 @@ class Type:
             self._go = 'bool'
             self._cpp = 'bool'
             self._graphql = 'Boolean'
-        elif kind == TypeEnum.object or kind == TypeEnum.enum or kind == TypeEnum.list_object:
+        elif kind == TypeEnum.enum:
+            self._go = _type
+            self._cpp = _type
+            self._graphql = _type
+        elif kind == TypeEnum.object or kind == TypeEnum.list_object:
             self._go = _type
             self._cpp = _type
             self._graphql = _type
@@ -53,6 +56,9 @@ class Type:
             self._go = 'time.Time'
             self._cpp = 'std::string'
             self._graphql = 'Time'
+
+    def is_enum(self):
+        return self._kind == TypeEnum.enum
 
     def is_object(self):
         return self._kind == TypeEnum.object or self._kind == TypeEnum.list_object
@@ -140,16 +146,14 @@ def get_key_attr(name):
 
 
 # 根据key, value推导类型
-def get_key_value_attr(name, value):
+def get_key_value_attr(name, value, all_enum):
     field_name, necessary, comment, specified_type = get_key_attr(name)
-    _type = util.get_type(field_name, value, specified_type)
-    # base_type = get_base_type(field_name, value, enums, specified_type)
-
+    _type = util.get_type(field_name, value, specified_type, all_enum)
     return field_name, necessary, comment, _type
 
 
 class StructInfo:
-    def __init__(self, name, comment, is_req=False, is_resp=False):
+    def __init__(self, name, comment, is_req, is_resp):
         self.__fields = []
         self.__comment = None
         self.__name = None
@@ -167,10 +171,8 @@ class StructInfo:
             self.__comment = comment
         self.__nodes = []
         self.__is_necessary = False
-        # self.__is_list = None
         self.__is_req = is_req
         self.__is_resp = is_resp
-        # self.__map = {}
 
     def get_field_name(self):
         return self.__field_name
@@ -192,26 +194,30 @@ class StructInfo:
                 m[node.get_field_name()] = node.to_map()
         return m
 
-    def to_json_without_i(self, i):
-        return json.dumps(self.to_map_without_i(i), separators=(',', ':'), indent=4, ensure_ascii=False)
+    def to_json_without_i(self, find, enum_flag=False, ignore_array=False):
+        return json.dumps(self.to_map_without_i(find, enum_flag, ignore_array), separators=(',', ':'), indent=4, ensure_ascii=False)
 
-    def to_map_without_i(self, i):
-        print("start find:", i)
-        m, count = self.to_map_without_i_r(i+1, 0)
-        print("find over:", count-1)
+    def to_map_without_i(self, find, enum_flag=False, ignore_array=False):
+        find = [i+1 for i in find]
+        m, _ = self.to_map_without_i_r(find, 0, enum_flag, ignore_array)
         return m
 
-    def to_map_without_i_r(self, find, curr):
+    def to_map_without_i_r(self, find, curr, enum_flag, ignore_array):
         m = {}
+        if enum_flag:
+            enum_flag = "|ENUM"
+        else:
+            enum_flag = ""
         for field in self.__fields:
             if not field.is_necessary():
                 curr += 1
-            if curr == find and not field.is_necessary():
-                print("find field:", field.get_name(), find, curr)
-                # m[field.get_name() + "!!!not"] = field.get_value()
+            if curr in find and not field.is_necessary():
+                pass
             else:
-                m[field.get_name()] = field.get_value()
-        print("after fields curr:", find, curr)
+                field_name = field.get_name()
+                if field.get_type().is_enum():
+                    field_name += enum_flag
+                m[field_name] = field.get_value()
         for node in self.__nodes:
             if type(node) == list and len(node) > 0:
                 if not node[0].__is_necessary:
@@ -221,28 +227,28 @@ class StructInfo:
                     curr += 1
             if type(node) == list and len(node) > 0:
                 field_name = node[0].get_field_name()
-                if find == curr and not node[0].__is_necessary:
+                if curr in find and not node[0].__is_necessary:
+                    curr += node[0].get_null_count()
                     continue
-                    print("find list node:", node[0].get_field_name(), find, curr)
-                    field_name = field_name + "!!!not"
                 m[field_name] = []
                 for n in node:
                     if not n.__is_necessary:
                         curr += 1
-                    # print("node in list name:", n.get_field_name(), find, curr)
-                    if curr == find and not n.__is_necessary:
-                        print("find node in list:", n.get_field_name(), find, curr)
-                        temp, curr = n.to_map_without_i_r(find, curr)
-                        # m[field_name].append(str(temp) + "!!!not")
+                    if curr in find and not n.__is_necessary:
+                        _, curr = n.to_map_without_i_r(find, curr, enum_flag, ignore_array)
                     elif not n.__is_necessary:
-                        temp, curr = n.to_map_without_i_r(find, curr)
-                        m[field_name].append(temp)
+                        temp, curr = n.to_map_without_i_r(find, curr, enum_flag, ignore_array)
+                        if ignore_array:
+                            m[field_name] = temp
+                            break
+                        else:
+                            m[field_name].append(temp)
             elif type(node) != list:
-                if curr == find and not node.__is_necessary:
-                    print("find node:", node.__field_name, find, curr)
-                    # m[node.__field_name + "!!!not"], curr = node.to_map_without_i_r(find, curr)
+                if curr in find and not node.__is_necessary:
+                    curr += node.get_null_count()
+                    pass
                 else:
-                    m[node.__field_name], curr = node.to_map_without_i_r(find, curr)
+                    m[node.__field_name], curr = node.to_map_without_i_r(find, curr, enum_flag, ignore_array)
         return m, curr
 
     def get_null_count(self):
@@ -252,30 +258,27 @@ class StructInfo:
         for field in self.__fields:
             if not field.is_necessary():
                 count = count+1
-                print(field.get_name(), count)
+                # print(field.get_name(), count)
         for node in self.__nodes:
             if type(node) == list and len(node) > 0:
                 if not node[0].__is_necessary:
                     count += 1
-                    print(node[0].get_field_name(), count)
                 for n in node:
                     if not n.__is_necessary:
                         count = count+1
-                        print(n.get_field_name(), count)
                     count = n.get_null_count_r(count)
             else:
                 if not node.__is_necessary:
                     count += 1
-                print(node.get_field_name(), count)
                 count = node.get_null_count_r(count)
         return count
 
-    def add_attribute(self, name, value, is_list_object):
-        field_name, necessary, comment, _type = get_key_value_attr(name, value)
+    def add_attribute(self, name, value, is_list_object, all_enum):
+        field_name, necessary, comment, _type = get_key_value_attr(name, value, all_enum)
+        # print(field_name, _type)
         if is_list_object:
-            st = StructInfo(field_name, comment)
+            st = StructInfo(field_name, comment, self.__is_req, self.__is_resp)
             st.__is_necessary = necessary
-            # print("list_object:[%s][%s]" % (self.__name, st.get_name()))
             if len(self.__nodes) > 0 and type(self.__nodes[-1]) == list:
                 if self.__nodes[-1][0].__name == st.__name:
                     self.__nodes[-1].append(st)
@@ -283,11 +286,10 @@ class StructInfo:
                 self.__nodes.append([st])
             return st, True
         elif _type.is_object():
-            st = StructInfo(field_name, comment)
+            st = StructInfo(field_name, comment, self.__is_req, self.__is_resp)
             st.__is_necessary = necessary
             self.__nodes.append(st)
             return st, True
-            # self.__list = _type.is_list()
         else:
             field = Field(field_name, _type, value, necessary, comment)
             self.add_field(field)
@@ -326,7 +328,7 @@ class StructInfo:
         return self.get_name() == value.get_name()
 
     def __str__(self):
-        s = "%s:%s\n" % (self.__name, "list" if self.__is_list else "not list")
+        s = "%s:\n" % (self.__name)
         for field in self.__fields:
             s += str(field) + '\n'
         # s += '\n'
@@ -387,6 +389,12 @@ class EnumValue:
     def set_comment(self, comment):
         self.__comment = comment
 
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return "%s // %s " % (self.__value, self.__comment)
+
 
 class Enum:
     def __init__(self, name, comment):
@@ -402,6 +410,15 @@ class Enum:
 
     def __eq__(self, o):
         return self.__name == o.__name
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        s = self.__name + ':\n'
+        for value in self.__values:
+            s += str(value)
+        return s
 
     def get_name(self):
         return self.__name

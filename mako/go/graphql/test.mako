@@ -14,7 +14,6 @@ import (
 <%
     interface_name = interface.get_name()
     resp = interface.get_resp()
-
 %>
 
 type ${interface_name}${resp.get_name()}Struct struct {
@@ -28,7 +27,7 @@ type ${interface_name}${resp.get_name()}Struct struct {
 </%def>
 
 func Test${gen_title_name(interface_name)}${resp.get_name()}(t *testing.T) {
-    client := graphql.NewClient("http://localhost:40011/graphql")
+    client := graphql.NewClient("http://localhost:${port}/graphql")
     req := graphql.NewRequest(`${query_type} {
 % if input_args == "":
     ${interface_name}() {

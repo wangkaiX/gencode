@@ -1,4 +1,5 @@
 {
+    "TestEnum|枚举|ENUM":["Enum1|comment1", "Enum2|comment2", "Enum3|comment3", "Enum4"],
     "createJob|创建作业":{
         "createJobReq|req|请求参数":{
             "projectID|Y|项目ID":"prj21231",
@@ -60,7 +61,9 @@
         "createJob3Req|req":{
             "projectID||项目ID":"prj21231",
             "algorithmID|Y|算法ID":"alg32232",
-            "description":"测试作业"
+            "description":"测试作业",
+            "userType|||TestEnum":"Enum1",
+            "userTypes|||TestEnum":["Enum1", "Enum2"]
         },
         "createJob3Resp|resp":{
             "id":"job321321"
@@ -86,6 +89,5 @@
                 "msg":"str"
             }
         }
-    },
-    "TestEnum|枚举|ENUM":["Enum1|comment1", "Enum2|comment2", "Enum3|comment3", "Enum4"]
+    }
 }
