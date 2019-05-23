@@ -37,28 +37,38 @@ def gen_defines(all_type, mako_dir, data_type_out_dir):
             gen_define(st, mako_dir, data_type_out_dir)
 
 
-def gen_servers(all_interface, all_type, mako_dir, resolver_out_dir, query_list, pro_path):
+def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path):
     if not os.path.exists(resolver_out_dir):
         os.makedirs(resolver_out_dir)
+    if not os.path.exists(func_out_dir):
+        os.makedirs(func_out_dir)
     shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface in all_interface:
-        gen_func(interface, mako_dir, resolver_out_dir, query_list, pro_path)
+        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, True)
+        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, False)
     for struct_info in all_type:
         if struct_info.is_resp():
-            # print(struct_info.get_name())
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
 
 
-def gen_func(interface, mako_dir, resolver_out_dir, query_list, pro_path):
-    if interface.get_name() in query_list:
-        filename = interface.get_name() + "_query"
-    else:
-        filename = interface.get_name() + "_mutation"
-    filepath = "%s/%s.go" % (resolver_out_dir, filename)
-    if os.path.exists(filepath):
+def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, is_resolver):
+    resolver = ""
+    mako_file = "func.mako"
+    out_dir = func_out_dir
+    if is_resolver:
+        mako_file = "func_resolver.mako"
+        out_dir = resolver_out_dir
+        if interface.get_name() in query_list:
+            resolver = "_query"
+        else:
+            resolver = "_mutation"
+    filename = interface.get_name() + resolver
+
+    filepath = "%s/%s.go" % (out_dir, filename)
+    if os.path.exists(filepath) and not is_resolver:
         return
 
-    mako_file = mako_dir + "/func.mako"
+    mako_file = mako_dir + "/" + mako_file
     util.check_file(mako_file)
 
     t = Template(filename=mako_file, input_encoding="utf8")
@@ -266,7 +276,9 @@ def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):
 
 def gen_code(
         filenames, mako_dir,
-        data_type_out_dir, resolver_out_dir, schema_out_dir,
+        data_type_out_dir,
+        func_out_dir,
+        resolver_out_dir, schema_out_dir,
         go_test_out_dir,
         query_list,
         pro_path,
@@ -312,6 +324,6 @@ def gen_code(
     if gen_server:
         # 生成服务端接口实现文件
         gen_main(mako_dir, schema_out_dir, pro_path, ip, port)
-        gen_servers(all_interface, all_type, mako_dir, resolver_out_dir, query_list, pro_path)
+        gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path)
         gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
         gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port)

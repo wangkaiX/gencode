@@ -76,7 +76,7 @@
             "id":"job321321"
         }
     },
-     "login|创建作业":{
+     "loginTest|创建作业":{
         "loginReq|req|请求参数":{
             "userAccount|Y|账号":"str",
             "userPassword|Y|密码":"str"

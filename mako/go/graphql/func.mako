@@ -1,4 +1,4 @@
-package resolver
+package service
 
 import "${pro_path}/app/define"
 import "context"
@@ -10,15 +10,13 @@ import "context"
 %>
 
 % if len(req.fields()) > 0:
-func (r *Resolver)${func_name}(ctx context.Context, args struct{
-    ${req.get_name()} *define.${req.get_name()}
-})(*${resp.get_name()}Resolver, error) {
+func ${func_name}(ctx context.Context, ${req.get_name()} *define.${req.get_name()})(*define.${resp.get_name()}, error) {
 % else:
-func (r *Resolver)${func_name}(ctx context.Context)(*${resp.get_name()}Resolver, error) {
+func ${func_name}(ctx context.Context)(*define.${resp.get_name()}, error) {
 % endif
     // code here
     ${resp.get_name()} := &define.${resp.get_name()}{}
 
 
-    return &${resp.get_name()}Resolver{${resp.get_name()}}, nil
+    return ${resp.get_name()}, nil
 }
