@@ -8,7 +8,8 @@ if __name__ == '__main__':
     # env = os.environ
     gosrc = os.environ['GOPATH'] + "/src/go_example"  # env['GOPATH'] + "/src/"
     gen.gen_code(
-            filenames=["json/newVersion.json", "json/newVersion2.json"],
+            # filenames=["json/newVersion.json", "json/newVersion2.json"],
+            filenames=["json/login.json"],
             mako_dir="mako/go/graphql",
             data_type_out_dir=gosrc + "/app/define",
             resolver_out_dir=gosrc + "/app/resolver",

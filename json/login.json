@@ -1,13 +1,31 @@
-
 {
-	"loginReq": {
-		"username|Y": "zhangsan",
-		"password|Y": "Passwordmd5"
-	},
-	"loginResp": {
-		"result": "success",
-		"token": "asdfadsfw4342323432!#@$#@35",
-		"userid": "123456",
-		"username": "zhangsan"
-	}
+    "login|创建作业":{
+        "loginReq|req|请求参数":{
+            "userAccount|Y|账号":"str",
+            "userPassword|Y|密码":"str",
+            "testfield1":"",
+            "testfield2":12,
+            "testfield3":""
+        },
+        "loginResp|resp|应答参数":{
+            "userID|Y":"id",
+            "token|Y":"token",
+            "ret":{
+                "code":0,
+                "msg":"str"
+            }
+        }
+    },
+
+    "logout|创建作业":{
+        "logoutReq|req|请求参数":{
+            "token|Y":"str"
+        },
+        "logoutResp|resp|应答参数":{
+            "ret":{
+                "code":0,
+                "msg":"str"
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@ def gen_define(st, mako_dir, data_type_out_dir):
 
 def gen_defines(all_type, mako_dir, data_type_out_dir):
     for st in all_type:
-        if len(st.fields()) != 0:
+        if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
             gen_define(st, mako_dir, data_type_out_dir)
 
 
