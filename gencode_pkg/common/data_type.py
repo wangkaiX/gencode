@@ -13,6 +13,8 @@ TypeEnum = Enum("TypeEnum", "string int float double time object list list_objec
 
 FlagEnum = "|ENUM"
 
+InterfaceEnum = Enum("InterfaceEnum", "resolver func grpc")
+
 
 class Type:
     def __init__(self, kind, _type):

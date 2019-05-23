@@ -44,18 +44,18 @@ def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_di
         os.makedirs(func_out_dir)
     shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface in all_interface:
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, True)
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, False)
+        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.resolver)
+        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.func)
     for struct_info in all_type:
         if struct_info.is_resp():
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
 
 
-def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, is_resolver):
+def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
     resolver = ""
     mako_file = "func.mako"
     out_dir = func_out_dir
-    if is_resolver:
+    if interface_type == data_type.InterfaceEnum.resolver:
         mako_file = "func_resolver.mako"
         out_dir = resolver_out_dir
         if interface.get_name() in query_list:
@@ -65,7 +65,7 @@ def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pr
     filename = interface.get_name() + resolver
 
     filepath = "%s/%s.go" % (out_dir, filename)
-    if os.path.exists(filepath) and not is_resolver:
+    if os.path.exists(filepath) and interface_type == data_type.InterfaceEnum.func:
         return
 
     mako_file = mako_dir + "/" + mako_file
