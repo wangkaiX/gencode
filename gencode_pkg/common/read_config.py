@@ -38,7 +38,7 @@ def kv_to_interface(field_name, field_value, struct_info, all_type, all_enum):
                     kv_to_interface(k, v, st, all_type, all_enum)
 
     elif type(field_value) == list:
-        list_to_interface(field_name, field_value, struct_info, all_type)
+        list_to_interface(field_name, field_value, struct_info, all_type, all_enum)
 
 
 def gen_enum(enum_type, enum_comment, enum_values, to_enums):
@@ -110,8 +110,6 @@ def map_to_interface(json_map, all_enum):
             else:
                 print("类型不明inetrface:[%s]st_name:[%s]st_type[%s]:" % (interface_name, struct_name, struct_type))
                 assert False
-        for t in interface.get_types():
-            print("after:", t)
 
     return interfaces
 

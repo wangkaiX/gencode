@@ -28,7 +28,7 @@ def to_underline(name):
 
 def package_name(dirname):
     gosrc = "%s/src/" % (os.environ['GOPATH'])
-    print(dirname, gosrc)
+    # print(dirname, gosrc)
     if dirname.find(gosrc) != -1:
         return dirname[len(gosrc):]
     return dirname
@@ -55,7 +55,7 @@ def check_file(filename):
 
 
 def readjson(filename):
-    print("json file:", filename)
+    # print("json file:", filename)
     json_str = open(filename).read()
     j = json.loads(json_str, object_pairs_hook=OrderedDict)
     return j
@@ -72,7 +72,7 @@ def add_interface(all_interface, interfaces):
 
 
 def add_struct(all_type, t):
-    print("add_struct:", t.get_name())
+    # print("add_struct:", t.get_name())
     if t not in all_type:
         all_type.append(t)
     else:
@@ -127,27 +127,27 @@ def make_type(type_kind, type_type, specified_type, all_enum):
 
 
 # 查找最后一级的类型名
-def get_base_type(field_name, field_value, specified_type, all_enum):
-    type_obj = type(field_value)
-    if type_obj == float:
-        return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type, all_enum)
-    elif type_obj == str:
-        return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type, all_enum)
-    elif type_obj == int:
-        return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type, all_enum)
-    elif type_obj == bool:
-        return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type, all_enum)
-    elif type_obj in(dict, collections.OrderedDict):
-        return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
-    elif type_obj == list:
-        if type(field_value[0]) in [float, str, bool, int, list]:
-            # return get_base_type(field_name, field_value[0], specified_type, all_enum)
-            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value[0]), specified_type, all_enum)
-        else:
-            return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
-    else:
-        print("未知类型:", type_obj)
-        assert False
+# def get_base_type(field_name, field_value, specified_type, all_enum):
+#     type_obj = type(field_value)
+#     if type_obj == float:
+#         return make_type(data_type.TypeEnum.double, data_type.TypeEnum.double, specified_type, all_enum)
+#     elif type_obj == str:
+#         return make_type(data_type.TypeEnum.string, data_type.TypeEnum.string, specified_type, all_enum)
+#     elif type_obj == int:
+#         return make_type(data_type.TypeEnum.int, data_type.TypeEnum.int, specified_type, all_enum)
+#     elif type_obj == bool:
+#         return make_type(data_type.TypeEnum.bool, data_type.TypeEnum.bool, specified_type, all_enum)
+#     elif type_obj in(dict, collections.OrderedDict):
+#         return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
+#     elif type_obj == list:
+#         if type(field_value[0]) in [float, str, bool, int, list]:
+#             # return get_base_type(field_name, field_value[0], specified_type, all_enum)
+#             return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value[0]), specified_type, all_enum)
+#         else:
+#             return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
+#     else:
+#         print("未知类型:", type_obj)
+#         assert False
 
 
 # string int float double time object list list_object enum bool
@@ -187,12 +187,8 @@ def get_recursive_type(field_name, field_value, specified_type, all_enum):
     elif type_obj in(dict, collections.OrderedDict):
         return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
     elif type_obj == list:
-        # if field_name.find('userTypes') != -1:
-        #     import pdb
-        #     pdb.set_trace()
         if type(field_value[0]) in [float, str, bool, int, list]:
             return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value[0]), specified_type, all_enum)
-            # return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type, all_enum)
         else:
             return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
     else:

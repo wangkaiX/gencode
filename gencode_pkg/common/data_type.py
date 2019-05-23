@@ -287,7 +287,6 @@ class StructInfo:
         for field in self.__fields:
             if not field.is_necessary():
                 count = count+1
-                # print(field.get_name(), count)
         for node in self.__nodes:
             if type(node) == list and len(node) > 0:
                 if not node[0].__is_necessary:
@@ -304,9 +303,8 @@ class StructInfo:
 
     def add_attribute(self, name, value, is_list_object, all_enum):
         field_name, necessary, comment, _type = get_key_value_attr(name, value, all_enum)
-        # print(field_name, _type)
         if is_list_object:
-            st = StructInfo(field_name, comment, self.__is_req, self.__is_resp)
+            st = StructInfo(name, "", self.__is_req, self.__is_resp)
             st.__is_necessary = necessary
             if len(self.__nodes) > 0 and type(self.__nodes[-1]) == list:
                 if self.__nodes[-1][0].__name == st.__name:
@@ -315,7 +313,7 @@ class StructInfo:
                 self.__nodes.append([st])
             return st, True
         elif _type.is_object():
-            st = StructInfo(field_name, comment, self.__is_req, self.__is_resp)
+            st = StructInfo(name, "", self.__is_req, self.__is_resp)
             st.__is_necessary = necessary
             self.__nodes.append(st)
             return st, True

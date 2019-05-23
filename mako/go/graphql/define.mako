@@ -50,9 +50,9 @@ type  ${st.get_name()} struct {
     % endif
 
     % if type(node) == list:
-    ${gen_title_name(node[0].get_name())} ${flag}[]${flag}${node[0].get_name()} // ${node[0].get_comment()}
+    ${gen_title_name(node[0].get_field_name())} ${flag}[]${flag}${node[0].get_name()} // ${node[0].get_comment()}
     % else:
-    ${gen_title_name(node.get_name())} ${flag}${node.get_name()} // ${node.get_comment()}
+    ${gen_title_name(node.get_field_name())} ${flag}${node.get_name()} // ${node.get_comment()}
     % endif
 
 % endfor

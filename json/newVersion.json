@@ -14,7 +14,7 @@
                 "id":"id123",
                 "age":32,
                 "address":"shanghai",
-                "students":[{
+                "studentss":[{
                     "name":"xhansan",
                     "age":19,
                     "high":170
@@ -39,7 +39,7 @@
                 "id":"id123",
                 "age":32,
                 "address":"shanghai",
-                "studentsResp":[{
+                "studentsResp|||Student":[{
                     "name":"xhansan",
                     "age":19,
                     "high":170

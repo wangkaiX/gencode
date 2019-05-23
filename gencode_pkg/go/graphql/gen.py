@@ -45,7 +45,7 @@ def gen_servers(all_interface, all_type, mako_dir, resolver_out_dir, query_list,
         gen_func(interface, mako_dir, resolver_out_dir, query_list, pro_path)
     for struct_info in all_type:
         if struct_info.is_resp():
-            print(struct_info.get_name())
+            # print(struct_info.get_name())
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
 
 
@@ -169,7 +169,6 @@ def remove_quotes(json_str, remove_value=False):
                 # line = line.replace(''', '', -1)
                 line = line.replace(data_type.FlagEnum, '', -1)
         lines = lines + line
-    # print("lines:", lines[1:-1])
     return lines[1:-1]
 
 
@@ -212,8 +211,8 @@ def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
         sfile = open(filepath, "w")
         req_json = st.to_json_without_i(find, True)
         input_args = gen_input_args(req_json)
-        print(input_args)
-        print(output_args)
+        # print(input_args)
+        # print(output_args)
 
         sfile.write(t.render(
             interface=interface,
