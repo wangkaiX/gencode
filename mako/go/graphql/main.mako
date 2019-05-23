@@ -15,7 +15,7 @@ func main() {
 	handler := relay.Handler{Schema: schema}
 	h := httpserver.InitHttpServer(
 		httpserver.Trace(false),
-		httpserver.HostPort("", "40011"),
+		httpserver.HostPort("${ip}", "${port}"),
 		httpserver.ReadTimeout(10*time.Second),
 		httpserver.WriteTimeout(10*time.Second),
 		httpserver.PathFunc("/graphql", "GET,POST", handler.ServeHTTP),

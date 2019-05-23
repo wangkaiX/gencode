@@ -27,7 +27,7 @@ ${type_t} ${st.get_name()} {
         % else:
             <% flag = '!' %>
         % endif
-        % if field.is_list():
+        % if field.is_list() or field.is_list_enum():
     ${field.get_name()}:[${field.get_type()._graphql}!]${flag}
         % else:
     ${field.get_name()}:${field.get_type()._graphql}${flag}

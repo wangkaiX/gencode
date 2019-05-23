@@ -119,7 +119,10 @@ def make_type(type_kind, type_type, specified_type, all_enum):
         type_type = specified_type
     all_enum_name = [enum.get_name() for enum in all_enum]
     if type_type in all_enum_name:
-        type_kind = data_type.TypeEnum.enum
+        if type_kind == data_type.TypeEnum.list:
+            type_kind = data_type.TypeEnum.list_enum
+        else:
+            type_kind = data_type.TypeEnum.enum
     return data_type.Type(type_kind, type_type)
 
 
@@ -138,7 +141,8 @@ def get_base_type(field_name, field_value, specified_type, all_enum):
         return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
     elif type_obj == list:
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return get_base_type(field_name, field_value[0], specified_type, all_enum)
+            # return get_base_type(field_name, field_value[0], specified_type, all_enum)
+            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value[0]), specified_type, all_enum)
         else:
             return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
     else:
@@ -183,8 +187,12 @@ def get_recursive_type(field_name, field_value, specified_type, all_enum):
     elif type_obj in(dict, collections.OrderedDict):
         return make_type(data_type.TypeEnum.object, gen_title_name(field_name), specified_type, all_enum)
     elif type_obj == list:
+        # if field_name.find('userTypes') != -1:
+        #     import pdb
+        #     pdb.set_trace()
         if type(field_value[0]) in [float, str, bool, int, list]:
-            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type, all_enum)
+            return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value[0]), specified_type, all_enum)
+            # return make_type(data_type.TypeEnum.list, get_base_type_enum(field_value), specified_type, all_enum)
         else:
             return make_type(data_type.TypeEnum.list_object, gen_title_name(field_name), specified_type, all_enum)
     else:

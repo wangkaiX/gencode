@@ -4,9 +4,9 @@
 import os
 # from gencode_pkg.common.data_type import gen_title_name
 from mako.template import Template
-from gencode_pkg.common import util
+from gencode_pkg.common import util, data_type
 from gencode_pkg.common.read_config import gen_request_response
-import json
+# import json
 import shutil
 
 
@@ -124,63 +124,65 @@ def gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, quer
     sfile.close()
 
 
-def gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path):
+def gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
     # import pdb; pdb.set_trace()
     for interface in all_interface:
-        gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path)
+        gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port)
 
 
-def get_field(fields, resps):
-    fieldstr = ""
-    for field in fields:
-        # import pdb; pdb.set_trace()
-        if field.is_object():
-            fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_type().get_name()].fields(), resps) + "\n}\n"
-        else:
-            fieldstr = fieldstr + '\t' * 3 + field.get_name() + "\n"
-    return fieldstr
+# def get_field(fields, resps):
+#     fieldstr = ""
+#     for field in fields:
+#         # import pdb; pdb.set_trace()
+#         if field.is_object():
+#             fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_type().get_name()].fields(), resps) + "\n}\n"
+#         else:
+#             fieldstr = fieldstr + '\t' * 3 + field.get_name() + "\n"
+#     return fieldstr
 
 
-def get_value(field):
-    if field.get_type()._type in ["int", "float", "double", "bool"]:
-        return str(field.get_value())
-    return '"' + str(field.get_value()) + '"'
+# def get_value(field):
+#     if field.get_type()._type in ["int", "float", "double", "bool"]:
+#         return str(field.get_value())
+#     return '"' + str(field.get_value()) + '"'
 
 
-def remove_quotes(json_str, enum_fields):
+def remove_quotes(json_str, remove_value=False):
     json_str = str(json_str)
     lines = ""
     for line in json_str.splitlines(True):
         index = line.find(":")
         if -1 == index:
             pass
+        elif line.find("{") != -1:
+            line = line.replace('"', '', 2)
+            if remove_value:
+                line = line.replace(':', '', -1)
         else:
             line = line.replace('"', '', 2)
             key = line.split(":")[0]
-            key = key.strip()
-            if key in enum_fields:
-                line = line.replace('"', '', 2)
+            # key = key.strip()
+            if remove_value:
+                line = key+"\n"
+            if key.find(data_type.FlagEnum) != -1:
+                line = line.replace('"', '', -1)
+                # line = line.replace(''', '', -1)
+                line = line.replace(data_type.FlagEnum, '', -1)
         lines = lines + line
-    print("lines:", lines[1:-1])
+    # print("lines:", lines[1:-1])
     return lines[1:-1]
 
 
-def get_input_args(interface_name, enum_fields):
-    if not os.path.exists(g_api_dir):
-        print(g_api_dir, "not exists")
-        assert False
-    print("api_dir:", g_api_dir)
-    jmap = util.readjson("%s/%s_test.json" % (g_api_dir, interface_name))
-    # 只保留请求
-    del jmap[list(jmap.keys())[1]]
-    if not jmap[list(jmap.keys())[0]]:
-        return ""
-    json_str = json.dumps(jmap, separators=(',', ':'), indent=4, ensure_ascii=False)
+def gen_input_args(req_json):
     # 去除key的 "
-    return remove_quotes(json_str, enum_fields)
+    return remove_quotes(req_json)
 
 
-def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path):
+def gen_out_field(resp_json):
+    return remove_quotes(resp_json, True)
+
+
+def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
     if not os.path.exists(go_test_out_dir):
         os.makedirs(go_test_out_dir)
 
@@ -192,22 +194,37 @@ def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path):
     mako_file = mako_dir + "/test.mako"
     util.check_file(mako_file)
     t = Template(filename=mako_file, input_encoding="utf8")
-    for i in range(0, st.get_null_count()):
-        filepath = go_test_out_dir + "/" + interface.get_name() + str(i) + "_test.go"
-        sfile = open(filepath, "w")
-        print("test file:", filepath)
+    resp_json = interface.get_resp().to_json_without_i([], False, True)
+    output_args = gen_out_field(resp_json)
+    null_count = st.get_null_count()
+    for i in (list(range(0, null_count)) + [[], list(range(0, null_count))]):
+        if type(i) == list:
+            find = i
+            if i == []:
+                name = "none"
+            else:
+                name = "all"
+        else:
+            name = str(i)
+            find = [i]
 
-        req_json = st.to_json_without_i(i, True)
-        resp_json = st.to_json_without_i(i, False, True)
+        filepath = "%s/%s_%s_test.go" % (go_test_out_dir, interface.get_name(), name)
+        sfile = open(filepath, "w")
+        req_json = st.to_json_without_i(find, True)
+        input_args = gen_input_args(req_json)
+        print(input_args)
+        print(output_args)
 
         sfile.write(t.render(
             interface=interface,
             query_type=query_type,
             gen_title_name=util.gen_title_name,
-            get_field=get_field,
+            # get_field=get_field,
+            name=name,
             input_args=input_args,
             output_args=output_args,
             pro_path=pro_path,
+            port=port,
             ))
         sfile.close()
 
@@ -228,7 +245,7 @@ def gen_enums(all_enum, mako_dir, data_type_out_dir):
     sfile.close()
 
 
-def gen_main(mako_dir, schema_out_dir, pro_path):
+def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):
     util.check_file(mako_dir)
     if not os.path.exists(schema_out_dir):
         os.makedirs(schema_out_dir)
@@ -241,6 +258,8 @@ def gen_main(mako_dir, schema_out_dir, pro_path):
     sfile = open(filepath, "w")
     sfile.write(t.render(
         pro_path=pro_path,
+        ip=ip,
+        port=port,
         ))
 
     sfile.close()
@@ -278,15 +297,13 @@ def gen_code(
     go_test_out_dir = util.abs_path(go_test_out_dir)
 
     # 数据整理
-    print(filenames)
+    # print(filenames)
     for filename in filenames:
         interfaces = gen_request_response(filename, all_enum)
         util.add_interface(all_interface, interfaces)
         for interface in interfaces:
-            print("gen:***************************")
             for t in interface.get_types():
                 util.add_struct(all_type, t)
-            print("gen after:***************************")
             for enum in interface.get_enums():
                 util.add_enum(all_enum, enum)
 
@@ -295,7 +312,7 @@ def gen_code(
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
         # 生成服务端接口实现文件
-        gen_main(mako_dir, schema_out_dir, pro_path)
+        gen_main(mako_dir, schema_out_dir, pro_path, ip, port)
         gen_servers(all_interface, all_type, mako_dir, resolver_out_dir, query_list, pro_path)
         gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
-        gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path)
+        gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port)

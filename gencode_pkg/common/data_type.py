@@ -6,10 +6,12 @@ from gencode_pkg.common import util
 # from gencode_pkg.common import data_type
 from enum import Enum
 # import os
-# import copy
+import copy
 
 
-TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum bool")
+TypeEnum = Enum("TypeEnum", "string int float double time object list list_object enum list_enum bool")
+
+FlagEnum = "|ENUM"
 
 
 class Type:
@@ -48,6 +50,10 @@ class Type:
             self._go = _type
             self._cpp = _type
             self._graphql = _type
+        elif kind == TypeEnum.list_enum:
+            self._go = _type
+            self._cpp = _type
+            self._graphql = _type
         elif kind == TypeEnum.object or kind == TypeEnum.list_object:
             self._go = _type
             self._cpp = _type
@@ -59,6 +65,9 @@ class Type:
 
     def is_enum(self):
         return self._kind == TypeEnum.enum
+
+    def is_list_enum(self):
+        return self._kind == TypeEnum.list_enum
 
     def is_object(self):
         return self._kind == TypeEnum.object or self._kind == TypeEnum.list_object
@@ -73,7 +82,7 @@ class Type:
         return self._type == TypeEnum.bool
 
     def is_list(self):
-        return self._kind == TypeEnum.list or self._kind == TypeEnum.list_object
+        return self._kind in [TypeEnum.list, TypeEnum.list_object, TypeEnum.list_enum]
 
     def __str__(self):
         return "kind:%s go_type:%s cpp_type:%s graphql_type:%s\n" % (self._kind, self._go, self._cpp, self._graphql)
@@ -113,6 +122,12 @@ class Field:
 
     def is_list(self):
         return self.__type.is_list()
+
+    def is_enum(self):
+        return self.__type.is_enum()
+
+    def is_list_enum(self):
+        return self.__type.is_list_enum()
 
     def __eq__(self, other):
         return self.__name == other.__name
@@ -180,19 +195,25 @@ class StructInfo:
     def get_nodes(self):
         return self.__nodes
 
-    def to_json(self):
-        return json.dumps(self.to_map(), separators=(',', ':'), indent=4, ensure_ascii=False)
+    # def to_json(self):
+    #     return json.dumps(self.to_map(), separators=(',', ':'), indent=4, ensure_ascii=False)
 
-    def to_map(self):
-        m = {}
-        for field in self.__fields:
-            m[field.get_name()] = field.get_value()
-        for node in self.__nodes:
-            if type(node) == list and len(node) > 0:
-                m[node[0].get_field_name()] = [n.to_map() for n in node]
-            elif type(node) != list:
-                m[node.get_field_name()] = node.to_map()
-        return m
+    # def to_map(self):
+    #     m = self.to_map_r()
+    #     if m != {}:
+    #         m[self.get_field_name()] = m
+    #     return m
+
+    # def to_map_r(self):
+    #     m = {}
+    #     for field in self.__fields:
+    #         m[field.get_name()] = field.get_value()
+    #     for node in self.__nodes:
+    #         if type(node) == list and len(node) > 0:
+    #             m[node[0].get_field_name()] = [n.to_map_r() for n in node]
+    #         elif type(node) != list:
+    #             m[node.get_field_name()] = node.to_map_r()
+    #     return m
 
     def to_json_without_i(self, find, enum_flag=False, ignore_array=False):
         return json.dumps(self.to_map_without_i(find, enum_flag, ignore_array), separators=(',', ':'), indent=4, ensure_ascii=False)
@@ -200,12 +221,16 @@ class StructInfo:
     def to_map_without_i(self, find, enum_flag=False, ignore_array=False):
         find = [i+1 for i in find]
         m, _ = self.to_map_without_i_r(find, 0, enum_flag, ignore_array)
+        if m != {} and self.__is_req:
+            m2 = {}
+            m2[self.get_field_name()] = copy.deepcopy(m)
+            m = m2
         return m
 
     def to_map_without_i_r(self, find, curr, enum_flag, ignore_array):
         m = {}
         if enum_flag:
-            enum_flag = "|ENUM"
+            enum_flag = FlagEnum
         else:
             enum_flag = ""
         for field in self.__fields:
@@ -215,9 +240,13 @@ class StructInfo:
                 pass
             else:
                 field_name = field.get_name()
-                if field.get_type().is_enum():
+                if field.is_enum() or field.is_list_enum():
                     field_name += enum_flag
                 m[field_name] = field.get_value()
+                if field.is_list() and ignore_array:
+                    m[field_name] = str(field.get_value())
+                if field.is_list_enum():
+                    m[field_name] = str(field.get_value()).replace("'", "", -1)
         for node in self.__nodes:
             if type(node) == list and len(node) > 0:
                 if not node[0].__is_necessary:

@@ -15,10 +15,15 @@ type ${resp.get_name()}Resolver struct {
 }
 
 % for field in resp.fields():
+    <%
+        ret_type = field.get_type()._go
+        if field.is_enum() or field.is_list_enum():
+            ret_type = 'string'
+    %>
     % if field.is_list():
-func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() []${field.get_type()._go} {
+func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() []${ret_type} {
     % else:
-func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() ${field.get_type()._go} {
+func (r *${resp.get_name()}Resolver) ${gen_title_name(field.get_name())}() ${ret_type} {
     % endif
     return r.r.${gen_title_name(field.get_name())}
 }

@@ -122,11 +122,11 @@ def gen_request_response(filename, all_enum):
     # test_case.gen_test_case(filename)
 
 
-interfaces = gen_request_response("../../json/newVersion.json", [])
-with open("json.txt", "w") as f:
-    for interface in interfaces:
-        print(interface.get_req().to_json(), interface.get_req().get_null_count())
-        f.write(interface.get_req().to_json_without_i(range(0, interface.get_req().get_null_count()), True, True))
-        for i in range(0, interface.get_req().get_null_count()):
-            f.write(interface.get_req().to_json_without_i([i], True, True))
+# interfaces = gen_request_response("../../json/newVersion.json", [])
+# with open("json.txt", "w") as f:
+#     for interface in interfaces:
+#         print(interface.get_req().to_json(), interface.get_req().get_null_count())
+#         f.write(interface.get_req().to_json_without_i(range(0, interface.get_req().get_null_count()), True, True))
+#         for i in range(0, interface.get_req().get_null_count()):
+#             f.write(interface.get_req().to_json_without_i([i], True, True))
 # gen_request_response("/home/ubuntu/gencode/json/newVersion2.json")

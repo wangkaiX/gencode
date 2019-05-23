@@ -22,7 +22,7 @@ type  ${st.get_name()} struct {
             flag = '*'
         %>
     % endif
-    % if field.get_type()._kind == data_type.TypeEnum.enum:
+    % if field.get_type()._kind in [data_type.TypeEnum.enum, data_type.TypeEnum.list_enum]:
         <%
           _type = 'string'
         %>

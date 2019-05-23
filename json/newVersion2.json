@@ -1,6 +1,6 @@
 {
     "createJob2|创建作业2":{
-        "createJobReq|req":{
+        "createJob2Req|req":{
             "projectID||项目ID":"prj21231",
             "algorithmID||算法ID":"alg32232",
             "description":"测试作业"
