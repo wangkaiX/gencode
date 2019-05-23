@@ -56,7 +56,7 @@ def gen_func(interface, mako_dir, resolver_out_dir, query_list, pro_path):
         filename = interface.get_name() + "_mutation"
     filepath = "%s/%s.go" % (resolver_out_dir, filename)
     if os.path.exists(filepath):
-        pass
+        return
 
     mako_file = mako_dir + "/func.mako"
     util.check_file(mako_file)
