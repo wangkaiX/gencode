@@ -5,36 +5,37 @@ import os
 # from gencode_pkg.common.data_type import gen_title_name
 from mako.template import Template
 from gencode_pkg.common import util, data_type
+from gencode_pkg.common.util import gen_defines, gen_func, gen_enums
 from gencode_pkg.common.read_config import gen_request_response
 # import json
 import shutil
 
 
-def gen_define(st, mako_dir, data_type_out_dir):
-    package = os.path.basename(data_type_out_dir)
-    ctx = {
-            "st": st,
-            "gen_title_name": util.gen_title_name,
-            "to_underline": util.to_underline,
-            "package": package,
-          }
-    mako_file = mako_dir + "/define.mako"
-    util.check_file(mako_file)
-    t = Template(filename=mako_file, input_encoding='utf8')
-    # include_dir = defines_out_dir
-    if not os.path.exists(data_type_out_dir):
-        os.makedirs(data_type_out_dir)
+# def gen_define(st, mako_dir, data_type_out_dir):
+#     package = os.path.basename(data_type_out_dir)
+#     ctx = {
+#             "st": st,
+#             "gen_title_name": util.gen_title_name,
+#             "to_underline": util.to_underline,
+#             "package": package,
+#           }
+#     mako_file = mako_dir + "/define.mako"
+#     util.check_file(mako_file)
+#     t = Template(filename=mako_file, input_encoding='utf8')
+#     # include_dir = defines_out_dir
+#     if not os.path.exists(data_type_out_dir):
+#         os.makedirs(data_type_out_dir)
 
-    data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
-    hfile = open(data_type_file, "w")
-    hfile.write(t.render(**ctx))
-    hfile.close()
+#     data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
+#     hfile = open(data_type_file, "w")
+#     hfile.write(t.render(**ctx))
+#     hfile.close()
 
 
-def gen_defines(all_type, mako_dir, data_type_out_dir):
-    for st in all_type:
-        if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
-            gen_define(st, mako_dir, data_type_out_dir)
+# def gen_defines(all_type, mako_dir, data_type_out_dir):
+#     for st in all_type:
+#         if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
+#             gen_define(st, mako_dir, data_type_out_dir)
 
 
 def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path):
@@ -51,34 +52,34 @@ def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_di
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
 
 
-def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
-    resolver = ""
-    mako_file = "func.mako"
-    out_dir = func_out_dir
-    if interface_type == data_type.InterfaceEnum.resolver:
-        mako_file = "func_resolver.mako"
-        out_dir = resolver_out_dir
-        if interface.get_name() in query_list:
-            resolver = "_query"
-        else:
-            resolver = "_mutation"
-    filename = interface.get_name() + resolver
+# def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
+#     resolver = ""
+#     mako_file = "func.mako"
+#     out_dir = func_out_dir
+#     if interface_type == data_type.InterfaceEnum.resolver:
+#         mako_file = "func_resolver.mako"
+#         out_dir = resolver_out_dir
+#         if interface.get_name() in query_list:
+#             resolver = "_query"
+#         else:
+#             resolver = "_mutation"
+#     filename = interface.get_name() + resolver
 
-    filepath = "%s/%s.go" % (out_dir, filename)
-    if os.path.exists(filepath) and interface_type == data_type.InterfaceEnum.func:
-        return
+#     filepath = "%s/%s.go" % (out_dir, filename)
+#     if os.path.exists(filepath) and interface_type == data_type.InterfaceEnum.func:
+#         return
 
-    mako_file = mako_dir + "/" + mako_file
-    util.check_file(mako_file)
+#     mako_file = mako_dir + "/" + mako_file
+#     util.check_file(mako_file)
 
-    t = Template(filename=mako_file, input_encoding="utf8")
-    sfile = open(filepath, "w")
-    sfile.write(t.render(
-        pro_path=pro_path,
-        gen_title_name=util.gen_title_name,
-        interface=interface,
-        ))
-    sfile.close()
+#     t = Template(filename=mako_file, input_encoding="utf8")
+#     sfile = open(filepath, "w")
+#     sfile.write(t.render(
+#         pro_path=pro_path,
+#         gen_title_name=util.gen_title_name,
+#         interface=interface,
+#         ))
+#     sfile.close()
 
 
 def gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path):
@@ -238,20 +239,20 @@ def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
         sfile.close()
 
 
-def gen_enums(all_enum, mako_dir, data_type_out_dir):
-    util.check_file(mako_dir)
-    if not os.path.exists(data_type_out_dir):
-        os.makedirs(data_type_out_dir)
+# def gen_enums(all_enum, mako_dir, data_type_out_dir):
+#     util.check_file(mako_dir)
+#     if not os.path.exists(data_type_out_dir):
+#         os.makedirs(data_type_out_dir)
 
-    filepath = data_type_out_dir + "/" + "enums_gen.go"
-    mako_file = mako_dir + "/enum.mako"
-    t = Template(filename=mako_file, input_encoding="utf8")
-    sfile = open(filepath, "w")
-    sfile.write(t.render(
-        all_enum=all_enum,
-        ))
+#     filepath = data_type_out_dir + "/" + "enums_gen.go"
+#     mako_file = mako_dir + "/enum.mako"
+#     t = Template(filename=mako_file, input_encoding="utf8")
+#     sfile = open(filepath, "w")
+#     sfile.write(t.render(
+#         all_enum=all_enum,
+#         ))
 
-    sfile.close()
+#     sfile.close()
 
 
 def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):

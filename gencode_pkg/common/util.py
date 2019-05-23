@@ -8,7 +8,81 @@ import json
 import os
 from collections import OrderedDict
 import re
+from mako.template import Template
 # import pdb
+
+
+def gen_enums(all_enum, mako_dir, data_type_out_dir):
+    check_file(mako_dir)
+    if not os.path.exists(data_type_out_dir):
+        os.makedirs(data_type_out_dir)
+
+    filepath = data_type_out_dir + "/" + "enums_gen.go"
+    mako_file = mako_dir + "/enum.mako"
+    t = Template(filename=mako_file, input_encoding="utf8")
+    sfile = open(filepath, "w")
+    sfile.write(t.render(
+        all_enum=all_enum,
+        ))
+
+    sfile.close()
+
+
+def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
+    resolver = ""
+    mako_file = "func.mako"
+    out_dir = func_out_dir
+    if interface_type == data_type.InterfaceEnum.resolver:
+        mako_file = "func_resolver.mako"
+        out_dir = resolver_out_dir
+        if interface.get_name() in query_list:
+            resolver = "_query"
+        else:
+            resolver = "_mutation"
+    filename = interface.get_name() + resolver
+
+    filepath = "%s/%s.go" % (out_dir, filename)
+    if os.path.exists(filepath) and interface_type == data_type.InterfaceEnum.func:
+        return
+
+    mako_file = mako_dir + "/" + mako_file
+    check_file(mako_file)
+
+    t = Template(filename=mako_file, input_encoding="utf8")
+    sfile = open(filepath, "w")
+    sfile.write(t.render(
+        pro_path=pro_path,
+        gen_title_name=gen_title_name,
+        interface=interface,
+        ))
+    sfile.close()
+
+
+def gen_define(st, mako_dir, data_type_out_dir):
+    package = os.path.basename(data_type_out_dir)
+    ctx = {
+            "st": st,
+            "gen_title_name": gen_title_name,
+            "to_underline": to_underline,
+            "package": package,
+          }
+    mako_file = mako_dir + "/define.mako"
+    check_file(mako_file)
+    t = Template(filename=mako_file, input_encoding='utf8')
+    # include_dir = defines_out_dir
+    if not os.path.exists(data_type_out_dir):
+        os.makedirs(data_type_out_dir)
+
+    data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
+    hfile = open(data_type_file, "w")
+    hfile.write(t.render(**ctx))
+    hfile.close()
+
+
+def gen_defines(all_type, mako_dir, data_type_out_dir):
+    for st in all_type:
+        if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
+            gen_define(st, mako_dir, data_type_out_dir)
 
 
 def to_underline(name):

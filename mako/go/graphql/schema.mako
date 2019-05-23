@@ -20,6 +20,7 @@ enum ${enum.get_name()} {
     % elif st.is_resp():
         <% type_t = 'type' %>
     % endif
+# ${st.get_comment()}
 ${type_t} ${st.get_name()} {
     % for field in st.fields():
         % if (st.is_req() and not field.is_necessary()):
@@ -54,6 +55,7 @@ type Query {
     req = interface.get_req()
     resp = interface.get_resp()
     %>
+    # ${interface.get_comment()}
         % if len(req.fields()) > 0:
     ${interface.get_name()}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
         % else:
@@ -70,6 +72,7 @@ type Mutation{
     req = interface.get_req()
     resp = interface.get_resp()
     %>
+    # ${interface.get_comment()}
     % if interface.get_name() not in query_list:
         % if len(req.fields()) > 0:
     ${interface.get_name()}(${req.get_name()[0].lower()}${req.get_name()[1:]}:${gen_title_name(req.get_name())}):${resp.get_name()}
