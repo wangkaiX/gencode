@@ -45,7 +45,7 @@ def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_di
         os.makedirs(func_out_dir)
     shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface in all_interface:
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.resolver)
+        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.graphql)
         gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.func)
     for struct_info in all_type:
         if struct_info.is_resp():
@@ -255,15 +255,15 @@ def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
 #     sfile.close()
 
 
-def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):
+def gen_run(mako_dir, schema_out_dir, pro_path, ip, port):
     util.check_file(mako_dir)
     if not os.path.exists(schema_out_dir):
         os.makedirs(schema_out_dir)
 
-    filepath = schema_out_dir + "/" + "main.go"
+    filepath = schema_out_dir + "/" + "graphql_run.go"
     if os.path.exists(filepath):
         return
-    mako_file = mako_dir + "/main.mako"
+    mako_file = mako_dir + "/run.mako"
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filepath, "w")
     sfile.write(t.render(
@@ -324,7 +324,7 @@ def gen_code(
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
         # 生成服务端接口实现文件
-        gen_main(mako_dir, schema_out_dir, pro_path, ip, port)
+        gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
         gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path)
         gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
         gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port)

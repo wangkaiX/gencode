@@ -10,7 +10,7 @@ import (
 	"github.com/graph-gophers/graphql-go/relay"
 )
 
-func main() {
+func GraphqlRun() {
 	schema := graphql.MustParseSchema(schema_str, &resolver.Resolver{})
 	handler := relay.Handler{Schema: schema}
 	h := httpserver.InitHttpServer(

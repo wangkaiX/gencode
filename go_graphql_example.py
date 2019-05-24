@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from gencode_pkg.go.graphql import gen
+from gencode_pkg.common import util
+from gencode_pkg.common.data_type import InterfaceEnum
 import os
 
 if __name__ == '__main__':
@@ -23,3 +25,6 @@ if __name__ == '__main__':
             gen_client=None,
             query_list=['createJob', 'getAllPermission', 'queryResourcePermission', 'judgePermission', 'login'],
             )
+
+    # util.gen_main([InterfaceEnum.graphql, InterfaceEnum.restful], gosrc + "/cmd")
+    util.gen_main([InterfaceEnum.graphql], gosrc + "/cmd")

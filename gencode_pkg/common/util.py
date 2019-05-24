@@ -12,6 +12,34 @@ from mako.template import Template
 # import pdb
 
 
+def gen_main(interface_types, out_dir):
+    text = """package main
+<%
+from gencode_pkg.common import data_type
+%>
+func main() {
+% for interface_type in interface_types:
+    % if interface_type == data_type.InterfaceEnum.graphql:
+    go GraphqlRun()
+    % elif interface_type == data_type.InterfaceEnum.restful:
+    go RestfulRun()
+    % endif
+% endfor
+    select {}
+}
+
+    """
+    t = Template(text=text, input_encoding='utf8')
+    filename = out_dir + "/main.go"
+    # if os.path.exists(filename):
+    #     return
+    f = open(filename, "w")
+    f.write(t.render(
+        interface_types=interface_types
+        ))
+    f.close()
+
+
 def gen_enums(all_enum, mako_dir, data_type_out_dir):
     check_file(mako_dir)
     if not os.path.exists(data_type_out_dir):
@@ -32,7 +60,7 @@ def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pr
     resolver = ""
     mako_file = "func.mako"
     out_dir = func_out_dir
-    if interface_type == data_type.InterfaceEnum.resolver:
+    if interface_type == data_type.InterfaceEnum.graphql:
         mako_file = "func_resolver.mako"
         out_dir = resolver_out_dir
         if interface.get_name() in query_list:
@@ -106,14 +134,6 @@ def package_name(dirname):
     if dirname.find(gosrc) != -1:
         return dirname[len(gosrc):]
     return dirname
-
-
-# def get_first_value(m):
-#     vs = list(m.values())
-#     if len(vs) == 0:
-#         return None
-#     else:
-#         return vs[0]
 
 
 def abs_path(path):

@@ -13,7 +13,7 @@ TypeEnum = Enum("TypeEnum", "string int float double time object list list_objec
 
 FlagEnum = "|ENUM"
 
-InterfaceEnum = Enum("InterfaceEnum", "resolver func grpc")
+InterfaceEnum = Enum("InterfaceEnum", "graphql func grpc restful")
 
 
 class Type:
