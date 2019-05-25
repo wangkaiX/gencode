@@ -7,7 +7,7 @@ import (
 
     "context"
 
-    "${pro_path}/app/define"
+    "${pro_path}/app/define/graphql_define"
     "github.com/machinebox/graphql"
 )
 
@@ -17,7 +17,7 @@ import (
 %>
 
 type ${interface_name}${resp.get_name()}_${name}Struct struct {
-    ${gen_title_name(interface_name)} define.${resp.get_name()}
+    ${gen_title_name(interface_name)} graphql_define.${resp.get_name()}
 }
 
 ##<%def name="gen_print(interface_name, fields)">

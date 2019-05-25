@@ -276,7 +276,9 @@ def gen_run(mako_dir, schema_out_dir, pro_path, ip, port):
 
 
 def gen_code(
-        filenames, mako_dir,
+        filenames,
+        common_mako_dir,
+        mako_dir,
         data_type_out_dir,
         func_out_dir,
         resolver_out_dir, schema_out_dir,
@@ -320,7 +322,8 @@ def gen_code(
                 util.add_enum(all_enum, enum)
 
     # 生成.h文件
-    gen_defines(all_type, mako_dir, data_type_out_dir)
+    gen_defines(all_type, pro_path, mako_dir, "define.mako", data_type_out_dir + "/graphql_define")
+    gen_defines(all_type, pro_path, common_mako_dir, "define.mako", data_type_out_dir)
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
         # 生成服务端接口实现文件

@@ -86,15 +86,16 @@ def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pr
     sfile.close()
 
 
-def gen_define(st, mako_dir, data_type_out_dir):
+def gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir):
     package = os.path.basename(data_type_out_dir)
     ctx = {
             "st": st,
             "gen_title_name": gen_title_name,
             "to_underline": to_underline,
             "package": package,
+            "pro_path": pro_path,
           }
-    mako_file = mako_dir + "/define.mako"
+    mako_file = mako_dir + "/" + mako_file
     check_file(mako_file)
     t = Template(filename=mako_file, input_encoding='utf8')
     # include_dir = defines_out_dir
@@ -107,10 +108,10 @@ def gen_define(st, mako_dir, data_type_out_dir):
     hfile.close()
 
 
-def gen_defines(all_type, mako_dir, data_type_out_dir):
+def gen_defines(all_type, pro_path, mako_dir, mako_file, data_type_out_dir):
     for st in all_type:
         if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
-            gen_define(st, mako_dir, data_type_out_dir)
+            gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir)
 
 
 def to_underline(name):
@@ -184,6 +185,7 @@ def add_enum(all_enum, e):
 
 # 生成驼峰类型的类型名
 def gen_title_name(name):
+    # print("name:", name)
     if -1 == name.find('_'):
         name = name[0].upper() + name[1:]
         return name

@@ -1,4 +1,4 @@
-package define
+package ${package}
 
 % for field in st.fields():
     % if 'time.Time' == field.get_type()._go:
@@ -15,7 +15,7 @@ type  ${st.get_name()} struct {
 % for field in st.fields():
     <%
     if field.get_type()._kind in [data_type.TypeEnum.enum, data_type.TypeEnum.list_enum]:
-        _type = 'int32'
+        _type = 'string'
     else:
         _type = field.get_type()._go
     %>
