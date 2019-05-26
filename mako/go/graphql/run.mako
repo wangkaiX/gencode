@@ -2,9 +2,9 @@ package main
 
 import (
 	"time"
+    "net/http"
 
 	"${pro_path}/app/resolver"
-	"git.ucloudadmin.com/securityhouse/dataflow/pkg/httpserver"
 
 	graphql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
@@ -13,13 +13,14 @@ import (
 func GraphqlRun() {
 	schema := graphql.MustParseSchema(schema_str, &resolver.Resolver{})
 	handler := relay.Handler{Schema: schema}
-	h := httpserver.InitHttpServer(
-		httpserver.Trace(false),
-		httpserver.HostPort("${ip}", "${port}"),
-		httpserver.ReadTimeout(10*time.Second),
-		httpserver.WriteTimeout(10*time.Second),
-		httpserver.PathFunc("/graphql", "GET,POST", handler.ServeHTTP),
-	)
-	h.Run()
-	select {}
+    mux := http.ServeMux{}
+    mux.Handle("/graphql", &handler)
+    
+    server := http.Server{
+        WriteTimeout : 10 * time.Second,
+        ReadTimeout : 10 * time.Second,
+        Addr : "${ip}:${port}",
+        Handler : &mux,
+    }
+    server.ListenAndServe()
 }
