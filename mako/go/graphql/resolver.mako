@@ -1,6 +1,6 @@
-package resolver
+package graphqlresolver
 
-import "${pro_path}/app/define/graphql_define"
+import "${pro_path}/app/define/graphqldefine"
 
 % for field in resp.fields():
     % if 'time' == field.get_type()._type:
@@ -11,7 +11,7 @@ import "time"
 % endfor
 
 type ${resp.get_name()}Resolver struct {
-    r *graphql_define.${resp.get_name()}
+    r *graphqldefine.${resp.get_name()}
 }
 
 % for field in resp.fields():

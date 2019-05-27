@@ -8,37 +8,37 @@ from gencode_pkg.common import util, data_type
 from gencode_pkg.common.util import gen_defines, gen_func, gen_enums
 from gencode_pkg.common.read_config import gen_request_response
 # import json
-import shutil
+# import shutil
 
 
-def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, pro_path):
+def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path):
     if not os.path.exists(resolver_out_dir):
         os.makedirs(resolver_out_dir)
     if not os.path.exists(func_out_dir):
         os.makedirs(func_out_dir)
-    shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
+    # shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
+    gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path)
     for interface in all_interface:
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, pro_path, data_type.InterfaceEnum.resolver)
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, pro_path, data_type.InterfaceEnum.func)
+        gen_func(interface, common_mako_dir, func_out_dir, pro_path, data_type.InterfaceEnum.func)
 #     for struct_info in all_type:
 #         if struct_info.is_resp():
 #             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
 
 
-# def gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path):
-#     if not os.path.exists(resolver_out_dir):
-#         os.makedirs(resolver_out_dir)
-#     mako_file = mako_dir + "/resolver.mako"
-#     util.check_file(mako_file)
-#     t = Template(filename=mako_file, input_encoding="utf8")
-#     filename = struct_info.get_name() + ".go"
-#     sfile = open(resolver_out_dir + "/" + filename, "w")
-#     sfile.write(t.render(
-#         resp=struct_info,
-#         gen_title_name=util.gen_title_name,
-#         pro_path=pro_path,
-#         ))
-#     sfile.close()
+def gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path):
+    if not os.path.exists(resolver_out_dir):
+        os.makedirs(resolver_out_dir)
+    mako_file = mako_dir + "/router.mako"
+    util.check_file(mako_file)
+    t = Template(filename=mako_file, input_encoding="utf8")
+    filename = "router.go"
+    sfile = open(resolver_out_dir + "/" + filename, "w")
+    sfile.write(t.render(
+        all_interface=all_interface,
+        gen_title_name=util.gen_title_name,
+        pro_path=pro_path,
+        ))
+    sfile.close()
 
 
 def gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port):
@@ -89,15 +89,15 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
         sfile.close()
 
 
-def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):
+def gen_run(mako_dir, schema_out_dir, pro_path, ip, port):
     util.check_file(mako_dir)
     if not os.path.exists(schema_out_dir):
         os.makedirs(schema_out_dir)
 
-    filepath = schema_out_dir + "/" + "main.go"
+    filepath = schema_out_dir + "/" + "restful_run.go"
     if os.path.exists(filepath):
         return
-    mako_file = mako_dir + "/main.mako"
+    mako_file = mako_dir + "/run.mako"
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(filepath, "w")
     sfile.write(t.render(
@@ -110,7 +110,9 @@ def gen_main(mako_dir, schema_out_dir, pro_path, ip, port):
 
 
 def gen_code(
-        filenames, mako_dir,
+        filenames,
+        common_mako_dir,
+        mako_dir,
         data_type_out_dir,
         func_out_dir,
         resolver_out_dir, schema_out_dir,
@@ -135,6 +137,7 @@ def gen_code(
     all_type = []
     all_enum = []
 
+    common_mako_dir = util.abs_path(common_mako_dir)
     mako_dir = util.abs_path(mako_dir)
     data_type_out_dir = os.path.abspath(data_type_out_dir)
     resolver_out_dir = util.abs_path(resolver_out_dir)
@@ -153,10 +156,10 @@ def gen_code(
                 util.add_enum(all_enum, enum)
 
     # 生成.h文件
-    gen_defines(all_type, mako_dir, data_type_out_dir)
+    gen_defines(all_type, pro_path, common_mako_dir, "define.mako", data_type_out_dir)
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
         # 生成服务端接口实现文件
-        gen_main(mako_dir, schema_out_dir, pro_path, ip, port)
-        gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, pro_path)
-        gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port)
+        gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
+        gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path)
+        # gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port)

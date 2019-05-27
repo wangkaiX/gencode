@@ -38,15 +38,15 @@ import shutil
 #             gen_define(st, mako_dir, data_type_out_dir)
 
 
-def gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path):
+def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path):
     if not os.path.exists(resolver_out_dir):
         os.makedirs(resolver_out_dir)
     if not os.path.exists(func_out_dir):
         os.makedirs(func_out_dir)
     shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface in all_interface:
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.graphql)
-        gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, data_type.InterfaceEnum.func)
+        gen_func(interface, mako_dir, resolver_out_dir, query_list, data_type.InterfaceEnum.graphql, query_list)
+        gen_func(interface, common_mako_dir, func_out_dir, query_list, data_type.InterfaceEnum.func, query_list)
     for struct_info in all_type:
         if struct_info.is_resp():
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
@@ -304,6 +304,7 @@ def gen_code(
     all_type = []
     all_enum = []
 
+    common_mako_dir = util.abs_path(common_mako_dir)
     mako_dir = util.abs_path(mako_dir)
     data_type_out_dir = os.path.abspath(data_type_out_dir)
     resolver_out_dir = util.abs_path(resolver_out_dir)
@@ -328,6 +329,6 @@ def gen_code(
     if gen_server:
         # 生成服务端接口实现文件
         gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
-        gen_servers(all_interface, all_type, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path)
+        gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path)
         gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
         gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port)

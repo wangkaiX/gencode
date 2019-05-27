@@ -56,13 +56,11 @@ def gen_enums(all_enum, mako_dir, data_type_out_dir):
     sfile.close()
 
 
-def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
+def gen_func(interface, mako_dir, out_dir, pro_path, interface_type, query_list=[]):
     resolver = ""
     mako_file = "func.mako"
-    out_dir = func_out_dir
     if interface_type == data_type.InterfaceEnum.graphql:
-        mako_file = "func_resolver.mako"
-        out_dir = resolver_out_dir
+        mako_file = "graphql_resolver.mako"
         if interface.get_name() in query_list:
             resolver = "_query"
         else:

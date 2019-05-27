@@ -1,4 +1,4 @@
-package ${package}
+package define
 
 % for field in st.fields():
     % if 'time.Time' == field.get_type()._go:

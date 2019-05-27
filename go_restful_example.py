@@ -15,10 +15,11 @@ if __name__ == '__main__':
                 "json/newVersion2.json",
                 "json/login.json"
                 ],
+            common_mako_dir="mako/go",
             mako_dir="mako/go/restful",
             data_type_out_dir=gosrc + "/app/define",
             func_out_dir=gosrc + "/app/service",
-            resolver_out_dir=gosrc + "/app/restful",
+            resolver_out_dir=gosrc + "/app/restfulresolver",
             schema_out_dir=gosrc + "/cmd",
             go_test_out_dir=gosrc + "/app/test/restful",
             pro_path=gosrc,
