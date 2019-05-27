@@ -203,7 +203,9 @@ class StructInfo:
     # def to_map(self):
     #     m = self.to_map_r()
     #     if m != {}:
-    #         m[self.get_field_name()] = m
+    #         m2 = {}
+    #         m2[self.get_field_name()] = m
+    #         m = m2
     #     return m
 
     # def to_map_r(self):

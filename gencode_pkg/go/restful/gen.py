@@ -42,7 +42,6 @@ def gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path):
 
 
 def gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port):
-    # import pdb; pdb.set_trace()
     for interface in all_interface:
         gen_test(interface, mako_dir, go_test_out_dir, pro_path, port)
 
@@ -60,28 +59,26 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
     null_count = st.get_null_count()
     for i in (list(range(0, null_count)) + [[], list(range(0, null_count))]):
         if type(i) == list:
-            # find = i
+            find = i
             if i == []:
                 name = "none"
             else:
                 name = "all"
         else:
             name = str(i)
-            # find = [i]
+            find = [i]
 
         filepath = "%s/%s_%s_test.go" % (go_test_out_dir, interface.get_name(), name)
         sfile = open(filepath, "w")
-        # req_json = st.to_json_without_i(find, True)
-        # input_args = gen_input_args(req_json)
+        req_json = st.to_json_without_i(find, True)
         # print(input_args)
-        # print(output_args)
 
         sfile.write(t.render(
             interface=interface,
             gen_title_name=util.gen_title_name,
             # get_field=get_field,
             name=name,
-            # input_args=input_args,
+            input_args=req_json,
             # output_args=output_args,
             pro_path=pro_path,
             port=port,
@@ -162,4 +159,4 @@ def gen_code(
         # 生成服务端接口实现文件
         gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
         gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path)
-        # gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port)
+        gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port)

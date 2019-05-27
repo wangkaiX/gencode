@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "testing"
+    "encoding/json"
 
     "context"
 
@@ -46,6 +47,7 @@ func Test${gen_title_name(interface_name)}${resp.get_name()}_${name}(t *testing.
         log.Fatal(err)
     }   
     fmt.Println(respData)
-## ${gen_print(interface_name, resp.fields())}
+    buf, _ := json.Marshal(&respData)
+    fmt.Println(string(buf))
     fmt.Println("***********************************************************************************")
 }

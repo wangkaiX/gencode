@@ -2,50 +2,38 @@ package test
 
 import (
     "fmt"
+    "io/ioutil"
     "log"
+    "net/http"
+    "strings"
     "testing"
-
-    "context"
-
-    "${pro_path}/app/define"
-    "github.com/machinebox/graphql"
 )
 
 <%
-    interface_name = interface.get_name()
+    req = interface.get_req()
     resp = interface.get_resp()
+    interface_name = interface.get_name()
 %>
 
-type ${interface_name}${resp.get_name()}_${name}Struct struct {
-    ${gen_title_name(interface_name)} define.${resp.get_name()}
-}
-
-##<%def name="gen_print(interface_name, fields)">
-##% for field in fields:
-##    fmt.Println(respData.${gen_title_name(interface_name)}.${gen_title_name(field.get_name())})
-##% endfor
-##</%def>
-
 func Test${gen_title_name(interface_name)}${resp.get_name()}_${name}(t *testing.T) {
-    client := graphql.NewClient("http://localhost:${port}/graphql")
-    req := graphql.NewRequest(`${query_type} {
-% if input_args == "":
-    ${interface_name}() {
-% else:
-    ${interface_name}(${input_args}) {
-% endif
-        ${output_args}
-        }
-    }
-    `)
-    req.Header.Set("Cache-Control", "no-cache")
-    req.Header.Set("sf_user_id", "622212323")
-    var respData ${interface_name}${resp.get_name()}_${name}Struct
-    ctx := context.Background()
-    if err := client.Run(ctx, req, &respData); err != nil {
+    client := http.Client{}
+    input := `
+        ${input_args}
+               `
+
+    request, err := http.NewRequest("POST", "http://localhost:${port}/${interface_name}", strings.NewReader(input))
+    if err != nil {
         log.Fatal(err)
-    }   
-    fmt.Println(respData)
-## ${gen_print(interface_name, resp.fields())}
-    fmt.Println("***********************************************************************************")
+    }
+    request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+    respond, err := client.Do(request)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer respond.Body.Close()
+    body, err := ioutil.ReadAll(respond.Body)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println(string(body))
 }

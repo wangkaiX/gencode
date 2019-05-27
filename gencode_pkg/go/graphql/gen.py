@@ -38,15 +38,15 @@ import shutil
 #             gen_define(st, mako_dir, data_type_out_dir)
 
 
-def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path):
+def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path, query_list):
     if not os.path.exists(resolver_out_dir):
         os.makedirs(resolver_out_dir)
     if not os.path.exists(func_out_dir):
         os.makedirs(func_out_dir)
     shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     for interface in all_interface:
-        gen_func(interface, mako_dir, resolver_out_dir, query_list, data_type.InterfaceEnum.graphql, query_list)
-        gen_func(interface, common_mako_dir, func_out_dir, query_list, data_type.InterfaceEnum.func, query_list)
+        gen_func(interface, mako_dir, resolver_out_dir, pro_path, data_type.InterfaceEnum.graphql, query_list)
+        gen_func(interface, common_mako_dir, func_out_dir, pro_path, data_type.InterfaceEnum.func, query_list)
     for struct_info in all_type:
         if struct_info.is_resp():
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
@@ -135,10 +135,10 @@ def gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, quer
     sfile.close()
 
 
-def gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
+def gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port, query_list):
     # import pdb; pdb.set_trace()
     for interface in all_interface:
-        gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port)
+        gen_test(interface, mako_dir, go_test_out_dir, pro_path, port, query_list)
 
 
 # def get_field(fields, resps):
@@ -192,7 +192,7 @@ def gen_out_field(resp_json):
     return remove_quotes(resp_json, True)
 
 
-def gen_test(interface, mako_dir, go_test_out_dir, query_list, pro_path, port):
+def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port, query_list):
     if not os.path.exists(go_test_out_dir):
         os.makedirs(go_test_out_dir)
 
@@ -323,12 +323,12 @@ def gen_code(
                 util.add_enum(all_enum, enum)
 
     # 生成.h文件
-    gen_defines(all_type, pro_path, mako_dir, "define.mako", data_type_out_dir + "/graphql_define")
+    gen_defines(all_type, pro_path, mako_dir, "define.mako", data_type_out_dir + "/graphqldefine")
     gen_defines(all_type, pro_path, common_mako_dir, "define.mako", data_type_out_dir)
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
         # 生成服务端接口实现文件
         gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
-        gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path)
+        gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path, query_list)
         gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
-        gen_tests(all_interface, mako_dir, go_test_out_dir, query_list, pro_path, port)
+        gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port, query_list)
