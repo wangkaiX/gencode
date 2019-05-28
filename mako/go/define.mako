@@ -18,19 +18,30 @@ type  ${st.get_name()} struct {
         _type = 'string'
     else:
         _type = field.get_type()._go
+    if field.is_list():
+        _type = '[]' + _type
+    if st.is_req() and field.is_necessary():
+        required = ' binding:"required"'
+    else:
+        required = ''
     %>
-    % if field.is_list():
-    ${gen_title_name(field.get_name())} []${_type} // ${field.get_comment()}
-    % else:
-    ${gen_title_name(field.get_name())} ${_type} // ${field.get_comment()}
-    % endif
+    ${gen_title_name(field.get_name())} ${_type} `json:"${field.get_name()}${required}"`// ${field.get_comment()}
 
 % endfor
 % for node in st.get_nodes():
+    <% required = '' %>
     % if type(node) == list:
-    ${gen_title_name(node[0].get_field_name())} []${node[0].get_name()} // ${node[0].get_comment()}
+    <%
+        if node[0].is_necessary():
+            required = ' binding:"required"'
+    %>
+    ${gen_title_name(node[0].get_field_name())} []${node[0].get_name()} `json:"${node[0].get_field_name()}${required}"` // ${node[0].get_comment()}
     % else:
-    ${gen_title_name(node.get_field_name())} ${node.get_name()} // ${node.get_comment()}
+    <%
+        if node.is_necessary():
+            required = ' binding:"required"'
+    %>
+    ${gen_title_name(node.get_field_name())} ${node.get_name()} `json:"${node.get_field_name()}${required}"` // ${node.get_comment()}
     % endif
 
 % endfor

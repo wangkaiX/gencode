@@ -15,6 +15,7 @@ import "${pro_path}/app/define"
 import "${pro_path}/app/service"
 
 func Run(addr string)(err error) {
+    gin.SetMode(gin.ReleaseMode)
     var router = gin.Default()
 % for interface in all_interface:
     <%

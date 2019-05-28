@@ -191,6 +191,9 @@ class StructInfo:
         self.__is_req = is_req
         self.__is_resp = is_resp
 
+    def is_necessary(self):
+        return self.__is_necessary
+
     def get_field_name(self):
         return self.__field_name
 
@@ -219,13 +222,13 @@ class StructInfo:
     #             m[node.get_field_name()] = node.to_map_r()
     #     return m
 
-    def to_json_without_i(self, find, enum_flag=False, ignore_array=False):
-        return json.dumps(self.to_map_without_i(find, enum_flag, ignore_array), separators=(',', ':'), indent=4, ensure_ascii=False)
+    def to_json_without_i(self, find, enum_flag=False, ignore_array=False, ignore_head=False):
+        return json.dumps(self.to_map_without_i(find, enum_flag, ignore_array, ignore_head), separators=(',', ':'), indent=4, ensure_ascii=False)
 
-    def to_map_without_i(self, find, enum_flag=False, ignore_array=False):
+    def to_map_without_i(self, find, enum_flag=False, ignore_array=False, ignore_head=False):
         find = [i+1 for i in find]
         m, _ = self.to_map_without_i_r(find, 0, enum_flag, ignore_array)
-        if m != {} and self.__is_req:
+        if m != {} and self.__is_req and not ignore_head:
             m2 = {}
             m2[self.get_field_name()] = copy.deepcopy(m)
             m = m2

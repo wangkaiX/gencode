@@ -70,7 +70,7 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
 
         filepath = "%s/%s_%s_test.go" % (go_test_out_dir, interface.get_name(), name)
         sfile = open(filepath, "w")
-        req_json = st.to_json_without_i(find, True)
+        req_json = st.to_json_without_i(find, True, False, True)
         # print(input_args)
 
         sfile.write(t.render(
