@@ -25,7 +25,7 @@ type  ${st.get_name()} struct {
     else:
         required = ''
     %>
-    ${gen_title_name(field.get_name())} ${_type} `json:"${field.get_name()}${required}"`// ${field.get_comment()}
+    ${gen_title_name(field.get_name())} ${_type} `json:"${field.get_name()}"${required}`// ${field.get_comment()}
 
 % endfor
 % for node in st.get_nodes():
@@ -35,13 +35,13 @@ type  ${st.get_name()} struct {
         if node[0].is_necessary():
             required = ' binding:"required"'
     %>
-    ${gen_title_name(node[0].get_field_name())} []${node[0].get_name()} `json:"${node[0].get_field_name()}${required}"` // ${node[0].get_comment()}
+    ${gen_title_name(node[0].get_field_name())} []${node[0].get_name()} `json:"${node[0].get_field_name()}"${required}` // ${node[0].get_comment()}
     % else:
     <%
         if node.is_necessary():
             required = ' binding:"required"'
     %>
-    ${gen_title_name(node.get_field_name())} ${node.get_name()} `json:"${node.get_field_name()}${required}"` // ${node.get_comment()}
+    ${gen_title_name(node.get_field_name())} ${node.get_name()} `json:"${node.get_field_name()}"${required}` // ${node.get_comment()}
     % endif
 
 % endfor

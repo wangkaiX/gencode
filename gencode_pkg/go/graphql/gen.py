@@ -211,9 +211,9 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port, query_list):
         if type(i) == list:
             find = i
             if i == []:
-                name = "none"
-            else:
                 name = "all"
+            else:
+                name = "none"
         else:
             name = str(i)
             find = [i]
