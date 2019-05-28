@@ -28,22 +28,14 @@ func Run(addr string)(err error) {
     % if len(req.fields()) > 0:
         var req define.${req.get_name()}
         if err := c.ShouldBindJSON(&req); err != nil {
-            if err = c.ShouldBind(&req); err != nil {
-                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-                return
-            }
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
         }
 
         resp, _ := service.${func_name}(context.Background(), &req)
     % else:
         resp, _ := service.${func_name}(context.Background())
     % endif
-
-        // if err != nil {
-        //     c.JSON(http.StatusOK, err)
-        //     return
-        // }
-  
         c.JSON(http.StatusOK, resp) 
     })
 
