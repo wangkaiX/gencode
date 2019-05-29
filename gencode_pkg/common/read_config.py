@@ -96,17 +96,40 @@ def map_to_interface(json_map, all_enum):
         util.add_interface(interfaces, interface)
         for struct_name, struct_value in interface_value.items():
             strs = struct_name.split('|', -1)
+            if (len(strs) < 2):
+                print(struct_name, "未指定类型")
+                assert False
             struct_name = strs[0]
             struct_type = strs[1]
             struct_comment = None
             if len(strs) > 2:
                 struct_comment = strs[2]
             if struct_type == 'req':
-                interface.req_st = data_type.StructInfo(struct_name, struct_comment, True, False)
+                if not interface.req_url_param_st:
+                    interface.req_url_param_st = data_type.StructInfo(struct_name, struct_comment, data_type.st_type.req)
+                kv_to_interface(struct_name, struct_value, interface.req_url_param_st, interface.get_types(), all_enum)
+
+                interface.req_st = data_type.StructInfo(struct_name, struct_comment, data_type.st_type.req)
+                interface.req_url_param_st.set_name(interface.req_st.get_name())
+                interface.req_url_param_st.set_comment(interface.req_st.get_comment())
+
                 kv_to_interface(struct_name, struct_value, interface.req_st, interface.get_types(), all_enum)
             elif struct_type == 'resp':
-                interface.resp_st = data_type.StructInfo(struct_name, struct_comment, False, True)
+                interface.resp_st = data_type.StructInfo(struct_name, struct_comment, data_type.st_type.resp)
                 kv_to_interface(struct_name, struct_value, interface.resp_st, interface.get_types(), all_enum)
+            elif struct_type == 'url':
+                interface.url = struct_value
+            elif struct_type == 'urlparam':
+                if not interface.req_url_param_st:
+                    interface.req_url_param_st = data_type.StructInfo(struct_name, struct_comment, data_type.st_type.req)
+                kv_to_interface(struct_name, struct_value, interface.req_url_param_st, interface.get_types(), all_enum)
+                print(interface_name + util.gen_title_name(struct_name))
+
+                interface.url_param_st = data_type.StructInfo(
+                        interface_name + util.gen_title_name(struct_name),
+                        struct_comment,
+                        data_type.st_type.url_param)
+                kv_to_interface(struct_name, struct_value, interface.url_param_st, interface.get_types(), all_enum)
             else:
                 print("类型不明inetrface:[%s]st_name:[%s]st_type[%s]:" % (interface_name, struct_name, struct_type))
                 assert False

@@ -100,6 +100,7 @@ def gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir):
     if not os.path.exists(data_type_out_dir):
         os.makedirs(data_type_out_dir)
 
+    print("define:", st.get_name())
     data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
     hfile = open(data_type_file, "w")
     hfile.write(t.render(**ctx))
@@ -108,8 +109,8 @@ def gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir):
 
 def gen_defines(all_type, pro_path, mako_dir, mako_file, data_type_out_dir):
     for st in all_type:
-        if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
-            gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir)
+        # if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
+        gen_define(st, pro_path, mako_dir, mako_file, data_type_out_dir)
 
 
 def to_underline(name):

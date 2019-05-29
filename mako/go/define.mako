@@ -25,7 +25,7 @@ type  ${st.get_name()} struct {
     else:
         required = ''
     %>
-    ${gen_title_name(field.get_name())} ${_type} `json:"${field.get_name()}"${required}`// ${field.get_comment()}
+    ${gen_title_name(field.get_name())} ${_type} `form:"${field.get_name()}" json:"${field.get_name()}"${required}`// ${field.get_comment()}
 
 % endfor
 % for node in st.get_nodes():

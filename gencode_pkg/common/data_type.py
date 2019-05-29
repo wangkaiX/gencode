@@ -169,8 +169,13 @@ def get_key_value_attr(name, value, all_enum):
     return field_name, necessary, comment, _type
 
 
+st_type = Enum("st_type", "req resp url_param")
+
+
 class StructInfo:
-    def __init__(self, name, comment, is_req, is_resp):
+    def __init__(self, name, comment, _st_type):
+        assert type(_st_type) == st_type
+        self.__st_type = _st_type
         self.__fields = []
         self.__comment = None
         self.__name = None
@@ -188,8 +193,15 @@ class StructInfo:
             self.__comment = comment
         self.__nodes = []
         self.__is_necessary = False
-        self.__is_req = is_req
-        self.__is_resp = is_resp
+
+    def set_name(self, name):
+        self.__name = name
+
+    def set_comment(self, comment):
+        self.__comment = comment
+
+    def get_st_type(self):
+        return self.__st_type
 
     def is_necessary(self):
         return self.__is_necessary
@@ -228,7 +240,7 @@ class StructInfo:
     def to_map_without_i(self, find, enum_flag=False, ignore_array=False, ignore_head=False):
         find = [i+1 for i in find]
         m, _ = self.to_map_without_i_r(find, 0, enum_flag, ignore_array)
-        if m != {} and self.__is_req and not ignore_head:
+        if m != {} and self.is_req() and not ignore_head:
             m2 = {}
             m2[self.get_field_name()] = copy.deepcopy(m)
             m = m2
@@ -311,7 +323,7 @@ class StructInfo:
     def add_attribute(self, name, value, is_list_object, all_enum):
         field_name, necessary, comment, _type = get_key_value_attr(name, value, all_enum)
         if is_list_object:
-            st = StructInfo(name, "", self.__is_req, self.__is_resp)
+            st = StructInfo(name, "", self.get_st_type())
             st.__is_necessary = necessary
             if len(self.__nodes) > 0 and type(self.__nodes[-1]) == list:
                 if self.__nodes[-1][0].__name == st.__name:
@@ -320,7 +332,7 @@ class StructInfo:
                 self.__nodes.append([st])
             return st, True
         elif _type.is_object():
-            st = StructInfo(name, "", self.__is_req, self.__is_resp)
+            st = StructInfo(name, "", self.get_st_type())
             st.__is_necessary = necessary
             self.__nodes.append(st)
             return st, True
@@ -342,12 +354,13 @@ class StructInfo:
         return "定义"
 
     def is_req(self):
-        return self.__is_req
+        return self.__st_type == st_type.req
 
     def is_resp(self):
-        return self.__is_resp
+        return self.__st_type == st_type.resp
 
     def get_name(self):
+        # print("getname:", self.__name)
         return util.gen_title_name(self.__name)
 
     # def get_type(self):
@@ -377,9 +390,21 @@ class InterfaceInfo:
         self.comment = None
         self.req_st = None
         self.resp_st = None
+        self.url = None
+        self.url_param_st = None
+        self.req_url_param_st = None
         self._type = None
         self.__sts = []
         self.__enums = []
+
+    def get_url(self):
+        return self.url
+
+    def get_url_param(self):
+        return self.url_param_st
+
+    def get_req_url_param(self):
+        return self.req_url_param_st
 
     def get_enums(self):
         return self.__enums

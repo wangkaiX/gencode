@@ -46,6 +46,15 @@ def gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port):
         gen_test(interface, mako_dir, go_test_out_dir, pro_path, port)
 
 
+def gen_url_param(st):
+    # import pdb
+    # pdb.set_trace()
+    p = ""
+    for field in st.fields():
+        p += "%s=%s&" % (field.get_name(), field.get_value())
+    return p[:-1]
+
+
 def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
     if not os.path.exists(go_test_out_dir):
         os.makedirs(go_test_out_dir)
@@ -57,6 +66,7 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
     # resp_json = interface.get_resp().to_json_without_i([], False, True)
     # output_args = gen_out_field(resp_json)
     null_count = st.get_null_count()
+    url_param = gen_url_param(interface.get_url_param())
     for i in (list(range(0, null_count)) + [[], list(range(0, null_count))]):
         if type(i) == list:
             find = i
@@ -80,6 +90,7 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port):
             name=name,
             input_args=req_json,
             # output_args=output_args,
+            url_param=url_param,
             pro_path=pro_path,
             port=port,
             ))

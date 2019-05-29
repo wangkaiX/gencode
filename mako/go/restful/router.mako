@@ -23,19 +23,30 @@ func Run(addr string)(err error) {
         resp = interface.get_resp()
         func_name = gen_title_name(interface.get_name())
         interface_name = interface.get_name()
+        url = interface.get_url()
+        urlparam = interface.get_url_param()
     %>
-    router.POST("/${interface_name}", func(c *gin.Context) {
-    % if len(req.fields()) > 0:
-        var req define.${req.get_name()}
-        if err := c.ShouldBindJSON(&req); err != nil {
+    router.POST("/${url}", func(c *gin.Context) {
+    % if len(urlparam.fields()) > 0:
+        var param define.${urlparam.get_name()}
+        if err := c.BindQuery(&param); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
+        var req define.${req.get_name()}
+        % for field in urlparam.fields():
+        req.${gen_title_name(field.get_name())} = param.${gen_title_name(field.get_name())}
+        % endfor
+    % endif
+
+    % if len(req.fields()) > 0:
+        if err := c.BindJSON(&req); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+    % endif
 
         resp, _ := service.${func_name}(context.Background(), &req)
-    % else:
-        resp, _ := service.${func_name}(context.Background())
-    % endif
         c.JSON(http.StatusOK, resp) 
     })
 

@@ -21,7 +21,7 @@ func (r *Resolver)${func_name}(ctx context.Context)(*${resp.get_name()}Resolver,
 % if len(req.fields()) > 0:
     resp, err := service.${func_name}(ctx, graphqldefine.ToDefine${req.get_name()}(args.${req.get_name()}))
 % else:
-    resp, err := service.${func_name}(ctx)
+    resp, err := service.${func_name}(ctx, graphqldefine.ToDefine${req.get_name()}(&graphqldefine.${req.get_name()}{})
 % endif
     return &${resp.get_name()}Resolver{graphqldefine.ToGraphqlDefine${resp.get_name()}(resp)}, err
 }
