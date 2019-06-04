@@ -27,13 +27,13 @@ func Run(addr string)(err error) {
         urlparam = interface.get_url_param()
     %>
     router.POST("/${url}", func(c *gin.Context) {
+        var req define.${req.get_name()}
     % if len(urlparam.fields()) > 0:
         var param define.${urlparam.get_name()}
         if err := c.BindQuery(&param); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
-        var req define.${req.get_name()}
         % for field in urlparam.fields():
         req.${gen_title_name(field.get_name())} = param.${gen_title_name(field.get_name())}
         % endfor
