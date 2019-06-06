@@ -284,7 +284,8 @@ class StructInfo:
                         curr += 1
                     if curr in find and not n.__is_necessary:
                         _, curr = n.to_map_without_i_r(find, curr, enum_flag, ignore_array)
-                    elif not n.__is_necessary:
+                    # elif not n.__is_necessary:
+                    else:
                         temp, curr = n.to_map_without_i_r(find, curr, enum_flag, ignore_array)
                         if ignore_array:
                             m[field_name] = temp
