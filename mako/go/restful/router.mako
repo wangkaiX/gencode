@@ -39,7 +39,7 @@ func Run(addr string)(err error) {
         % endfor
     % endif
 
-    % if len(req.fields()) > 0:
+    % if len(req.fields()) > 0 or len(req.get_nodes()) > 0:
         if err := c.BindJSON(&req); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
