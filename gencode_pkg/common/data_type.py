@@ -21,9 +21,9 @@ class Type:
         assert _type
         assert kind in TypeEnum
         self._type = _type
-        self._go = None
-        self._cpp = None
-        self._graphql = None
+        self._go = _type
+        self._cpp = _type
+        self._graphql = _type
         self._kind = kind
         self.set_type(kind, _type)
 
@@ -149,6 +149,7 @@ def get_key_attr(name):
     assert name
     finalAttrs = [None, None, None, None]
     attrs = name.split("|")
+    print(name, attrs)
     for i in range(0, len(attrs)):
         finalAttrs[i] = attrs[i]
     assert finalAttrs[0] is not None
@@ -182,6 +183,7 @@ class StructInfo:
         self.__field_name = None
         if name.find("|") != -1:
             field_name, _, self.comment, specified_type = get_key_attr(name)
+            print("structInfo:", field_name, self.comment, specified_type)
             self.__field_name = field_name
             if specified_type:
                 self.__name = specified_type
@@ -191,6 +193,7 @@ class StructInfo:
             self.__name = name
             self.__field_name = name
             self.__comment = comment
+            print("else structInfo:", self.__name)
         self.__nodes = []
         self.__is_necessary = False
 
@@ -323,6 +326,7 @@ class StructInfo:
 
     def add_attribute(self, name, value, is_list_object, all_enum):
         field_name, necessary, comment, _type = get_key_value_attr(name, value, all_enum)
+        print("add_attribute:", field_name, necessary, comment, _type)
         if is_list_object:
             st = StructInfo(name, "", self.get_st_type())
             st.__is_necessary = necessary

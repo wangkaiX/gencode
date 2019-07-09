@@ -25,7 +25,11 @@ type  ${st.get_name()} struct {
     else:
         required = ''
     %>
+    % if _type == 'GinFileInfo':
+    ${gen_title_name(field.get_name())} ${_type} `form:"-" json:"-"`// ${field.get_comment()}
+    % else:
     ${gen_title_name(field.get_name())} ${_type} `form:"${field.get_name()}" json:"${field.get_name()}"${required}`// ${field.get_comment()}
+    % endif
 
 % endfor
 % for node in st.get_nodes():

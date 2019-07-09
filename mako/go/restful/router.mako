@@ -44,6 +44,12 @@ func Run(addr string)(err error) {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
+        % for field in req.fields():
+            % if field.get_type()._go == 'GinFileInfo':
+                <% field_name = gen_title_name(field.get_name()) %>
+        req.${field_name}.File, req.${field_name}.Header, req.${field_name}.Error = c.Request.FormFile("${field.get_name()}")
+            % endif
+        % endfor
     % endif
 
         resp, _ := service.${func_name}(context.Background(), &req)

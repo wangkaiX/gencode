@@ -30,9 +30,14 @@ def gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path):
         os.makedirs(resolver_out_dir)
     mako_file = mako_dir + "/router.mako"
     util.check_file(mako_file)
-    t = Template(filename=mako_file, input_encoding="utf8")
+
     filename = "router.go"
-    sfile = open(resolver_out_dir + "/" + filename, "w")
+    router_file = resolver_out_dir + "/" + filename
+    if os.path.exists(router_file):
+        return
+
+    t = Template(filename=mako_file, input_encoding="utf8")
+    sfile = open(router_file, "w")
     sfile.write(t.render(
         all_interface=all_interface,
         gen_title_name=util.gen_title_name,
