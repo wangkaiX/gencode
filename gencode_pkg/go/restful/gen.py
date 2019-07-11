@@ -19,7 +19,7 @@ def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir
     # shutil.copy(mako_dir + "/resolver.go", resolver_out_dir + "/resolver.go")
     gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path)
     for interface in all_interface:
-        gen_func(interface, common_mako_dir, func_out_dir, pro_path, data_type.InterfaceEnum.func)
+        gen_func(interface, mako_dir, func_out_dir, pro_path, data_type.InterfaceEnum.func)
 #     for struct_info in all_type:
 #         if struct_info.is_resp():
 #             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
@@ -33,8 +33,8 @@ def gen_resolver(all_interface, mako_dir, resolver_out_dir, pro_path):
 
     filename = "router.go"
     router_file = resolver_out_dir + "/" + filename
-    if os.path.exists(router_file):
-        return
+    # if os.path.exists(router_file):
+    #     return
 
     t = Template(filename=mako_file, input_encoding="utf8")
     sfile = open(router_file, "w")

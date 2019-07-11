@@ -1,8 +1,6 @@
 package restfulresolver
 
 import "net/http"
-import "context"
-
 import "github.com/gin-gonic/gin"
 
 % for interface in all_interface:
@@ -40,7 +38,7 @@ func Run(addr string)(err error) {
     % endif
 
     % if len(req.fields()) > 0 or len(req.get_nodes()) > 0:
-        if err := c.BindJSON(&req); err != nil {
+        if err := c.Bind(&req); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
@@ -52,7 +50,7 @@ func Run(addr string)(err error) {
         % endfor
     % endif
 
-        resp, _ := service.${func_name}(context.Background(), &req)
+        resp := service.${func_name}(c, &req)
         c.JSON(http.StatusOK, resp) 
     })
 
