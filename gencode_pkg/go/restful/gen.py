@@ -8,7 +8,7 @@ from gencode_pkg.common import util, data_type
 from gencode_pkg.common.util import gen_defines, gen_func, gen_enums
 from gencode_pkg.common.read_config import gen_request_response
 # import json
-# import shutil
+import shutil
 
 
 def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path):
@@ -169,6 +169,7 @@ def gen_code(
                 util.add_enum(all_enum, enum)
 
     # 生成.h文件
+    shutil.copyfile(mako_dir + "/gin_file.go", data_type_out_dir + "/gin_file.go")
     gen_defines(all_type, pro_path, common_mako_dir, "define.mako", data_type_out_dir)
     gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
