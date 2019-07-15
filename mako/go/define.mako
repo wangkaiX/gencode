@@ -1,6 +1,13 @@
 package define
 
 % for field in st.fields():
+    % if field.get_type()._go == '*multipart.FileHeader':
+import "mime/multipart"
+       <% break %>
+    % endif
+% endfor
+
+% for field in st.fields():
     % if 'time.Time' == field.get_type()._go:
 import "time"
         <% break %>

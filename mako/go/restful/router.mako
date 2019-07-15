@@ -2,6 +2,14 @@ package restfulresolver
 
 import "net/http"
 import "github.com/gin-gonic/gin"
+% for interface in all_interface:
+    % for field in interface.get_req().fields():
+        % if field.get_type()._go == 'GinFileInfort.FileHeader':
+import "mime/multipart"
+          <% break %>
+        % endif
+    % endfor
+% endfor
 
 % for interface in all_interface:
     % if len(interface.get_req().fields()) > 0:
@@ -42,12 +50,12 @@ func Run(addr string)(err error) {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
-        % for field in req.fields():
-            % if field.get_type()._go == 'GinFileInfo':
-                <% field_name = gen_title_name(field.get_name()) %>
-        req.${field_name}.File, req.${field_name}.Header, req.${field_name}.Error = c.Request.FormFile("${field.get_name()}")
-            % endif
-        % endfor
+###        % for field in req.fields():
+###            % if field.get_type()._go == 'GinFileInfo':
+###                <% field_name = gen_title_name(field.get_name()) %>
+###        req.${field_name}.File, req.${field_name}.Header, req.${field_name}.Error = c.Request.FormFile("${field.get_name()}")
+###            % endif
+###        % endfor
     % endif
 
         resp := service.${func_name}(c, &req)
