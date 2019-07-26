@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gencode_pkg.go.restful import gen
+from gencode.go.restful import gen
 import os
-from gencode_pkg.common import util
-from gencode_pkg.common.data_type import InterfaceEnum
+from gencode.common import util
+from gencode.common.data_type import InterfaceEnum
 
 if __name__ == '__main__':
     # env = os.environ
+    gopath = os.environ['GOPATH']
+    assert gopath
     gosrc = os.environ['GOPATH'] + "/src/go_example"  # env['GOPATH'] + "/src/"
     gen.gen_code(
             filenames=[

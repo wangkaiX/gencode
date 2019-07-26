@@ -10,7 +10,7 @@
         "method":"post",
         "note":"创建作业",
         "url":"/api/create_job",
-        "input":{
+        "req":{
             "type":"CreateJobReq",
             "note":"创建作业请求参数",
             "fields":{
@@ -42,7 +42,7 @@
                 "ids":[1,2,3,4,5]
             }
         },
-        "output": {
+        "resp": {
             "type":"CreateJobResp",
             "note":"创建作业应答信息",
             "fields":{
