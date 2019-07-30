@@ -1,4 +1,4 @@
-package graphqldefine
+package define
 
 const (
 % for enum in all_enum:
