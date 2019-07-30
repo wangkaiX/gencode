@@ -16,7 +16,7 @@ if __name__ == '__main__':
             mako_dir="mako/go/graphql",
             data_type_out_dir=gosrc + "/app/define",
             func_out_dir=gosrc + "/app/service",
-            resolver_out_dir=gosrc + "/app/graphql_resolver",
+            resolver_out_dir=gosrc + "/app/graphqlresolver",
             schema_out_dir=gosrc + "/cmd",
             go_test_out_dir=gosrc + "/app/test/graphql",
             pro_path=gosrc,
