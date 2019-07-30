@@ -10,21 +10,21 @@ Types = ["string", "int", "float",
 
 
 class TypeBase:
-    def __init__(self, _type, is_enum):
+    def __init__(self, _type):
         assert _type
         self.__type = _type
-        self.__is_enum = is_enum
+        self.__is_enum = _type in Enum.names()
         self.__go = _type
         self.__cpp = _type
         self.__graphql = _type
         self.set_type(_type)
 
     def set_type(self, _type):
-        if _type == 'string':
+        if _type == str:
             self.__go = 'string'
             self.__cpp = 'std::string'
             self.__graphql = 'String'
-        elif _type == 'int':
+        elif _type == int:
             self.__go = 'int32'
             self.__cpp = 'int'
             self.__graphql = 'Int'
@@ -32,11 +32,11 @@ class TypeBase:
             self.__go = 'float32'
             self.__cpp = 'float'
             self.__graphql = 'Float'
-        elif _type == 'double':
+        elif _type == float:
             self.__go = 'float64'
             self.__cpp = 'double'
             self.__graphql = 'Float'
-        elif _type == 'bool':
+        elif _type == bool:
             self.__go = 'bool'
             self.__cpp = 'bool'
             self.__graphql = 'Boolean'
@@ -125,8 +125,8 @@ class Field:
         return self.__required
 
     @property
-    def type_name(self):
-        return self.__type.name
+    def type(self):
+        return self.__type
 
     @property
     def value(self):
@@ -145,6 +145,10 @@ class Node:
     @property
     def name(self):
         return self.__name
+
+    @property
+    def type(self):
+        return self.__type
 
     @property
     def required(self):
@@ -173,10 +177,38 @@ class Node:
 
 
 class Enum:
-    def __init__(self, name, values=[]):
+
+    enum_names = []
+
+    @staticmethod
+    def add_names(name):
+        util.assert_unique(Enum.enum_names, name)
+        Enum.enum_names.append(name)
+
+    @staticmethod
+    def names():
+        return Enum.enum_names
+
+    def __init__(self, name, note, values=[]):
         self.__name = name
+        Enum.add_names(name)
         self.__values = values
+        self.__note = note
+
+    @property
+    def note(self):
+        return self.__note
 
     def add_value(self, value):
         util.assert_unique(self.__values, value)
         self.__values.append(value)
+
+    @property
+    def values(self):
+        return self.__values
+
+    @values.setter
+    def values(self, vs):
+        assert self.__values == [] or self.__values is None
+        assert vs
+        self.__values = vs
