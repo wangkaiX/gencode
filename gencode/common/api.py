@@ -134,13 +134,14 @@ class Field:
 
 
 class Node:
-    def __init__(self, name, required, note, _type, nodes=[], fields=[]):
+    def __init__(self, name, required, note, _type, values):
         self.__name = name
         self.__required = required
         self.__note = note
         self.__type = _type
-        self.__nodes = nodes
-        self.__fields = fields
+        self.__values = values
+        self.__nodes = None
+        self.__fields = None
 
     @property
     def name(self):
@@ -178,20 +179,20 @@ class Node:
 
 class Enum:
 
-    enum_names = []
+    types = []
 
     @staticmethod
-    def add_names(name):
-        util.assert_unique(Enum.enum_names, name)
-        Enum.enum_names.append(name)
+    def add_types(_type):
+        util.assert_unique(Enum.types, _type)
+        Enum.types.append(_type)
 
     @staticmethod
-    def names():
-        return Enum.enum_names
+    def types():
+        return Enum.types
 
     def __init__(self, name, note, values=[]):
         self.__name = name
-        Enum.add_names(name)
+        Enum.add_types(name)
         self.__values = values
         self.__note = note
 
