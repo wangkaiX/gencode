@@ -1,0 +1,43 @@
+syntx = "proto3"
+
+package ${package_name};
+
+service ${service_name} {
+% for api in apis:
+    rpc ${gen_upper_camel(api.name)}(${api.req.type.name}) returns (${api.resp.type.name}){}
+% endfor
+}
+
+% for node in nodes:
+message ${node.name} {
+    <% i = 1 %>
+    % for field in fields:
+        % if field.dimension > 0:
+            <% repeated = 'repeated '
+        % endif
+    ${repeated}${field.type.name} ${field.name}  = ${i};
+        <% i = i + 1 %>
+    % endfor
+
+    <% i = 1 %>
+    % for node in nodes:
+        % if node.dimension > 0:
+            <% repeated = 'repeated '
+        % endif
+    ${repeated}${node.type.name} ${node.name}  = ${i};
+        <% i = i + 1 %>
+    % endfor
+}
+
+% endfor
+
+% for enum in enums:
+enum ${enum.name} {
+    <% i = 0 %>
+    % for value in enum.values:
+    ${value} = ${i}
+        <% i = i + 1 %>
+    % endfor
+}
+
+% endfor

@@ -2,29 +2,58 @@
 # -*- coding: utf-8 -*-
 
 
-import gencode.common.api as api
+from gencode.common import meta
+
+Type = None
 
 
-def contain_object(value):
-    return isinstance(value, dict) or \
-        (isinstance(value, list) and isinstance(value[0], dict))
+def type_go(_type):
+    return meta.TypeGo(_type)
+
+
+def type_cpp(_type):
+    return meta.TypeCPP(_type)
+
+
+def type_graphql(_type):
+    return meta.TypeGraphql(_type)
+
+
+def type_grpc(_type):
+    return meta.TypeGrpc
+
+
+def contain_dict(value):
+    if isinstance(value, dict):
+        return True
+    if isinstance(value, list):
+        assert len(value) > 0
+        return contain_dict(value[0])
+    return False
+
+
+def is_enum(t):
+    if t:
+        return t in meta.Enum.types()
+    return False
 
 
 def make_enum(name, note, values):
     assert isinstance(values, list)
-    assert not contain_object(values)
-    return api.Enum(name, note, values)
+    assert not contain_dict(values)
+    return meta.Enum(name, note, values)
 
 
 def make_field(ori_name, value):
-    assert not contain_object(value)
+    assert not contain_dict(value)
     attrs = split_ori_name(ori_name)
-    return api.Field(*attrs, value)
+    return meta.Field(*attrs, value)
 
 
 def make_node(ori_name, value):
-    assert contain_object(value)
+    assert contain_dict(value)
     attrs = split_ori_name(ori_name)
+    return meta.Node(*attrs, value)
 
 
 def split_ori_name(ori_name):

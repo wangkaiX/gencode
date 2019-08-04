@@ -12,8 +12,10 @@
         "url":"/api/create_job",
         "req":{
             "type":"CreateJobReq",
+            "name":"createJobReq",
             "note":"创建作业请求参数",
             "fields":{
+                "testdimension":[[1,2,3], [4,5,6]],
                 "projectID|Y|项目ID":"prj21231",
                 "algorithmID|Y|算法ID":"alg32232",
                 "description":"测试作业",
@@ -44,7 +46,9 @@
         },
         "resp": {
             "type":"CreateJobResp",
+            "name":"createJobResp",
             "note":"创建作业应答信息",
+            "required":true,
             "fields":{
                "id":"job321321",
                "userInfoResp":{

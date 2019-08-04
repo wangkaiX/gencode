@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-# from gencode_pkg.common.data_type import gen_title_name
 from mako.template import Template
-from gencode_pkg.common import util, data_type
-from gencode_pkg.common.util import gen_defines, gen_func, gen_enums
-from gencode_pkg.common.read_config import gen_request_response
+from gencode.common import util, data_type
+from gencode.common.util import gen_defines, gen_func, gen_enums
+from gencode.common.read_config import gen_request_response
 # import json
 import shutil
 
