@@ -13,7 +13,7 @@ message ${node.name} {
     <% i = 1 %>
     % for field in fields:
         % if field.dimension > 0:
-            <% repeated = 'repeated '
+            <% repeated = 'repeated ' %>
         % endif
     ${repeated}${field.type.name} ${field.name}  = ${i};
         <% i = i + 1 %>
@@ -22,7 +22,7 @@ message ${node.name} {
     <% i = 1 %>
     % for node in nodes:
         % if node.dimension > 0:
-            <% repeated = 'repeated '
+            <% repeated = 'repeated ' %>
         % endif
     ${repeated}${node.type.name} ${node.name}  = ${i};
         <% i = i + 1 %>

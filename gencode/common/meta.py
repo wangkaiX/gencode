@@ -6,6 +6,14 @@ from gencode.common import tool
 import util
 
 
+code_cpp = ["CPP", "CXX", "C++"]
+code_go = ["GO", "GOLANG"]
+
+proto_http = 'HTTP'
+proto_graphql = 'GRAPHQL'
+proto_proto = 'PROTO'
+
+
 Types = ["string", "int", "float",
          "double", "time",
          "bool"]
@@ -127,13 +135,42 @@ class TypeProto(TypeBase):
         return self.grpc
 
 
+class Protocol:
+    def __init__(self, protocol, method):
+        self.__protocol = protocol.upper()
+        self.__method = None
+        if method:
+            self.__method = method.upper()
+
+    @property
+    def protocol(self):
+        return self.__protocol
+
+    @property
+    def method(self):
+        return self.__method
+
+    def __str__(self):
+        return "[%s] [%s]\n" % (self.protocol, self.method)
+
+
 class Api:
-    def __init__(self, name, req, resp, protocol, method, note):
+    def __init__(self, name, req, resp, protocols, note):
         self.__name = name
         self.__req = req
         self.__resp = resp
-        self.__protocol = protocol
-        self.__method = method
+        self.__protocols = []
+        for protocol in protocols:
+            if protocol[0].upper() == proto_http:
+                p = Protocol(*protocol)
+            elif protocol[0].upper() == proto_graphql:
+                p = Protocol(*protocol)
+            elif protocol[0].upper() == proto_proto:
+                p = Protocol(protocol[0], None)
+            else:
+                print("未知的协议[%s]" % protocol)
+                assert False
+            self.__protocols.append(p)
         self.__note = note
 
     @property
@@ -141,8 +178,8 @@ class Api:
         return self.__name
 
     @property
-    def protocol(self):
-        return self.__protocol
+    def protocols(self):
+        return self.__protocols
 
     @property
     def method(self):
@@ -161,7 +198,7 @@ class Api:
         return self.__resp
 
     def __str__(self):
-        s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.protocol, self.method, self.note, self.req, self.resp)
+        s = "[%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.protocols, self.note, self.req, self.resp)
         return s
 
 
@@ -243,10 +280,10 @@ class Node:
         return s
 
     def __parse_values(self, value):
+        if isinstance(value, list) and tool.contain_dict(value):
+            self.__dimension = self.__dimension + 1
+            return self.__parse_values(value[0])
         for k, v in value.items():
-            if isinstance(v, list) and tool.contain_dict(v):
-                self.__dimension = self.__dimension + 1
-                return self.__parse_values(v[0])
             if tool.contain_dict(v):
                 self.__nodes.append(tool.make_node(k, v))
             else:

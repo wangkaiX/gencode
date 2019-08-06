@@ -66,7 +66,7 @@ def map_to_apis(json_map):
         resp = v['resp']
         req = meta.Node(req['name'], True, req['type'], req['note'], req['fields'])
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'])
-        apis.append(meta.Api(k, req, resp, v['protocol'], v['method'], v['note']))
+        apis.append(meta.Api(k, req, resp, v['protocol'], v['note']))
     return apis
 
 
@@ -75,8 +75,13 @@ def gen_apis(filename):
     return map_to_apis(json_map)
 
 
-# meta.Type = meta.TypeGraphql
-# apis = gen_apis("../../json/newVersion3.json")
-# with open("result.txt", "w") as f:
-#     for api in apis:
-#         f.write(str(api) + "\n")
+'''
+apis = gen_apis("../../json/newVersion3.json")
+with open("result.txt", "w") as f:
+    meta.Type = meta.TypeGraphql
+    for api in apis:
+        f.write(str(api) + "\n")
+    meta.Type = meta.TypeProto
+    for api in apis:
+        f.write(str(api) + "\n")
+'''

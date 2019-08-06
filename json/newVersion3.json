@@ -6,8 +6,7 @@
     },
     "createJob": {
         "type":"api",
-        "protocol":"http",
-        "method":"post",
+        "protocol":[["proto"]],
         "note":"创建作业",
         "url":"/api/create_job",
         "req":{
@@ -25,20 +24,27 @@
                     "age1":32,
                     "address1":"shanghai"
                 },
-                "userInfos":[{
-                    "id":"id123",
+                "userInfos":[
+                    { "id":"id123",
                     "age":32,
                     "address":"shanghai",
-                    "studentss":[{
+                    "studentss":[[{
                         "name":"xhansan",
                         "age":19,
                         "high":170
-                    },
-                    {
-                        "name":"shansan",
-                        "age":20,
-                        "high":180
-                    }
+                        }],
+                        [
+                        {
+                            "name":"shansan",
+                            "age":20,
+                            "high":180
+                        },
+                        {
+                            "name":"shansan2",
+                            "age":21,
+                            "high":181
+                        }
+                        ]
                     ]
                 }],
                 "ids":[1,2,3,4,5]
