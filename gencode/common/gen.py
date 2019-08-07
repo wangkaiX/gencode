@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+# import shutil
 from gencode.common import parser_config
 import util
 from gencode.common import meta
@@ -22,6 +23,9 @@ def gen_test():
 
 
 def save_file(filename, txt):
+    dirname = os.path.dirname(filename)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
     with open(filename, 'w') as f:
         f.write(txt)
 
@@ -29,8 +33,11 @@ def save_file(filename, txt):
 def gen_code(
             filenames,
             code_type,
-            project_name,
-            mako_dir=None,
+            project_path,
+            service_name,
+            main_dir,
+            mako_dir,
+            error_package,
             graphql_dir=None,
             graphql_schema_dir=None,
             graphql_define_pkg_name=None,
@@ -39,12 +46,17 @@ def gen_code(
             graphql_port=None,
             restful_dir=None,
             restful_define_pkg_name=None,
+            # restful_service_define_name="Server",
             restful_resolver_pkg_name=None,
             restful_ip=None,
             restful_port=None,
             grpc_proto_dir=None,
+            grpc_service_name=None,
+            grpc_service_dir=None,
+            grpc_package_name=None,
+            proto_package_name=None,
             grpc_pb_dir=None,
-            grpc_define_pkg_name=None,
+            grpc_define_pkg_name="Server",
             grpc_ip=None,
             grpc_port=None,
             gen_server=None,
@@ -56,7 +68,7 @@ def gen_code(
     assert gen_server or gen_client or gen_test
     if code_type not in meta.code_go + meta.code_cpp:
         print("不支持的语言[%s]" % code_type)
-    assert project_name
+    assert service_name
     assert mako_dir
     mako_dir = util.abs_path(mako_dir)
 
@@ -90,11 +102,30 @@ def gen_code(
                     proto_apis.append(api)
 
     if code_type in meta.code_go:
-        code_proto = go_grpc_gen.gen_code(proto_apis, mako_dir)
-        filename = "%s.pb.go" % project_name
+        code_proto, code_service_define, code_apis = \
+            go_grpc_gen.gen_code(project_path=project_path, apis=proto_apis, mako_dir=mako_dir,
+                                 proto_service_name=service_name,
+                                 proto_package_name=proto_package_name,
+                                 grpc_package_name=grpc_package_name,
+                                 grpc_service_name=grpc_service_name,
+                                 error_package=error_package)
+
+        # proto
+        filename = "%s.proto" % util.gen_underline_name(service_name)
         filename = os.path.join(grpc_proto_dir, filename)
         print(code_proto)
         save_file(filename, code_proto)
+
+        # pb
+        filename = "%s.go" % util.gen_underline_name(grpc_service_name)
+        filename = os.path.join(grpc_pb_dir, filename)
+        save_file(filename, code_service_define)
+
+        for k, v in code_apis.items():
+            filename = "%s.go" % util.gen_underline_name(k)
+            filename = os.path.join(grpc_pb_dir, filename)
+            save_file(filename, v)
+
     elif code_type in meta.code_cpp:
         pass
     else:

@@ -251,7 +251,24 @@ class Field:
 
 
 class Node:
-    def __init__(self, name, required, note, _type, value):
+
+    __req_nodes = []
+    __resp_nodes = []
+    __nodes = []
+
+    @staticmethod
+    def req_nodes():
+        return Node.__req_nodes
+
+    @staticmethod
+    def resp_nodes():
+        return Node.__resp_nodes
+
+    @staticmethod
+    def all_nodes():
+        return Node.__nodes
+
+    def __init__(self, name, required, note, _type, value, is_req):
         self.__name = name
         self.__required = required
         self.__note = note
@@ -260,16 +277,49 @@ class Node:
         self.__ori_type = _type
         # self.__type = None
         self.__value = value
+        self.__is_req = is_req
         self.__nodes = []
         self.__fields = []
         self.__dimension = 0
 
         assert tool.contain_dict(value)
         self.__parse_values(value)
+        # construct done
+        Node.merge_all_nodes(self)
+
+    @staticmethod
+    def merge_nodes(nodes, node):
+        try:
+            i = nodes.index(node)
+            for n in node.nodes:
+                nodes[i].add_node(n)
+            for f in node.fields:
+                nodes[i].add_field(f)
+        except ValueError:
+            nodes.append(node)
+
+    @staticmethod
+    def merge_all_nodes(node):
+        if node.__is_req:
+            Node.merge_nodes(Node.req_nodes(), node)
+        else:
+            Node.merge_nodes(Node.resp_nodes(), node)
+        Node.merge_nodes(Node.all_nodes(), node)
+
+    def add_node(self, node):
+        if node not in self.nodes:
+            self.nodes.append(node)
+
+    def add_field(self, field):
+        if field not in self.fields:
+            self.fields.append(field)
 
     @property
     def dimension(self):
         return self.__dimension
+
+    def __eq__(self, o):
+        return self.name == o.name
 
     def __str__(self):
         s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.required, self.note, self.type, self.value, self.dimension)
@@ -285,7 +335,7 @@ class Node:
             return self.__parse_values(value[0])
         for k, v in value.items():
             if tool.contain_dict(v):
-                self.__nodes.append(tool.make_node(k, v))
+                self.__nodes.append(tool.make_node(k, v, self.__is_req))
             else:
                 self.__fields.append(tool.make_field(k, v))
 
@@ -314,13 +364,13 @@ class Node:
     #     assert self.__name is None
     #     self.__name = value
 
-    def add_field(self, field):
-        util.assert_unique([field.name for field in self.__fields], field.name)
-        self.__fields.append(field)
+    # def add_field(self, field):
+    #     util.assert_unique([field.name for field in self.__fields], field.name)
+    #     self.__fields.append(field)
 
-    def add_node(self, node):
-        util.assert_unique([node.name for node in self.__nodes], node.name)
-        self.__nodes.append(node)
+    # def add_node(self, node):
+    #     util.assert_unique([node.name for node in self.__nodes], node.name)
+    #     self.__nodes.append(node)
 
     @property
     def nodes(self):

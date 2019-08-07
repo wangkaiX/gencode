@@ -1,4 +1,4 @@
-syntx = "proto3"
+syntax = "proto3";
 
 package ${package_name};
 
@@ -9,22 +9,27 @@ service ${service_name} {
 }
 
 % for node in nodes:
-message ${node.name} {
+message ${node.type.name} {
     <% i = 1 %>
-    % for field in fields:
-        % if field.dimension > 0:
-            <% repeated = 'repeated ' %>
-        % endif
+    % for field in node.fields:
+        <%
+            if field.dimension > 0:
+                repeated = 'repeated '
+            else:
+                repeated = ''
+        %>
     ${repeated}${field.type.name} ${field.name}  = ${i};
         <% i = i + 1 %>
     % endfor
 
-    <% i = 1 %>
-    % for node in nodes:
-        % if node.dimension > 0:
-            <% repeated = 'repeated ' %>
-        % endif
-    ${repeated}${node.type.name} ${node.name}  = ${i};
+    % for n in node.nodes:
+        <%
+            if field.dimension > 0:
+                repeated = 'repeated '
+            else:
+                repeated = ''
+        %>
+    ${repeated}${n.type.name} ${n.name}  = ${i};
         <% i = i + 1 %>
     % endfor
 }
@@ -35,7 +40,7 @@ message ${node.name} {
 enum ${enum.name} {
     <% i = 0 %>
     % for value in enum.values:
-    ${value} = ${i}
+    ${value} = ${i};
         <% i = i + 1 %>
     % endfor
 }

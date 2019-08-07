@@ -50,10 +50,10 @@ def make_field(ori_name, value):
     return meta.Field(*attrs, value)
 
 
-def make_node(ori_name, value):
+def make_node(ori_name, value, is_req):
     assert contain_dict(value)
     attrs = split_ori_name(ori_name)
-    return meta.Node(*attrs, value)
+    return meta.Node(*attrs, value, is_req)
 
 
 def split_ori_name(ori_name):
