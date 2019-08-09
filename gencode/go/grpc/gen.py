@@ -45,11 +45,11 @@ def gen_service_define(mako_dir, service_name, package_name):
     return r
 
 
-def gen_service_define_file(mako_dir, grpc_pb_dir, service_name, package_name):
+def gen_service_define_file(mako_dir, grpc_api_dir, service_name, package_name):
     code = gen_service_define(mako_dir, service_name, package_name)
 
     filename = "%s.go" % util.gen_underline_name(service_name)
-    filename = os.path.join(grpc_pb_dir, filename)
+    filename = os.path.join(grpc_api_dir, filename)
     tool.save_file(filename, code)
     tool.go_fmt(filename)
 
@@ -79,27 +79,27 @@ def gen_apis(project_path, apis, mako_dir, service_name, package_name, error_pac
     return r_dict
 
 
-def gen_apis_file(project_path, apis, mako_dir, grpc_pb_dir, grpc_service_name, grpc_package_name, error_package):
+def gen_apis_file(project_path, apis, mako_dir, grpc_api_dir, grpc_service_name, grpc_package_name, error_package):
     code_dict = gen_apis(project_path, apis, mako_dir, grpc_service_name, grpc_package_name, error_package)
     for k, v in code_dict.items():
         filename = "%s.go" % util.gen_underline_name(k)
-        filename = os.path.join(grpc_pb_dir, filename)
+        filename = os.path.join(grpc_api_dir, filename)
         tool.save_file(filename, v)
         tool.go_fmt(filename)
 
 
-def gen_pb(make_dir, grpc_pb_dir):
+def gen_pb(make_dir, grpc_api_dir):
     os.chdir(make_dir)
     os.system("make")
 
 
 def gen_server_file(project_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name, grpc_package_name, error_package,
-                    grpc_proto_dir, grpc_pb_dir):
+                    grpc_proto_dir, grpc_api_dir):
 
     gen_proto_file(apis=apis, mako_dir=mako_dir, grpc_proto_dir=grpc_proto_dir, proto_package_name=proto_package_name,
                    proto_service_name=proto_service_name)
 
-    gen_service_define_file(mako_dir=mako_dir, grpc_pb_dir=grpc_pb_dir, service_name=grpc_service_name, package_name=grpc_package_name)
+    gen_service_define_file(mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, service_name=grpc_service_name, package_name=grpc_package_name)
 
-    gen_apis_file(project_path=project_path, apis=apis, mako_dir=mako_dir, grpc_pb_dir=grpc_pb_dir, grpc_service_name=grpc_service_name,
+    gen_apis_file(project_path=project_path, apis=apis, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_service_name=grpc_service_name,
                   grpc_package_name=grpc_package_name, error_package=error_package)

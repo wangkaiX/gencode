@@ -57,10 +57,10 @@ def gen_code(
             restful_port=None,
             grpc_proto_dir=None,
             grpc_service_name=None,
-            grpc_service_dir=None,
+            # grpc_service_dir=None,
             grpc_package_name=None,
             proto_package_name=None,
-            grpc_pb_dir=None,
+            grpc_api_dir=None,
             grpc_define_pkg_name="Server",
             grpc_ip=None,
             grpc_port=None,
@@ -100,7 +100,7 @@ def gen_code(
                     restful_apis.append(api)
                 if protocol.protocol == meta.proto_proto:
                     assert grpc_proto_dir and \
-                           grpc_pb_dir and \
+                           grpc_api_dir and \
                            grpc_define_pkg_name and \
                            grpc_ip and \
                            grpc_port
@@ -114,7 +114,7 @@ def gen_code(
                                     grpc_service_name=grpc_service_name,
                                     error_package=error_package,
                                     grpc_proto_dir=grpc_proto_dir,
-                                    grpc_pb_dir=grpc_pb_dir,
+                                    grpc_api_dir=grpc_api_dir,
                                     )
     elif code_type in meta.code_cpp:
         pass
