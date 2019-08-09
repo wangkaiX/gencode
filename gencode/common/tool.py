@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import os
 from gencode.common import meta
 
 Type = None
@@ -67,3 +67,16 @@ def split_ori_name(ori_name):
     else:
         attrs[1] = False
     return attrs
+
+
+def save_file(filename, txt):
+    dirname = os.path.dirname(filename)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with open(filename, 'w') as f:
+        f.write(txt)
+
+
+def go_fmt(filename):
+    cmd = "go fmt %s" % filename
+    os.system(cmd)

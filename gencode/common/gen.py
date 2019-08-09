@@ -30,6 +30,11 @@ def save_file(filename, txt):
         f.write(txt)
 
 
+def go_fmt(filename):
+    cmd = "go fmt %s" % filename
+    os.system(cmd)
+
+
 def gen_code(
             filenames,
             code_type,
@@ -102,30 +107,15 @@ def gen_code(
                     proto_apis.append(api)
 
     if code_type in meta.code_go:
-        code_proto, code_service_define, code_apis = \
-            go_grpc_gen.gen_code(project_path=project_path, apis=proto_apis, mako_dir=mako_dir,
-                                 proto_service_name=service_name,
-                                 proto_package_name=proto_package_name,
-                                 grpc_package_name=grpc_package_name,
-                                 grpc_service_name=grpc_service_name,
-                                 error_package=error_package)
-
-        # proto
-        filename = "%s.proto" % util.gen_underline_name(service_name)
-        filename = os.path.join(grpc_proto_dir, filename)
-        print(code_proto)
-        save_file(filename, code_proto)
-
-        # pb
-        filename = "%s.go" % util.gen_underline_name(grpc_service_name)
-        filename = os.path.join(grpc_pb_dir, filename)
-        save_file(filename, code_service_define)
-
-        for k, v in code_apis.items():
-            filename = "%s.go" % util.gen_underline_name(k)
-            filename = os.path.join(grpc_pb_dir, filename)
-            save_file(filename, v)
-
+        go_grpc_gen.gen_server_file(project_path=project_path, apis=proto_apis, mako_dir=mako_dir,
+                                    proto_service_name=service_name,
+                                    proto_package_name=proto_package_name,
+                                    grpc_package_name=grpc_package_name,
+                                    grpc_service_name=grpc_service_name,
+                                    error_package=error_package,
+                                    grpc_proto_dir=grpc_proto_dir,
+                                    grpc_pb_dir=grpc_pb_dir,
+                                    )
     elif code_type in meta.code_cpp:
         pass
     else:
