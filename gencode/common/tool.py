@@ -3,6 +3,7 @@
 
 import os
 from gencode.common import meta
+import util
 
 Type = None
 
@@ -80,3 +81,13 @@ def save_file(filename, txt):
 def go_fmt(filename):
     cmd = "go fmt %s" % filename
     os.system(cmd)
+
+
+def package_name(abspath, project_path):
+    abspath = util.abs_path(abspath)
+    project_path = util.abs_path(project_path)
+    print("%s:%s" % (abspath, project_path))
+    apspath = abspath[len(project_path):]
+    if apspath[0] == '/':
+        apspath = apspath[1:]
+    return os.path.join(os.path.basename(project_path), abspath)
