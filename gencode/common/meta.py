@@ -330,7 +330,7 @@ class Node:
         return s
 
     def __parse_values(self, value):
-        if isinstance(value, list) and tool.contain_dict(value):
+        if isinstance(value, list) and isinstance(value[0], dict):
             self.__dimension = self.__dimension + 1
             return self.__parse_values(value[0])
         for k, v in value.items():

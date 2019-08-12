@@ -127,10 +127,39 @@ def gen_init_grpc_dir(project_path, mako_dir, grpc_api_dir, grpc_proto_dir):
     code = gen_init_grpc(project_path, mako_dir, grpc_api_dir, grpc_proto_dir)
     filename = os.path.join(project_path, "cmd", 'init_grpc.go')
     tool.save_file(filename, code)
+    tool.go_fmt(filename)
+
+
+def gen_test(project_path, mako_dir, api, grpc_proto_dir, service_name):
+    mako_file = os.path.join(mako_dir, 'go', 'grpc', 'test.go')
+    util.assert_file(mako_file)
+    t = Template(filename=mako_file)
+    r = t.render(
+        proto_dir=tool.package_name(grpc_proto_dir, project_path),
+        json_input=tool.dict2json(api.req.value),
+        ip="",
+        port=20001,
+        service_name=service_name,
+        api=api,
+        gen_upper_camel=util.gen_upper_camel,
+            )
+    return r
+
+
+def gen_test_file(project_path, mako_dir, api, grpc_proto_dir, service_name):
+    code = gen_test(project_path, mako_dir, api, grpc_proto_dir, service_name)
+    filename = os.path.join(project_path, "app", "test_grpc_api", '%s_test.go' % api.name)
+    tool.save_file(filename, code)
+    tool.go_fmt(filename)
+
+
+def gen_tests_file(project_path, mako_dir, apis, grpc_proto_dir, service_name):
+    for api in apis:
+        gen_test_file(project_path, mako_dir, api, grpc_proto_dir, service_name)
 
 
 def gen_server_file(project_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name, grpc_package_name, error_package,
-                    grpc_proto_dir, grpc_api_dir):
+                    grpc_proto_dir, grpc_api_dir, service_name):
 
     gen_proto_file(apis=apis, mako_dir=mako_dir, grpc_proto_dir=grpc_proto_dir, proto_package_name=proto_package_name,
                    proto_service_name=proto_service_name)
@@ -145,3 +174,5 @@ def gen_server_file(project_path, apis, mako_dir, proto_service_name, proto_pack
     gen_pb_file(make_dir=grpc_proto_dir)
 
     gen_init_grpc_dir(project_path=project_path, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_proto_dir=grpc_proto_dir)
+
+    gen_tests_file(project_path=project_path, mako_dir=mako_dir, apis=apis, grpc_proto_dir=grpc_proto_dir, service_name=service_name)

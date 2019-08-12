@@ -24,7 +24,7 @@ message ${node.type.name} {
 
     % for n in node.nodes:
         <%
-            if field.dimension > 0:
+            if n.dimension > 0:
                 repeated = 'repeated '
             else:
                 repeated = ''

@@ -4,6 +4,7 @@
 import os
 from gencode.common import meta
 import util
+import json
 
 Type = None
 
@@ -86,8 +87,23 @@ def go_fmt(filename):
 def package_name(abspath, project_path):
     abspath = util.abs_path(abspath)
     project_path = util.abs_path(project_path)
-    print("%s:%s" % (abspath, project_path))
-    apspath = abspath[len(project_path):]
-    if apspath[0] == '/':
-        apspath = apspath[1:]
+    abspath.index(project_path)
+    abspath = abspath[len(project_path):]
+    if abspath[0] == '/':
+        abspath = abspath[1:]
     return os.path.join(os.path.basename(project_path), abspath)
+
+
+def dict2json(req):
+    json_str = json.dumps(req, separators=(',', ':'), indent=4, ensure_ascii=False)
+    beg = 0
+    rdquote_index = json_str.find('":', beg)
+    while rdquote_index != -1:
+        ldquote_index = json_str.rfind('"', 0, rdquote_index)
+        assert ldquote_index != -1
+        key_end_index = json_str.find('|', ldquote_index, rdquote_index)
+        if key_end_index == -1:
+            key_end_index = rdquote_index
+        json_str = json_str[:key_end_index] + json_str[rdquote_index:]
+        rdquote_index = json_str.find('":', key_end_index + 2)
+    return json_str

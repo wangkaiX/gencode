@@ -115,6 +115,7 @@ def gen_code(
                                     error_package=error_package,
                                     grpc_proto_dir=grpc_proto_dir,
                                     grpc_api_dir=grpc_api_dir,
+                                    service_name=service_name,
                                     )
     elif code_type in meta.code_cpp:
         pass
