@@ -34,6 +34,18 @@ def contain_dict(value):
     return False
 
 
+def __get_list_dict_level(value, level):
+    assert contain_dict(value)
+    if isinstance(value, list) and contain_dict(value):
+        return __get_list_dict_level(value[0], level+1)
+    return value, level
+
+
+def get_list_dict_level(value):
+    assert isinstance(value, list) and contain_dict(value)
+    return __get_list_dict_level(value, 0)
+
+
 def is_enum(t):
     if t:
         return t in meta.Enum.types()

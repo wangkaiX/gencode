@@ -217,7 +217,6 @@ class Field:
         if not _type:
             _type = util.get_base_type(value)
         self.__ori_type = _type
-        # self.__type = Type(_type)
         self.__value = value
         self.__dimension = 0
 
@@ -301,6 +300,7 @@ class Node:
         self.__fields = []
         self.__dimension = 0
         self.__index = None
+        self.__curr_child_index = 1
 
         assert tool.contain_dict(value)
         self.__parse_values(value)
@@ -348,6 +348,11 @@ class Node:
     def dimension(self):
         return self.__dimension
 
+    @dimension.setter
+    def dimension(self, value):
+        assert isinstance(value, int)
+        self.__dimension = value
+
     def __eq__(self, o):
         return self.type.name == o.type.name
 
@@ -362,13 +367,21 @@ class Node:
     def __parse_values(self, value):
         for k, v in value.items():
             if isinstance(v, list) and isinstance(v[0], dict):
-                self.__dimension = self.__dimension + 1
-                print("list object:", k)
-                self.__nodes.append(tool.make_node(k, v[0], self.__is_req))
+                value, level = tool.get_list_dict_level(v)
+                node = tool.make_node(k, value, self.__is_req)
+                node.dimension = level
+                node.index = self.__curr_child_index
+                print("list object:", k, level)
+                self.__nodes.append(node)
             elif tool.contain_dict(v):
-                self.__nodes.append(tool.make_node(k, v, self.__is_req))
+                node = tool.make_node(k, v, self.__is_req)
+                node.index = self.__curr_child_index
+                self.__nodes.append(node)
             else:
-                self.__fields.append(tool.make_field(k, v))
+                field = tool.make_field(k, v)
+                field.index = self.__curr_child_index
+                self.__fields.append(field)
+            self.__curr_child_index = self.__curr_child_index + 1
 
     @property
     def name(self):

@@ -18,7 +18,7 @@ message ${node.type.name} {
             else:
                 repeated = ''
         %>
-    ${repeated}${field.type.name} ${field.name}  = ${i};
+    ${repeated}${field.type.name} ${field.name}  = ${field.index};
         <% i = i + 1 %>
     % endfor
 
@@ -29,7 +29,7 @@ message ${node.type.name} {
             else:
                 repeated = ''
         %>
-    ${repeated}${n.type.name} ${n.name}  = ${i};
+    ${repeated}${n.type.name} ${n.name}  = ${n.index};
         <% i = i + 1 %>
     % endfor
 }
