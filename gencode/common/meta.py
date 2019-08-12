@@ -11,14 +11,12 @@ code_go = ["GO", "GOLANG"]
 
 proto_http = 'HTTP'
 proto_graphql = 'GRAPHQL'
-proto_proto = 'PROTO'
+proto_grpc = 'GRPC'
 
 
 Types = ["string", "int", "float",
          "double", "time",
          "bool"]
-
-Type = None
 
 
 class TypeBase:
@@ -43,6 +41,11 @@ class TypeBase:
             self.__cpp = 'int'
             self.__graphql = 'Int'
             self.__grpc = 'int32'
+        elif _type == "int64":
+            self.__go = 'int64'
+            self.__cpp = 'int64_t'
+            self.__graphql = 'Int'
+            self.__grpc = 'int64'
         elif _type == 'float':
             self.__go = 'float32'
             self.__cpp = 'float'
@@ -135,6 +138,9 @@ class TypeProto(TypeBase):
         return self.grpc
 
 
+Type = TypeGo
+
+
 class Protocol:
     def __init__(self, protocol, method):
         self.__protocol = protocol.upper()
@@ -165,7 +171,7 @@ class Api:
                 p = Protocol(*protocol)
             elif protocol[0].upper() == proto_graphql:
                 p = Protocol(*protocol)
-            elif protocol[0].upper() == proto_proto:
+            elif protocol[0].upper() == proto_grpc:
                 p = Protocol(protocol[0], None)
             else:
                 print("未知的协议[%s]" % protocol)
@@ -207,6 +213,7 @@ class Field:
         self.__name = name
         self.__required = required
         self.__note = note
+        self.__index = None
         if not _type:
             _type = util.get_base_type(value)
         self.__ori_type = _type
@@ -216,10 +223,23 @@ class Field:
 
         self.__count_dimension(value)
 
+    def __eq__(self, o):
+        return self.name == o.name
+
     def __count_dimension(self, value):
         if isinstance(value, list):
             self.__dimension = self.__dimension + 1
             self.__count_dimension(value[0])
+
+    @property
+    def index(self):
+        assert self.__index is not None
+        return self.__index
+
+    @index.setter
+    def index(self, value):
+        assert isinstance(value, int)
+        self.__index = value
 
     @property
     def name(self):
@@ -275,12 +295,12 @@ class Node:
         if not _type:
             _type = util.gen_upper_camel(name)
         self.__ori_type = _type
-        # self.__type = None
         self.__value = value
         self.__is_req = is_req
         self.__nodes = []
         self.__fields = []
         self.__dimension = 0
+        self.__index = None
 
         assert tool.contain_dict(value)
         self.__parse_values(value)
@@ -315,11 +335,21 @@ class Node:
             self.fields.append(field)
 
     @property
+    def index(self):
+        assert self.__index is not None
+        return self.__index
+
+    @index.setter
+    def index(self, value):
+        assert isinstance(value, int)
+        self.__index = value
+
+    @property
     def dimension(self):
         return self.__dimension
 
     def __eq__(self, o):
-        return self.name == o.name
+        return self.type.name == o.type.name
 
     def __str__(self):
         s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.required, self.note, self.type, self.value, self.dimension)
@@ -330,11 +360,12 @@ class Node:
         return s
 
     def __parse_values(self, value):
-        if isinstance(value, list) and isinstance(value[0], dict):
-            self.__dimension = self.__dimension + 1
-            return self.__parse_values(value[0])
         for k, v in value.items():
-            if tool.contain_dict(v):
+            if isinstance(v, list) and isinstance(v[0], dict):
+                self.__dimension = self.__dimension + 1
+                print("list object:", k)
+                self.__nodes.append(tool.make_node(k, v[0], self.__is_req))
+            elif tool.contain_dict(v):
                 self.__nodes.append(tool.make_node(k, v, self.__is_req))
             else:
                 self.__fields.append(tool.make_field(k, v))

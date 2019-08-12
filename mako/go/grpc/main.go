@@ -1,6 +1,6 @@
 package main
 
-import pb "${project_path}/grpc_pb"
+import pb "${proto_dir}"
 
 func main() {
 }

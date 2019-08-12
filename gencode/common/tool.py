@@ -72,6 +72,7 @@ def split_ori_name(ori_name):
 
 
 def save_file(filename, txt):
+    print("filename:", filename)
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)

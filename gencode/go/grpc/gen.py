@@ -13,9 +13,21 @@ def gen_proto(apis, mako_dir, service_name, package_name):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'grpc.proto')
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
+    nodes = meta.Node.all_nodes()
+    types = set([node.type.name for node in nodes])
+    print(types)
+    unique_nodes = []
+    # import pdb
+    # pdb.set_trace()
+    for node in nodes:
+        if node.type.name in types:
+            unique_nodes.append(node)
+            types.remove(node.type.name)
+
+    # pdb.set_trace()
     r = t.render(
         apis=apis,
-        nodes=meta.Node.all_nodes(),
+        nodes=unique_nodes,
         enums=meta.Enum.enums(),
         service_name=service_name,
         package_name=package_name,
@@ -28,7 +40,7 @@ def gen_proto(apis, mako_dir, service_name, package_name):
 
 def gen_proto_file(apis, mako_dir, grpc_proto_dir, proto_service_name, proto_package_name):
     code = gen_proto(apis, mako_dir, proto_service_name, proto_package_name)
-    filename = "%s.proto" % util.gen_underline_name(proto_service_name)
+    filename = "%s.proto" % proto_package_name
     filename = os.path.join(grpc_proto_dir, filename)
     tool.save_file(filename, code)
 
@@ -54,17 +66,16 @@ def gen_service_define_file(mako_dir, grpc_api_dir, service_name, package_name):
     tool.go_fmt(filename)
 
 
-def gen_api(project_path, api, mako_file, service_name, package_name,
+def gen_api(project_start_path, api, mako_file, service_name, package_name,
             proto_dir, error_package):
     meta.Type = meta.TypeGo
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
     r = t.render(
-        project_path=project_path,
         api=api,
         service_name=service_name,
         package_name=package_name,
-        proto_dir=tool.package_name(proto_dir, project_path),
+        proto_dir=tool.package_name(proto_dir, project_start_path),
         error_package=error_package,
         gen_upper_camel=util.gen_upper_camel,
         gen_lower_camel=util.gen_lower_camel,
@@ -73,21 +84,21 @@ def gen_api(project_path, api, mako_file, service_name, package_name,
     return r
 
 
-def gen_apis(project_path, apis, mako_dir, service_name, package_name, proto_dir, error_package):
+def gen_apis(project_start_path, apis, mako_dir, service_name, package_name, proto_dir, error_package):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'api.go')
     r_dict = {}
     for api in apis:
-        r_dict[api.name] = gen_api(project_path, api, mako_file, service_name, package_name, proto_dir, error_package)
+        r_dict[api.name] = gen_api(project_start_path, api, mako_file, service_name, package_name, proto_dir, error_package)
     return r_dict
 
 
-def gen_apis_file(project_path, apis, mako_dir, grpc_api_dir, grpc_service_name, grpc_package_name, grpc_proto_dir, error_package):
-    code_dict = gen_apis(project_path, apis, mako_dir, grpc_service_name, grpc_package_name, grpc_proto_dir, error_package)
+def gen_apis_file(project_start_path, apis, mako_dir, grpc_api_dir, grpc_service_name, grpc_package_name, grpc_proto_dir, error_package):
+    code_dict = gen_apis(project_start_path, apis, mako_dir, grpc_service_name, grpc_package_name, grpc_proto_dir, error_package)
     for k, v in code_dict.items():
         filename = "%s.go" % util.gen_underline_name(k)
         filename = os.path.join(grpc_api_dir, filename)
         tool.save_file(filename, v)
-        tool.go_fmt(filename)
+    tool.go_fmt(grpc_api_dir)
 
 
 def gen_pb_file(make_dir):
@@ -95,47 +106,46 @@ def gen_pb_file(make_dir):
     os.system("make")
 
 
-def gen_proto_make(mako_dir, service_name):
+def gen_proto_make(mako_dir, package_name):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'proto.mak')
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
     r = t.render(
-        service_name=service_name,
+        package_name=package_name,
             )
     return r
 
 
-def gen_proto_make_file(mako_dir, service_name, grpc_proto_dir):
-    code = gen_proto_make(mako_dir, service_name)
+def gen_proto_make_file(mako_dir, package_name, grpc_proto_dir):
+    code = gen_proto_make(mako_dir, package_name)
     filename = os.path.join(grpc_proto_dir, "makefile")
     tool.save_file(filename, code)
 
 
-def gen_init_grpc(project_path, mako_dir, grpc_api_dir, grpc_proto_dir):
+def gen_init_grpc(project_start_path, mako_dir, grpc_api_dir, grpc_proto_dir):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'init_grpc.go')
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
     r = t.render(
-        project_path=project_path,
-        grpc_api_dir=tool.package_name(grpc_api_dir, project_path),
-        proto_dir=tool.package_name(grpc_proto_dir, project_path),
+        grpc_api_dir=tool.package_name(grpc_api_dir, project_start_path),
+        proto_dir=tool.package_name(grpc_proto_dir, project_start_path),
             )
     return r
 
 
-def gen_init_grpc_dir(project_path, mako_dir, grpc_api_dir, grpc_proto_dir):
-    code = gen_init_grpc(project_path, mako_dir, grpc_api_dir, grpc_proto_dir)
+def gen_init_grpc_file(project_path, project_start_path, mako_dir, grpc_api_dir, grpc_proto_dir):
+    code = gen_init_grpc(project_start_path, mako_dir, grpc_api_dir, grpc_proto_dir)
     filename = os.path.join(project_path, "cmd", 'init_grpc.go')
     tool.save_file(filename, code)
     tool.go_fmt(filename)
 
 
-def gen_test(project_path, mako_dir, api, grpc_proto_dir, service_name):
+def gen_test(project_start_path, mako_dir, api, grpc_proto_dir, service_name):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'test.go')
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
     r = t.render(
-        proto_dir=tool.package_name(grpc_proto_dir, project_path),
+        proto_dir=tool.package_name(grpc_proto_dir, project_start_path),
         json_input=tool.dict2json(api.req.value),
         ip="",
         port=20001,
@@ -146,35 +156,40 @@ def gen_test(project_path, mako_dir, api, grpc_proto_dir, service_name):
     return r
 
 
-def gen_test_file(project_path, mako_dir, api, grpc_proto_dir, service_name):
-    code = gen_test(project_path, mako_dir, api, grpc_proto_dir, service_name)
+def gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, service_name):
+    code = gen_test(project_start_path, mako_dir, api, grpc_proto_dir, service_name)
     filename = os.path.join(project_path, "app", "test_grpc_api", '%s_test.go' % api.name)
     tool.save_file(filename, code)
-    tool.go_fmt(filename)
+    # tool.go_fmt(filename)
 
 
-def gen_tests_file(project_path, mako_dir, apis, grpc_proto_dir, service_name):
+def gen_tests_file(project_path, project_start_path, mako_dir, apis, grpc_proto_dir, service_name):
     for api in apis:
-        gen_test_file(project_path, mako_dir, api, grpc_proto_dir, service_name)
+        gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, service_name)
+    tool.go_fmt(os.path.join(project_path, "app", "test_grpc_api"))
 
 
-def gen_server_file(project_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name, grpc_package_name, error_package,
+def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name, grpc_package_name,
+                    error_package,
                     grpc_proto_dir, grpc_api_dir, service_name, gen_server, gen_client, gen_test):
 
     gen_proto_file(apis=apis, mako_dir=mako_dir, grpc_proto_dir=grpc_proto_dir, proto_package_name=proto_package_name,
                    proto_service_name=proto_service_name)
 
-    gen_proto_make_file(mako_dir=mako_dir, service_name=proto_service_name, grpc_proto_dir=grpc_proto_dir)
+    gen_proto_make_file(mako_dir=mako_dir, package_name=proto_package_name, grpc_proto_dir=grpc_proto_dir)
 
     gen_pb_file(make_dir=grpc_proto_dir)
 
     if gen_server:
         gen_service_define_file(mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, service_name=grpc_service_name, package_name=grpc_package_name)
 
-        gen_apis_file(project_path=project_path, apis=apis, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_service_name=grpc_service_name,
+        gen_apis_file(project_start_path=project_start_path, apis=apis, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir,
+                      grpc_service_name=grpc_service_name,
                       grpc_package_name=grpc_package_name, grpc_proto_dir=grpc_proto_dir, error_package=error_package)
 
-        gen_init_grpc_dir(project_path=project_path, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_proto_dir=grpc_proto_dir)
+        gen_init_grpc_file(project_path=project_path, project_start_path=project_start_path, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir,
+                           grpc_proto_dir=grpc_proto_dir)
 
     if gen_test:
-        gen_tests_file(project_path=project_path, mako_dir=mako_dir, apis=apis, grpc_proto_dir=grpc_proto_dir, service_name=service_name)
+        gen_tests_file(project_path=project_path, project_start_path=project_start_path, mako_dir=mako_dir, apis=apis,
+                       grpc_proto_dir=grpc_proto_dir, service_name=service_name)

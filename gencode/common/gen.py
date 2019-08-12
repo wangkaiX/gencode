@@ -39,6 +39,7 @@ def gen_code(
             filenames,
             code_type,
             project_path,
+            project_start_path,
             service_name,
             main_dir,
             mako_dir,
@@ -79,7 +80,7 @@ def gen_code(
 
     graphql_apis = []
     restful_apis = []
-    proto_apis = []
+    grpc_apis = []
     for filename in filenames:
         apis = parser_config.gen_apis(filename)
         for api in apis:
@@ -98,16 +99,19 @@ def gen_code(
                            restful_ip and \
                            restful_port
                     restful_apis.append(api)
-                if protocol.protocol == meta.proto_proto:
+                if protocol.protocol == meta.proto_grpc:
                     assert grpc_proto_dir and \
                            grpc_api_dir and \
                            grpc_define_pkg_name and \
                            grpc_ip and \
                            grpc_port
-                    proto_apis.append(api)
+                    grpc_apis.append(api)
 
     if code_type in meta.code_go:
-        go_grpc_gen.gen_server_file(project_path=project_path, apis=proto_apis, mako_dir=mako_dir,
+        go_grpc_gen.gen_server_file(project_path=project_path,
+                                    project_start_path=project_start_path,
+                                    apis=grpc_apis,
+                                    mako_dir=mako_dir,
                                     proto_service_name=service_name,
                                     proto_package_name=proto_package_name,
                                     grpc_package_name=grpc_package_name,
