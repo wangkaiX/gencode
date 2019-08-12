@@ -159,20 +159,22 @@ def gen_tests_file(project_path, mako_dir, apis, grpc_proto_dir, service_name):
 
 
 def gen_server_file(project_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name, grpc_package_name, error_package,
-                    grpc_proto_dir, grpc_api_dir, service_name):
+                    grpc_proto_dir, grpc_api_dir, service_name, gen_server, gen_client, gen_test):
 
     gen_proto_file(apis=apis, mako_dir=mako_dir, grpc_proto_dir=grpc_proto_dir, proto_package_name=proto_package_name,
                    proto_service_name=proto_service_name)
-
-    gen_service_define_file(mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, service_name=grpc_service_name, package_name=grpc_package_name)
-
-    gen_apis_file(project_path=project_path, apis=apis, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_service_name=grpc_service_name,
-                  grpc_package_name=grpc_package_name, grpc_proto_dir=grpc_proto_dir, error_package=error_package)
 
     gen_proto_make_file(mako_dir=mako_dir, service_name=proto_service_name, grpc_proto_dir=grpc_proto_dir)
 
     gen_pb_file(make_dir=grpc_proto_dir)
 
-    gen_init_grpc_dir(project_path=project_path, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_proto_dir=grpc_proto_dir)
+    if gen_server:
+        gen_service_define_file(mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, service_name=grpc_service_name, package_name=grpc_package_name)
 
-    gen_tests_file(project_path=project_path, mako_dir=mako_dir, apis=apis, grpc_proto_dir=grpc_proto_dir, service_name=service_name)
+        gen_apis_file(project_path=project_path, apis=apis, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_service_name=grpc_service_name,
+                      grpc_package_name=grpc_package_name, grpc_proto_dir=grpc_proto_dir, error_package=error_package)
+
+        gen_init_grpc_dir(project_path=project_path, mako_dir=mako_dir, grpc_api_dir=grpc_api_dir, grpc_proto_dir=grpc_proto_dir)
+
+    if gen_test:
+        gen_tests_file(project_path=project_path, mako_dir=mako_dir, apis=apis, grpc_proto_dir=grpc_proto_dir, service_name=service_name)

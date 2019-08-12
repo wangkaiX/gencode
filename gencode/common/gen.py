@@ -116,6 +116,9 @@ def gen_code(
                                     grpc_proto_dir=grpc_proto_dir,
                                     grpc_api_dir=grpc_api_dir,
                                     service_name=service_name,
+                                    gen_server=gen_server,
+                                    gen_client=gen_client,
+                                    gen_test=gen_test,
                                     )
     elif code_type in meta.code_cpp:
         pass
