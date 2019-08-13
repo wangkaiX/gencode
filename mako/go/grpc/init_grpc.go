@@ -16,7 +16,7 @@ func InitGrpc() {
 		log.Fatal(err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterExampleServer(s, &api.Server{})
+	pb.Register${grpc_service_name}Server(s, &api.Server{})
 	reflection.Register(s)
 	err = s.Serve(lis)
 	if err != nil {

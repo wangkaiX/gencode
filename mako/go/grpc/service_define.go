@@ -1,5 +1,5 @@
 package ${package_name}
 
 
-type ${service_name} struct {}
+type ${grpc_service_type_name} struct {}
 
