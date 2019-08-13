@@ -118,6 +118,8 @@ def gen_code(
                                     grpc_package_name=grpc_package_name,
                                     grpc_service_name=grpc_service_name,
                                     grpc_service_type_name=grpc_service_type_name,
+                                    grpc_ip=grpc_ip,
+                                    grpc_port=grpc_port,
                                     error_package=error_package,
                                     grpc_proto_dir=grpc_proto_dir,
                                     grpc_api_dir=grpc_api_dir,

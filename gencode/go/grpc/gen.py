@@ -143,15 +143,15 @@ def gen_init_grpc_file(project_path, project_start_path, mako_dir, grpc_api_dir,
         tool.go_fmt(filename)
 
 
-def gen_test(project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name):
+def gen_test(project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name, grpc_ip, grpc_port):
     mako_file = os.path.join(mako_dir, 'go', 'grpc', 'test.go')
     util.assert_file(mako_file)
     t = Template(filename=mako_file)
     r = t.render(
         proto_dir=tool.package_name(grpc_proto_dir, project_start_path),
         json_input=tool.dict2json(api.req.value),
-        ip="",
-        port=20001,
+        ip=grpc_ip,
+        port=grpc_port,
         grpc_service_name=grpc_service_name,
         api=api,
         gen_upper_camel=util.gen_upper_camel,
@@ -159,21 +159,23 @@ def gen_test(project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_nam
     return r
 
 
-def gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name):
-    code = gen_test(project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name)
+def gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name, grpc_ip, grpc_port):
+    code = gen_test(project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name, grpc_ip, grpc_port)
     filename = os.path.join(project_path, "app", "test_grpc_api", '%s_test.go' % api.name)
     tool.save_file(filename, code)
 
 
-def gen_tests_file(project_path, project_start_path, mako_dir, apis, grpc_proto_dir, grpc_service_name):
+def gen_tests_file(project_path, project_start_path, mako_dir, apis, grpc_proto_dir, grpc_service_name, grpc_ip, grpc_port):
     for api in apis:
-        gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name)
+        gen_test_file(project_path, project_start_path, mako_dir, api, grpc_proto_dir, grpc_service_name, grpc_ip, grpc_port)
     tool.go_fmt(os.path.join(project_path, "app", "test_grpc_api"))
 
 
 def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name,
                     grpc_service_type_name,
                     grpc_package_name,
+                    grpc_ip,
+                    grpc_port,
                     error_package,
                     grpc_proto_dir, grpc_api_dir, service_name, gen_server, gen_client, gen_test):
 
@@ -197,4 +199,6 @@ def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_serv
 
     if gen_test:
         gen_tests_file(project_path=project_path, project_start_path=project_start_path, mako_dir=mako_dir, apis=apis,
-                       grpc_proto_dir=grpc_proto_dir, grpc_service_name=grpc_service_name)
+                       grpc_proto_dir=grpc_proto_dir, grpc_service_name=grpc_service_name,
+                       grpc_ip=grpc_ip,
+                       grpc_port=grpc_port)
