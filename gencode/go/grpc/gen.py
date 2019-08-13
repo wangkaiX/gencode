@@ -171,7 +171,7 @@ def gen_tests_file(project_path, project_start_path, mako_dir, apis, grpc_proto_
     tool.go_fmt(os.path.join(project_path, "app", "test_grpc_api"))
 
 
-def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_service_name, proto_package_name, grpc_service_name,
+def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_package_name, grpc_service_name,
                     grpc_service_type_name,
                     grpc_package_name,
                     grpc_ip,
@@ -180,7 +180,7 @@ def gen_server_file(project_path, project_start_path, apis, mako_dir, proto_serv
                     grpc_proto_dir, grpc_api_dir, service_name, gen_server, gen_client, gen_test):
 
     gen_proto_file(apis=apis, mako_dir=mako_dir, grpc_proto_dir=grpc_proto_dir, proto_package_name=proto_package_name,
-                   proto_service_name=proto_service_name)
+                   proto_service_name=grpc_service_name)
 
     gen_proto_make_file(mako_dir=mako_dir, package_name=proto_package_name, grpc_proto_dir=grpc_proto_dir)
 

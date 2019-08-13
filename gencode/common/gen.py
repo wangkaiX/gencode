@@ -63,7 +63,7 @@ def gen_code(
             grpc_package_name=None,
             proto_package_name=None,
             grpc_api_dir=None,
-            grpc_define_pkg_name="Server",
+            # grpc_define_pkg_name="Server",
             grpc_ip=None,
             grpc_port=None,
             gen_server=None,
@@ -103,9 +103,12 @@ def gen_code(
                 if protocol.protocol == meta.proto_grpc:
                     assert grpc_proto_dir and \
                            grpc_api_dir and \
-                           grpc_define_pkg_name and \
                            grpc_ip and \
-                           grpc_port
+                           grpc_port and \
+                           grpc_package_name and \
+                           grpc_service_name and \
+                           grpc_service_type_name and \
+                           proto_package_name
                     grpc_apis.append(api)
 
     if code_type in meta.code_go:
@@ -113,7 +116,6 @@ def gen_code(
                                     project_start_path=project_start_path,
                                     apis=grpc_apis,
                                     mako_dir=mako_dir,
-                                    proto_service_name=service_name,
                                     proto_package_name=proto_package_name,
                                     grpc_package_name=grpc_package_name,
                                     grpc_service_name=grpc_service_name,
