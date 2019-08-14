@@ -371,7 +371,7 @@ class Node:
                 node = tool.make_node(k, value, self.__is_req)
                 node.dimension = level
                 node.index = self.__curr_child_index
-                print("list object:", k, level)
+                # print("list object:", k, level)
                 self.__nodes.append(node)
             elif tool.contain_dict(v):
                 node = tool.make_node(k, v, self.__is_req)

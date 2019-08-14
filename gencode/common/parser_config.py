@@ -64,7 +64,7 @@ def map_to_apis(json_map):
             assert False
         req = v['req']
         resp = v['resp']
-        print("k:", k)
+        # print("k:", k)
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
         apis.append(meta.Api(k, req, resp, v['protocol'], v['note']))

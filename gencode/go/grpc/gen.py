@@ -15,7 +15,6 @@ def gen_proto(apis, mako_dir, service_name, package_name):
     t = Template(filename=mako_file)
     nodes = meta.Node.all_nodes()
     types = set([node.type.name for node in nodes])
-    print(types)
     unique_nodes = []
     # import pdb
     # pdb.set_trace()
