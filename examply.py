@@ -10,10 +10,11 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     gen.gen_code(
             filenames=[
-                "json/newVersion3.json",
+                "json/api.json",
                 ],
             code_type='go',
             project_path=dst_dir,
+            project_start_path=dst_dir,
             service_name="example",
             mako_dir="~/gencode/mako",
             main_dir=os.path.join(dst_dir, "cmd"),
@@ -31,7 +32,8 @@ if __name__ == '__main__':
             # restful_port=49002,
             grpc_proto_dir=os.path.join(dst_dir, "grpc_pb"),
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
-            grpc_service_name="Server",
+            grpc_service_name="ExampleServer",
+            grpc_service_type_name="Server",
             # grpc_service_dir=os.path.join(dst_dir, 'app', 'grpc_api'),
             proto_package_name="protopb",
             grpc_package_name="grpc_pb",
