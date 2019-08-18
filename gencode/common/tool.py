@@ -136,5 +136,3 @@ def gen_code(mako_file, **kwargs):
 def gen_code_file(mako_file, output_file, **kwargs):
     code = gen_code(mako_file, **kwargs)
     save_file(output_file, code)
-    if 'go' in output_file:
-        go_fmt(output_file)
