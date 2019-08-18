@@ -1,7 +1,7 @@
 package testgrpc
 
 import (
-    pb "${proto_dir}"
+    pb "${grpc_proto_dir}"
     "fmt"
     "log"
     "testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func Test${gen_upper_camel(api.name)}(t *testing.T) {
-    conn, err := grpc.Dial("${ip}:${port}", grpc.WithInsecure())
+    conn, err := grpc.Dial("${grpc_ip}:${grpc_port}", grpc.WithInsecure())
     if err != nil {
         log.Fatal(err)
     }

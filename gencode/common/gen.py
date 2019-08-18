@@ -85,6 +85,7 @@ def check_args(
 
     for filename in filenames:
         apis, protocol = parser_config.gen_apis(filename)
+        protocol = protocol.upper()
         if protocol == meta.proto_graphql:
             assert graphql_dir and \
                    graphql_schema_dir and \
@@ -122,7 +123,8 @@ def gen_code(
     code_type = code_type.upper()
 
     if code_type in meta.code_go:
-        go_grpc_gen.gen_code_file(apis=grpc_apis, **kwargs)
+        kwargs['apis'] = grpc_apis
+        go_grpc_gen.gen_code_file(**kwargs)
     elif code_type in meta.code_cpp:
         pass
     else:

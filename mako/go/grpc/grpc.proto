@@ -10,28 +10,23 @@ service ${grpc_service_name} {
 
 % for node in nodes:
 message ${node.type.name} {
-    <% i = 1 %>
-    % for field in node.fields:
-        <%
-            if field.dimension > 0:
-                repeated = 'repeated '
-            else:
-                repeated = ''
-        %>
-    ${repeated}${field.type.name} ${field.name}  = ${field.index};
-        <% i = i + 1 %>
+    <% 
+       members = []
+       for member in node.fields + node.nodes:
+           members.append(member)
+       members.sort(key=lambda member:member.index)
+    %>
+    % for member in members:
+<%
+    if member.dimension > 0:
+        repeated = 'repeated '
+    else:
+        repeated = ''
+%>
+    ${repeated}${member.type.name} ${member.name}  = ${member.index};
+
     % endfor
 
-    % for n in node.nodes:
-        <%
-            if n.dimension > 0:
-                repeated = 'repeated '
-            else:
-                repeated = ''
-        %>
-    ${repeated}${n.type.name} ${n.name}  = ${n.index};
-        <% i = i + 1 %>
-    % endfor
 }
 
 % endfor
