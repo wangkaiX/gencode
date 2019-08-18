@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 from gencode.common import tool
 # from abc import abstractmethod
 import util
@@ -161,31 +162,30 @@ class Protocol:
 
 
 class Api:
-    def __init__(self, name, req, resp, protocols, note):
+    def __init__(self, name, req, resp, note):
         self.__name = name
         self.__req = req
         self.__resp = resp
-        self.__protocols = []
-        for protocol in protocols:
-            if protocol[0].upper() == proto_http:
-                p = Protocol(*protocol)
-            elif protocol[0].upper() == proto_graphql:
-                p = Protocol(*protocol)
-            elif protocol[0].upper() == proto_grpc:
-                p = Protocol(protocol[0], None)
-            else:
-                print("未知的协议[%s]" % protocol)
-                assert False
-            self.__protocols.append(p)
+        # self.__protocol = []
+        # if protocol[0].upper() == proto_http:
+        #     p = Protocol(*protocol)
+        # elif protocol[0].upper() == proto_graphql:
+        #     p = Protocol(*protocol)
+        # elif protocol[0].upper() == proto_grpc:
+        #     p = Protocol(protocol[0], None)
+        # else:
+        #     print("未知的协议[%s]" % protocol)
+        #     assert False
+        # self.__protocol = p
         self.__note = note
 
     @property
     def name(self):
         return self.__name
 
-    @property
-    def protocols(self):
-        return self.__protocols
+    # @property
+    # def protocol(self):
+    #     return self.__protocol
 
     @property
     def method(self):
@@ -204,7 +204,7 @@ class Api:
         return self.__resp
 
     def __str__(self):
-        s = "[%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.protocols, self.note, self.req, self.resp)
+        s = "[%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.note, self.req, self.resp)
         return s
 
 
@@ -475,3 +475,17 @@ class Enum:
     #     assert self.__values == [] or self.__values is None
     #     assert vs
     #     self.__values = vs
+
+
+class File:
+    def __init__(self, path, name):
+        self.__name = name
+        self.__path = path
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def path_name(self):
+        return os.path.join(self.__path, self.__name)

@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-from gencode.common import meta
 import util
 import json
+
+from gencode.common import meta
+from mako.template import Template
 
 Type = None
 
@@ -120,3 +122,19 @@ def dict2json(req):
         json_str = json_str[:key_end_index] + json_str[rdquote_index:]
         rdquote_index = json_str.find('":', key_end_index + 2)
     return json_str
+
+
+def gen_code(mako_file, **kwargs):
+    util.assert_file(mako_file)
+    t = Template(filename=mako_file)
+    r = t.render(
+            **kwargs,
+            )
+    return r
+
+
+def gen_code_file(mako_file, output_file, **kwargs):
+    code = gen_code(mako_file, **kwargs)
+    save_file(output_file, code)
+    if 'go' in output_file:
+        go_fmt(output_file)

@@ -35,7 +35,7 @@ def go_fmt(filename):
     os.system(cmd)
 
 
-def gen_code(
+def check_args(
             filenames,
             code_type,
             project_path,
@@ -66,9 +66,10 @@ def gen_code(
             # grpc_define_pkg_name="Server",
             grpc_ip=None,
             grpc_port=None,
-            gen_server=None,
-            gen_client=None,
-            gen_test=None,
+            # gen_server=None,
+            # gen_client=None,
+            # gen_test=None,
+            **kwargs,
             ):
     assert code_type
     code_type = code_type.upper()
@@ -77,59 +78,51 @@ def gen_code(
         print("不支持的语言[%s]" % code_type)
     assert service_name
     assert mako_dir
-    mako_dir = util.abs_path(mako_dir)
 
     graphql_apis = []
     restful_apis = []
     grpc_apis = []
+
     for filename in filenames:
-        apis = parser_config.gen_apis(filename)
-        for api in apis:
-            for protocol in api.protocols:
-                if protocol.protocol == meta.proto_graphql:
-                    assert graphql_dir and \
-                           graphql_schema_dir and \
-                           graphql_define_pkg_name and \
-                           graphql_resolver_pkg_name and \
-                           graphql_ip and graphql_port
-                    graphql_apis.append(api)
-                if protocol.protocol == meta.proto_http:
-                    assert restful_dir and \
-                           restful_define_pkg_name and \
-                           restful_resolver_pkg_name and \
-                           restful_ip and \
-                           restful_port
-                    restful_apis.append(api)
-                if protocol.protocol == meta.proto_grpc:
-                    assert grpc_proto_dir and \
-                           grpc_api_dir and \
-                           grpc_ip and \
-                           grpc_port and \
-                           grpc_package_name and \
-                           grpc_service_name and \
-                           grpc_service_type_name and \
-                           proto_package_name
-                    grpc_apis.append(api)
+        apis, protocol = parser_config.gen_apis(filename)
+        if protocol == meta.proto_graphql:
+            assert graphql_dir and \
+                   graphql_schema_dir and \
+                   graphql_define_pkg_name and \
+                   graphql_resolver_pkg_name and \
+                   graphql_ip and graphql_port
+            graphql_apis += apis
+        if protocol == meta.proto_http:
+            assert restful_dir and \
+                   restful_define_pkg_name and \
+                   restful_resolver_pkg_name and \
+                   restful_ip and \
+                   restful_port
+            restful_apis += apis
+        if protocol == meta.proto_grpc:
+            assert grpc_proto_dir and \
+                   grpc_api_dir and \
+                   grpc_ip and \
+                   grpc_port and \
+                   grpc_service_name and \
+                   grpc_service_type_name and \
+                   grpc_package_name and \
+                   proto_package_name
+            grpc_apis += apis
+    return restful_apis, graphql_apis, grpc_apis
+
+
+def gen_code(
+            filenames,
+            code_type,
+            **kwargs,
+            ):
+    restful_apis, graphql_apis, grpc_apis = check_args(filenames, code_type, **kwargs)
+    kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
+    code_type = code_type.upper()
 
     if code_type in meta.code_go:
-        go_grpc_gen.gen_server_file(project_path=project_path,
-                                    project_start_path=project_start_path,
-                                    apis=grpc_apis,
-                                    mako_dir=mako_dir,
-                                    proto_package_name=proto_package_name,
-                                    grpc_package_name=grpc_package_name,
-                                    grpc_service_name=grpc_service_name,
-                                    grpc_service_type_name=grpc_service_type_name,
-                                    grpc_ip=grpc_ip,
-                                    grpc_port=grpc_port,
-                                    error_package=error_package,
-                                    grpc_proto_dir=grpc_proto_dir,
-                                    grpc_api_dir=grpc_api_dir,
-                                    service_name=service_name,
-                                    gen_server=gen_server,
-                                    gen_client=gen_client,
-                                    gen_test=gen_test,
-                                    )
+        go_grpc_gen.gen_code_file(apis=grpc_apis, **kwargs)
     elif code_type in meta.code_cpp:
         pass
     else:

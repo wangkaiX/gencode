@@ -52,8 +52,12 @@ def read_enums(json_map):
 
 
 def map_to_apis(json_map):
-    read_enums(json_map)
     apis = []
+    protocol = json_map['protocol']
+    json_map.pop('protocol')
+
+    read_enums(json_map)
+
     for k, v in json_map.items():
         if v['type'].upper() == type_enum:
             continue
@@ -65,10 +69,22 @@ def map_to_apis(json_map):
         req = v['req']
         resp = v['resp']
         # print("k:", k)
+        if 'name' not in req:
+            req['name'] = util.gen_underline_name(k) + "Req"
+        if 'type' not in req:
+            req['name'] = k + "Req"
+        if 'note' not in req:
+            req['note'] = ""
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
+        if 'name' not in resp:
+            resp['name'] = util.gen_underline_name(k) + "Resp"
+        if 'type' not in resp:
+            resp['name'] = k + "Resp"
+        if 'note' not in resp:
+            resp['note'] = ""
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
-        apis.append(meta.Api(k, req, resp, v['protocol'], v['note']))
-    return apis
+        apis.append(meta.Api(k, req, resp, v['note']))
+    return apis, protocol
 
 
 def gen_apis(filename):
