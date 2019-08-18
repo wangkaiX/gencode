@@ -29,7 +29,7 @@ def gen_pb_file(make_dir):
 
 def gen_tests_file(mako_file, output_dir, grpc_proto_dir, project_start_path, apis, **kwargs):
     for api in apis:
-        filename = "%s_test.go" % util.gen_underline_name(api.name)
+        filename = "%s_test.go" % util.gen_upper_camel(api.name)
         filename = os.path.join(output_dir, filename)
         kwargs['grpc_proto_dir'] = tool.package_name(grpc_proto_dir, project_start_path)
         kwargs['json_input'] = tool.dict2json(api.req.value)
