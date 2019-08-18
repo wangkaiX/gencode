@@ -1,4 +1,5 @@
 {
+    "protocol":"grpc",
     "DataSourceType":{
         "type":"Enum",
         "note":"数据源类型",
@@ -11,7 +12,6 @@
     },
     "DataSourceInfoList":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"数据源信息列表",
         "req":{
             "type":"DataSourceInfoListReq",
@@ -42,7 +42,6 @@
     },
     "DataSourceTableList":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"单个数据源的数据列表",
         "req":{
             "type":"DataSourceTableListReq",
@@ -82,7 +81,6 @@
     },
     "AccreditTableList":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"用户已授权数据列表",
         "req":{
             "type":"AccreditTableListReq",
@@ -122,7 +120,6 @@
     },
     "ApplyTable":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"申请数据源数据",
         "req":{
             "type":"ApplyTableReq",
@@ -151,7 +148,6 @@
     },
     "UpdateApplyTable":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"更新数据表审核结果",
         "req":{
             "type":"UpdateApplyTableReq",
@@ -175,7 +171,6 @@
     },
     "QueryApplyTableList":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"查询数据审核结果",
         "req":{
             "type":"QueryApplyTableListReq",
@@ -212,7 +207,6 @@
     },
     "ApplyResultData":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"申请结果审核",
         "req":{
             "type":"ApplyResultDataReq",
@@ -241,7 +235,6 @@
     },
     "UpdateApplyResultData":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"结果审核结果通知",
         "req":{
             "type":"UpdateApplyResultDataReq",
@@ -265,7 +258,6 @@
     },
     "QueryApplyResultList":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"查询结果审核结果",
         "req":{
             "type":"QueryApplyResultListReq",
@@ -302,7 +294,6 @@
     },
     "SyncDataSourceTable":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"同步数据源表信息到主控区",
         "req":{
             "type":"SyncDataSourceTableReq",
@@ -340,7 +331,6 @@
     },
     "SyncDataSourceTableStrategy":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"同步数据源表策略",
         "req":{
             "type":"SyncDataSourceTableStrategyReq",
@@ -364,7 +354,6 @@
     },
     "SyncDataSourceTableSample":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"同步数据源样例数据",
         "req":{
             "type":"SyncDataSourceTableSampleReq",
@@ -393,7 +382,6 @@
     },
     "SyncUserSandboxInfo":{
         "type":"api",
-        "protocol":["grpc"],
         "note":"同步用户沙箱映射关系",
         "req":{
             "type":"SyncUserSandboxInfoReq",
@@ -426,7 +414,6 @@
     "ResultFileList":{
         "type":"api",
         "note":"结果文件列表",
-        "protocol":["grpc"],
         "req":{
             "type":"ResultFileListReq",
             "name":"resultFileListReq",

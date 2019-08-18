@@ -1,8 +1,8 @@
-package ${package_name}
+package ${grpc_package_name}
 
 import "golang.org/x/net/context"
 import "${error_package}"
-import protopb "${proto_dir}"
+import protopb "${grpc_proto_dir}"
 
 func (s *${grpc_service_type_name})${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.type.name}) (resp *protopb.${api.resp.type.name}, err error) {
 	resp = &protopb.${api.resp.type.name}{}

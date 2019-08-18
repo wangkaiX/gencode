@@ -13,6 +13,7 @@ if __name__ == '__main__':
                 "json/api.json",
                 ],
             code_type='go',
+            # protocol="grpc",  # "graphql", "restful"
             project_path=dst_dir,
             project_start_path=dst_dir,
             service_name="example",
@@ -43,4 +44,5 @@ if __name__ == '__main__':
             gen_server=True,
             gen_client=None,
             gen_test=None,
+            gen_doc=True,
             )

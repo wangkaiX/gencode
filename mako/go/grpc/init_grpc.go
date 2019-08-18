@@ -4,7 +4,7 @@ import (
 	api "${grpc_api_dir}"
 	"log"
 	"net"
-	pb "${proto_dir}"
+	pb "${grpc_proto_dir}"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
