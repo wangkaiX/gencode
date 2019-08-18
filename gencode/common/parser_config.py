@@ -9,45 +9,13 @@ import util
 type_enum = 'ENUM'
 type_api = 'API'
 
-'''
-def list_to_interface(field_name, field_value, struct_info, all_type, all_enum):
-    assert type(field_value) == list
-    util.add_struct(all_type, struct_info)
-    for l in field_value:
-        if type(l) == list:
-            print("list in list")
-            assert False
-        if type(l) in (dict, OrderedDict):
-            st, obj = struct_info.add_attribute(field_name, l, True, all_enum)
-            util.add_struct(all_type, st)
-            if obj:
-                kv_to_interface(field_name, l, st, all_type, all_enum)
-        else:
-            struct_info.add_attribute(field_name, field_value, False, all_enum)
-            break
-
-
-def kv_to_interface(field_name, field_value, struct_info, all_type, all_enum):
-    util.add_struct(all_type, struct_info)
-    if type(field_value) in (dict, OrderedDict):
-        for k, v in field_value.items():
-            if type(v) == list:
-                list_to_interface(k, v, struct_info, all_type, all_enum)
-            else:
-                st, obj = struct_info.add_attribute(k, v, False, all_enum)
-                if obj:
-                    util.add_struct(all_type, st)
-                    kv_to_interface(k, v, st, all_type, all_enum)
-
-    elif type(field_value) == list:
-        list_to_interface(field_name, field_value, struct_info, all_type, all_enum)
-'''
-
 
 def read_enums(json_map):
     for k, v in json_map.items():
         assert tool.contain_dict(v)
         if v['type'].upper() == type_enum:
+            if 'note' not in v:
+                v['note'] = ""
             meta.Enum.add_enum(tool.make_enum(k, v['note'], v['value']))
 
 
@@ -70,19 +38,21 @@ def map_to_apis(json_map):
         resp = v['resp']
         # print("k:", k)
         if 'name' not in req:
-            req['name'] = util.gen_underline_name(k) + "Req"
+            req['name'] = util.gen_lower_camel(k) + "Req"
         if 'type' not in req:
-            req['name'] = k + "Req"
+            req['type'] = util.gen_upper_camel(k) + "Req"
         if 'note' not in req:
             req['note'] = ""
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
         if 'name' not in resp:
-            resp['name'] = util.gen_underline_name(k) + "Resp"
+            resp['name'] = util.gen_lower_camel(k) + "Resp"
         if 'type' not in resp:
-            resp['name'] = k + "Resp"
+            resp['type'] = util.gen_upper_camel(k) + "Resp"
         if 'note' not in resp:
             resp['note'] = ""
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
+        if 'note' not in v:
+            v['note'] = ""
         apis.append(meta.Api(k, req, resp, v['note']))
     return apis, protocol
 
