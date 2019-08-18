@@ -5,6 +5,7 @@ package ${proto_package_name};
 service ${grpc_service_name} {
 % for api in apis:
     rpc ${gen_upper_camel(api.name)}(${api.req.type.name}) returns (${api.resp.type.name}){}
+
 % endfor
 }
 
@@ -24,9 +25,7 @@ message ${node.type.name} {
         repeated = ''
 %>
     ${repeated}${member.type.name} ${member.name}  = ${member.index};
-
     % endfor
-
 }
 
 % endfor

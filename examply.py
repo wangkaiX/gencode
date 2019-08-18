@@ -10,7 +10,7 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     gen.gen_code(
             filenames=[
-                "json/api.json",
+                "json/api_simply.json",
                 ],
             code_type='go',
             # protocol="grpc",  # "graphql", "restful"
@@ -43,6 +43,6 @@ if __name__ == '__main__':
             grpc_port=49003,
             gen_server=True,
             gen_client=None,
-            gen_test=None,
+            gen_test=True,
             gen_doc=True,
             )
