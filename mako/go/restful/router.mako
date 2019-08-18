@@ -2,33 +2,35 @@ package restfulresolver
 
 import "net/http"
 import "github.com/gin-gonic/gin"
-% for interface in all_interface:
-    % for field in interface.get_req().fields():
-        % if field.get_type()._go == 'GinFileInfort.FileHeader':
-import "mime/multipart"
-          <% break %>
+<%def name = "import_gin_file(apis)" >
+% for api in apis:
+    % for field in api.req.fields:
+        % if field.type.name == 'GinFileInfort.FileHeader':
+            <% return 'import "mime/multipart"' %>
         % endif
     % endfor
 % endfor
+    <% return "" %>
+</%def>
 
-% for interface in all_interface:
-    % if len(interface.get_req().fields()) > 0:
-import "${pro_path}/app/define"
+% for api in apis:
+    % if len(api.req.fields) > 0:
+import "${project_path}/app/define"
         <% break %>
     % endif
 % endfor
 
-import "${pro_path}/app/service"
+import "${project_path}/app/service"
 
 func Run(addr string)(err error) {
     gin.SetMode(gin.ReleaseMode)
     var router = gin.Default()
-% for interface in all_interface:
+% for api in apis:
     <%
-        req = interface.get_req()
-        resp = interface.get_resp()
-        func_name = gen_title_name(interface.get_name())
-        interface_name = interface.get_name()
+        req = api.req
+        resp = api.resp
+        func_name = api.name
+        interface_name = api.name
         url = interface.get_url()
         urlparam = interface.get_url_param()
     %>

@@ -32,10 +32,8 @@ message ${node.type.name} {
 
 % for enum in enums:
 enum ${enum.name} {
-    <% i = 0 %>
-    % for value in enum.values:
+    % for i, value in zip(range(0, len(enum.values)), enum.values):
     ${value} = ${i};
-        <% i = i + 1 %>
     % endfor
 }
 
