@@ -10,10 +10,9 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     gen.gen_code(
             filenames=[
-                "json/api_simply.json",
+                "json/api.json",
                 ],
             code_type='go',
-            # protocol="grpc",  # "graphql", "restful"
             project_path=dst_dir,
             project_start_path=dst_dir,
             service_name="example",
@@ -35,7 +34,6 @@ if __name__ == '__main__':
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             grpc_service_name="ExampleServer",
             grpc_service_type_name="Server",
-            # grpc_service_dir=os.path.join(dst_dir, 'app', 'grpc_api'),
             proto_package_name="protopb",
             grpc_package_name="grpc_pb",
             # grpc_define_pkg_name="define",
