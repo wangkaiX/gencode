@@ -9,20 +9,13 @@ import (
     "testing"
 )
 
-<%
-    req = interface.get_req()
-    resp = interface.get_resp()
-    interface_name = interface.get_name()
-    url = interface.get_url()
-%>
-
-func Test${gen_title_name(interface_name)}${resp.get_name()}_${name}(t *testing.T) {
+func Test${gen_upper_camel(api.name)}(t *testing.T) {
     client := http.Client{}
     input := `
         ${input_args}
                `
 
-    request, err := http.NewRequest("POST", "http://localhost:${port}/${url}?${url_param}", strings.NewReader(input))
+    request, err := http.NewRequest("POST", "http://localhost:${port}/${api.url}?${url_param}", strings.NewReader(input))
     if err != nil {
         log.Fatal(err)
     }
