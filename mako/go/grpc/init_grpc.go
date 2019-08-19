@@ -1,13 +1,13 @@
 package main
 
 import (
-	api "${grpc_api_dir}"
+	api "${package_grpc_api_dir}"
 	"log"
 	"net"
-	pb "${grpc_proto_dir}"
+	pb "${package_grpc_proto_dir}"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	// "google.golang.org/grpc/reflection"
 )
 
 func InitGrpc() {
@@ -17,7 +17,7 @@ func InitGrpc() {
 	}
 	s := grpc.NewServer()
 	pb.Register${grpc_service_name}Server(s, &api.Server{})
-	reflection.Register(s)
+	// reflection.Register(s)
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatal(err)

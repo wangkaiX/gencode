@@ -8,7 +8,7 @@ if __name__ == '__main__':
     gopath = os.environ['GOPATH']
     assert gopath
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
-    gen.gen_code(
+    gen.gen_code_files(
             filenames=[
                 "json/api.json",
                 ],
@@ -25,14 +25,14 @@ if __name__ == '__main__':
             # graphql_resolver_pkg_name="custom",
             # graphql_ip="",
             # graphql_port=49001,
-            # restful_dir=dst_dir + "app/restful_api",
-            # restful_define_pkg_name="custom",
-            # restful_resolver_pkg_name="custom",
-            # restful_ip="",
-            # restful_port=49002,
+            restful_api_dir=os.path.join(dst_dir, "app", "restful_api"),
+            restful_define_pkg_name="restful_define",
+            restful_resolver_pkg_name="restful_api",
+            restful_ip="",
+            restful_port=49002,
             grpc_proto_dir=os.path.join(dst_dir, "grpc_pb"),
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
-            grpc_service_name="ExampleServer",
+            grpc_service_name="GrpcExampleServer",
             grpc_service_type_name="Server",
             proto_package_name="protopb",
             grpc_package_name="grpc_pb",

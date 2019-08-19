@@ -1,11 +1,11 @@
 package main
 
 import (
-	"${project_path}/app/restful_resolver"
-	"${project_path}/app/define"
+	"${package_restful_api_dir}"
+	"${package_project_dir}/app/define"
 	"fmt"
 )
 
 func InitRestful() {
-	restful_resolver.Run(fmt.Sprintf("%v:%v", ${restful_ip}, ${restful_port}))
+	restful_resolver.Run(fmt.Sprintf("%v:%v", define.Cfg.RestfulIP, define.Cfg.RestfulPort))
 }

@@ -1,6 +1,6 @@
 package main
 
-import pb "${proto_dir}"
+import pb "${package_proto_dir}"
 
 func main() {
 }

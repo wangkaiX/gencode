@@ -4,3 +4,5 @@
 **/*pyc
 /example
 /*_example
+**/go.mod
+**/go.sum

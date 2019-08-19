@@ -1,7 +1,7 @@
 package testgrpc
 
 import (
-    pb "${grpc_proto_dir}"
+    pb "${package_grpc_proto_dir}"
     "fmt"
     "log"
     "testing"
