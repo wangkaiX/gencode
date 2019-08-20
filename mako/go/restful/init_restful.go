@@ -7,5 +7,6 @@ import (
 )
 
 func InitRestful() {
-	restful_resolver.Run(fmt.Sprintf("%v:%v", define.Cfg.RestfulIP, define.Cfg.RestfulPort))
+	<% import os %>
+	${os.path.basename(package_restful_api_dir)}.Run(fmt.Sprintf("%v:%v", define.Cfg.RestfulIP, define.Cfg.RestfulPort))
 }

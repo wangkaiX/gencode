@@ -1,17 +1,23 @@
-package define
+<% import os %>
+package ${os.path.basename(restful_define_dir)}
+
+% for enum in enums:
+type ${enum.name} int32
+
+% endfor
 
 const (
 % for enum in enums:
-	% for i, value in zip(range(0, len(enum.value)), enum.value):
-	${enum.name}${value} int32 = ${i}
+	% for i, value in zip(range(0, len(enum.values)), enum.values):
+	${enum.name}${value} ${enum.name} = ${i}
 	% endfor
 
 % endfor
 )
 
 % for enum in enums:
-var ${enum.name}_name = map[int32]string {
-	% for i, value in zip(range(0, len(enum.value)), enum.value):
+var ${enum.name}_name = map[${enum.name}]string {
+	% for i, value in zip(range(0, len(enum.values)), enum.values):
 	${i} : "${enum.name}${value}",
 	% endfor
 }

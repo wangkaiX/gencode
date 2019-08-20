@@ -39,8 +39,8 @@ def go_fmt(filename):
 def check_args(
             filename,
             code_type,
-            project_path,
-            project_start_path,
+            project_dir,
+            project_start_dir,
             service_name,
             main_dir,
             mako_dir,
@@ -52,7 +52,8 @@ def check_args(
             graphql_ip=None,
             graphql_port=None,
             restful_api_dir=None,
-            restful_package_name=None,
+            restful_define_package_name=None,
+            restful_api_package_name=None,
             restful_ip=None,
             restful_port=None,
             grpc_proto_dir=None,
@@ -88,7 +89,8 @@ def check_args(
                graphql_ip and graphql_port
     elif protocol == meta.proto_http:
         assert restful_api_dir and \
-               restful_package_name and \
+               restful_define_package_name and \
+               restful_api_package_name and \
                restful_ip and \
                restful_port
     elif protocol == meta.proto_grpc:
@@ -101,7 +103,8 @@ def check_args(
                grpc_package_name and \
                proto_package_name
     else:
-        assert False and "未知的协议[%s]" % protocol
+        print("未知的协议[%s]" % protocol)
+        assert False
 
     return apis, protocol
 

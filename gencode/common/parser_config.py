@@ -36,7 +36,7 @@ def map_to_apis(json_map):
             assert False
         req = v['req']
         resp = v['resp']
-        # print("k:", k)
+        # req
         if 'name' not in req:
             req['name'] = util.gen_lower_camel(k) + "Req"
         if 'type' not in req:
@@ -44,6 +44,7 @@ def map_to_apis(json_map):
         if 'note' not in req:
             req['note'] = ""
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
+        # resp
         if 'name' not in resp:
             resp['name'] = util.gen_lower_camel(k) + "Resp"
         if 'type' not in resp:
@@ -51,9 +52,20 @@ def map_to_apis(json_map):
         if 'note' not in resp:
             resp['note'] = ""
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
+        # api
         if 'note' not in v:
             v['note'] = ""
-        apis.append(meta.Api(k, req, resp, v['note']))
+        if 'url' not in v:
+            v['url'] = util.gen_underline_name(k)
+        if 'url_pararm' not in v:
+            v['url_param'] = ""
+        if 'method' not in v:
+            v['method'] = 'POST'
+        api = meta.Api(k, req, resp, v['note'])
+        api.url = v['url']
+        api.method = v['method']
+        api.url_param = v['url_param']
+        apis.append(api)
     return apis, protocol
 
 

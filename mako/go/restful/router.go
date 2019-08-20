@@ -1,12 +1,16 @@
-package restfulresolver
+<%
+import os 
+define = os.path.basename(restful_define_dir)
+%>
+package ${os.path.basename(restful_api_dir)}
 
 import "net/http"
 import "github.com/gin-gonic/gin"
 <%def name = "import_gin_file(apis)" >
 % for api in apis:
     % for field in api.req.fields:
-        % if field.type.name == 'GinFileInfort.FileHeader':
-            <% return 'import "mime/multipart"' %>
+        % if field.type.basename == 'GINFILE':
+            <% return '// import "mime/multipart"' %>
         % endif
     % endfor
 % endfor
@@ -16,12 +20,10 @@ ${import_gin_file(apis)}
 
 % for api in apis:
     % if len(api.req.fields) > 0:
-import "${project_path}/app/define"
+import "${package_restful_define_dir}"
         <% break %>
     % endif
 % endfor
-
-import "${project_path}/app/service"
 
 func Run(addr string)(err error) {
     gin.SetMode(gin.ReleaseMode)
@@ -34,16 +36,16 @@ func Run(addr string)(err error) {
         interface_name = api.name
         url_param = api.url_param
     %>
-    router.${api.method}("/${api.url}", func(c *gin.Context) {
-        var req define.${req.get_name()}
-    % if len(url_param.fields) > 0:
-        var param define.${url_param.type.name}
+    router.${api.method}("${api.url}", func(c *gin.Context) {
+        var req ${define}.${req.type.name}
+    % if url_param :
+        var param ${define}.${url_param.type.name}
         if err := c.BindQuery(&param); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
         % for field in url_param.fields:
-        req.${gen_title_name(field.get_name())} = param.${gen_title_name(field.get_name())}
+        req.${gen_upper_camel(field.name)} = param.${gen_upper_camel(field.name)}
         % endfor
     % endif
 
@@ -54,7 +56,8 @@ func Run(addr string)(err error) {
         }
     % endif
 
-        resp := service.${api.name}(c, &req)
+	<% import os %>
+        resp := ${api.name}(c, &req)
         c.JSON(http.StatusOK, resp) 
     })
 

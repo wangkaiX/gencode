@@ -33,31 +33,37 @@ class TypeBase:
 
     def set_type(self, _type):
         if _type == str:
+            _type = 'string'
             self.__go = 'string'
             self.__cpp = 'std::string'
             self.__graphql = 'String'
             self.__grpc = 'string'
         elif _type == int:
+            _type = 'int32'
             self.__go = 'int32'
-            self.__cpp = 'int'
+            self.__cpp = 'int32_t'
             self.__graphql = 'Int'
             self.__grpc = 'int32'
         elif _type == "int64":
+            _type = 'int64'
             self.__go = 'int64'
             self.__cpp = 'int64_t'
             self.__graphql = 'Int'
             self.__grpc = 'int64'
         elif _type == 'float':
+            _type = 'float32'
             self.__go = 'float32'
             self.__cpp = 'float'
             self.__graphql = 'Float'
             self.__grpc = 'float'
         elif _type == float:
+            _type = 'float64'
             self.__go = 'float64'
             self.__cpp = 'double'
             self.__graphql = 'Float'
             self.__grpc = 'float'
         elif _type == bool:
+            _type = 'bool'
             self.__go = 'bool'
             self.__cpp = 'bool'
             self.__graphql = 'Boolean'
@@ -67,12 +73,20 @@ class TypeBase:
             self.__cpp = 'std::string'
             self.__graphql = 'Time'
             self.__grpc = 'string'
+        elif _type.upper() == 'GINFILE':
+            _type = _type.upper()
+            self.__go = '*multipart.FileHeader'
         else:
             _type = util.gen_upper_camel(_type)
             self.__go = _type
             self.__cpp = _type
             self.__graphql = _type
             self.__grpc = _type
+        self.__type = _type
+
+    @property
+    def basename(self):
+        return self.__type
 
     @property
     def go(self):
@@ -166,30 +180,38 @@ class Api:
         self.__name = name
         self.__req = req
         self.__resp = resp
-        # self.__protocol = []
-        # if protocol[0].upper() == proto_http:
-        #     p = Protocol(*protocol)
-        # elif protocol[0].upper() == proto_graphql:
-        #     p = Protocol(*protocol)
-        # elif protocol[0].upper() == proto_grpc:
-        #     p = Protocol(protocol[0], None)
-        # else:
-        #     print("未知的协议[%s]" % protocol)
-        #     assert False
-        # self.__protocol = p
         self.__note = note
+        # self.__url = None
+        # self.__url_param = None
+        # self.__method = None
 
     @property
     def name(self):
         return self.__name
 
-    # @property
-    # def protocol(self):
-    #     return self.__protocol
-
     @property
     def method(self):
         return self.__method
+
+    @method.setter
+    def method(self, v):
+        self.__method = v
+
+    @property
+    def url(self):
+        return self.__url
+
+    @url.setter
+    def url(self, v):
+        self.__url = v
+
+    @property
+    def url_param(self):
+        return self.__url_param
+
+    @url_param.setter
+    def url_param(self, v):
+        self.__url_param = v
 
     @property
     def note(self):
@@ -306,6 +328,10 @@ class Node:
         self.__parse_values(value)
         # construct done
         Node.merge_all_nodes(self)
+
+    @property
+    def is_req(self):
+        return self.__is_req
 
     @staticmethod
     def merge_nodes(nodes, node):

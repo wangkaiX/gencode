@@ -95,18 +95,30 @@ def save_file(filename, txt):
 
 
 def go_fmt(filename):
-    cmd = "go fmt %s" % filename
+    old_path = os.path.abspath('.')
+    if os.path.isdir(filename):
+        os.chdir(filename)
+        cmd = "go fmt"
+    elif os.path.isfile(filename):
+        dirname = os.path.dirname(filename)
+        os.chdir(dirname)
+        filename = os.path.basename(filename)
+        cmd = "go fmt %s" % filename
     os.system(cmd)
+    os.chdir(old_path)
 
 
-def package_name(abspath, project_path):
+def package_name(abspath, project_dir):
     abspath = util.abs_path(abspath)
-    project_path = util.abs_path(project_path)
-    abspath.index(project_path)
-    abspath = abspath[len(project_path):]
-    if abspath[0] == '/':
+    project_dir = util.abs_path(project_dir)
+    abspath.index(project_dir)
+    abspath = abspath[len(project_dir):]
+    if abspath and abspath[0] == '/':
         abspath = abspath[1:]
-    return os.path.join(os.path.basename(project_path), abspath)
+    if abspath:
+        return os.path.join(os.path.basename(project_dir), abspath)
+    else:
+        return os.path.basename(project_dir)
 
 
 def dict2json(req):

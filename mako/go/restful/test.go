@@ -12,10 +12,10 @@ import (
 func Test${gen_upper_camel(api.name)}(t *testing.T) {
     client := http.Client{}
     input := `
-        ${input_args}
+        ${json_input}
                `
 
-    request, err := http.NewRequest("POST", "http://localhost:${port}/${api.url}?${url_param}", strings.NewReader(input))
+    request, err := http.NewRequest("POST", "http://localhost:${restful_port}/${api.url}?${api.url_param}", strings.NewReader(input))
     if err != nil {
         log.Fatal(err)
     }

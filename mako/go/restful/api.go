@@ -1,17 +1,19 @@
-package service
+<% import os %>
+package ${restful_api_package_name}
 
-import "${project_path}/app/define"
-import "${project_path}/app/errno"
+import "${package_restful_define_dir}"
+import "${package_project_dir}/app/errno"
 import "github.com/gin-gonic/gin"
 
-func ${api.name}(ctx *gin.Context, ${api.req.name} *define.${api.req.type.name})(${resp.name} *define.${resp.type.name}) {
-    // code here
-    ${resp.name} = &define.${resp.type.name}{}
+func ${api.name}(ctx *gin.Context, ${api.req.name} *${os.path.basename(restful_define_dir)}.${api.req.type.name})(${api.resp.name} *${os.path.basename(restful_define_dir)}.${api.resp.type.name}) {
+    ${api.resp.name} = &${os.path.basename(restful_define_dir)}.${api.resp.type.name}{}
     var ec errno.Error
     defer func() {
-        ${resp.name}.Code = ec.Code
-        ${resp.name}.Msg = ec.Msg
+        ${api.resp.name}.Code = ec.Code
+        ${api.resp.name}.Msg = ec.Msg
     }()
+
+    // code here
 
 
     return
