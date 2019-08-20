@@ -24,6 +24,9 @@ def map_to_apis(json_map):
     protocol = json_map['protocol']
     json_map.pop('protocol')
 
+    url_prefix = json_map['url_prefix']
+    json_map.pop('url_prefix')
+
     read_enums(json_map)
 
     for k, v in json_map.items():
@@ -36,6 +39,7 @@ def map_to_apis(json_map):
             assert False
         req = v['req']
         resp = v['resp']
+
         # req
         if 'name' not in req:
             req['name'] = util.gen_lower_camel(k) + "Req"
@@ -44,6 +48,7 @@ def map_to_apis(json_map):
         if 'note' not in req:
             req['note'] = ""
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
+
         # resp
         if 'name' not in resp:
             resp['name'] = util.gen_lower_camel(k) + "Resp"
@@ -52,19 +57,37 @@ def map_to_apis(json_map):
         if 'note' not in resp:
             resp['note'] = ""
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
-        # api
+
+        # url
         if 'note' not in v:
             v['note'] = ""
         if 'url' not in v:
-            v['url'] = util.gen_underline_name(k)
-        if 'url_pararm' not in v:
-            v['url_param'] = ""
+            v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
+
+        # url_param
+        if 'url_param' not in v:
+            v['url_param'] = {}
+        url_param = v['url_param']
+        if 'type' not in url_param:
+            url_param['type'] = util.gen_upper_camel(k) + "UrlParam"
+        if 'note' not in url_param:
+            url_param['note'] = ""
+        if 'name' not in url_param:
+            url_param['name'] = util.gen_lower_camel(k) + "UrlParam"
+        if 'fields' not in url_param:
+            url_param['fields'] = {}
+        for field_name, field_value in url_param['fields'].items():
+            print("fields:", field_name, field_value)
+            assert not tool.contain_dict(field_value)
+        url_param = meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], True)
+
+        # api
         if 'method' not in v:
             v['method'] = 'POST'
         api = meta.Api(k, req, resp, v['note'])
         api.url = v['url']
         api.method = v['method']
-        api.url_param = v['url_param']
+        api.url_param = url_param
         apis.append(api)
     return apis, protocol
 

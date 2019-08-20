@@ -330,6 +330,15 @@ class Node:
         Node.merge_all_nodes(self)
 
     @property
+    def url_param(self):
+        ret = "?"
+        for field in self.fields:
+            ret += "%s=%s&" % (field.name, field.value)
+        if len(ret) > 1:
+            return ret[:-1]
+        return ""
+
+    @property
     def is_req(self):
         return self.__is_req
 

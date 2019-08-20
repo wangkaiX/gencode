@@ -15,7 +15,7 @@ func Test${gen_upper_camel(api.name)}(t *testing.T) {
         ${json_input}
                `
 
-    request, err := http.NewRequest("POST", "http://localhost:${restful_port}/${api.url}?${api.url_param}", strings.NewReader(input))
+    request, err := http.NewRequest("POST", "http://localhost:${restful_port}${api.url}${api.url_param.url_param}", strings.NewReader(input))
     if err != nil {
         log.Fatal(err)
     }

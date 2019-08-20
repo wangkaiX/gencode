@@ -38,15 +38,12 @@ func Run(addr string)(err error) {
     %>
     router.${api.method}("${api.url}", func(c *gin.Context) {
         var req ${define}.${req.type.name}
-    % if url_param :
         var param ${define}.${url_param.type.name}
+    % if len(url_param.fields) > 0:
         if err := c.BindQuery(&param); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
-        % for field in url_param.fields:
-        req.${gen_upper_camel(field.name)} = param.${gen_upper_camel(field.name)}
-        % endfor
     % endif
 
     % if len(req.fields) > 0 or len(req.nodes) > 0:
@@ -57,7 +54,7 @@ func Run(addr string)(err error) {
     % endif
 
 	<% import os %>
-        resp := ${api.name}(c, &req)
+        resp := ${api.name}(c, &param, &req)
         c.JSON(http.StatusOK, resp) 
     })
 
