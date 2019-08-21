@@ -37,8 +37,8 @@ func Run(addr string)(err error) {
         url_param = api.url_param
     %>
     router.${api.method}("${api.url}", func(c *gin.Context) {
-        var req ${define}.${req.type.name}
-        var param ${define}.${url_param.type.name}
+		var req ${define}.${req.type.name}
+		var param ${define}.${url_param.type.name}
     % if len(url_param.fields) > 0:
         if err := c.BindQuery(&param); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
