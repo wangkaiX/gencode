@@ -21,11 +21,14 @@ def read_enums(json_map):
 
 def map_to_apis(json_map):
     apis = []
-    protocol = json_map['protocol']
+    protocol = json_map['protocol'].upper()
     json_map.pop('protocol')
 
-    url_prefix = json_map['url_prefix']
-    json_map.pop('url_prefix')
+    if 'url_prefix' in json_map:
+        url_prefix = json_map['url_prefix']
+        json_map.pop('url_prefix')
+    else:
+        url_prefix = ""
 
     read_enums(json_map)
 
@@ -65,21 +68,24 @@ def map_to_apis(json_map):
             v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
 
         # url_param
-        if 'url_param' not in v:
-            v['url_param'] = {}
-        url_param = v['url_param']
-        if 'type' not in url_param:
-            url_param['type'] = util.gen_upper_camel(k) + "UrlParam"
-        if 'note' not in url_param:
-            url_param['note'] = ""
-        if 'name' not in url_param:
-            url_param['name'] = util.gen_lower_camel(k) + "UrlParam"
-        if 'fields' not in url_param:
-            url_param['fields'] = {}
-        for field_name, field_value in url_param['fields'].items():
-            print("fields:", field_name, field_value)
-            assert not tool.contain_dict(field_value)
-        url_param = meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], True)
+        if protocol == meta.proto_http:
+            if 'url_param' not in v:
+                v['url_param'] = {}
+            url_param = v['url_param']
+            if 'type' not in url_param:
+                url_param['type'] = util.gen_upper_camel(k) + "UrlParam"
+            if 'note' not in url_param:
+                url_param['note'] = ""
+            if 'name' not in url_param:
+                url_param['name'] = util.gen_lower_camel(k) + "UrlParam"
+            if 'fields' not in url_param:
+                url_param['fields'] = {}
+            for field_name, field_value in url_param['fields'].items():
+                print("fields:", field_name, field_value)
+                assert not tool.contain_dict(field_value)
+            url_param = meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], True)
+        else:
+            url_param = None
 
         # api
         if 'method' not in v:
@@ -95,15 +101,3 @@ def map_to_apis(json_map):
 def gen_apis(filename):
     json_map = util.readjson(filename)
     return map_to_apis(json_map)
-
-
-'''
-apis = gen_apis("../../json/newVersion3.json")
-with open("result.txt", "w") as f:
-    meta.Type = meta.TypeGraphql
-    for api in apis:
-        f.write(str(api) + "\n")
-    meta.Type = meta.TypeProto
-    for api in apis:
-        f.write(str(api) + "\n")
-'''

@@ -109,11 +109,13 @@ def check_args(
     return apis, protocol
 
 
-def gen_code_file(
+def __gen_code_file(
             filename,
             code_type,
             **kwargs,
             ):
+    meta.Node.clear()
+    meta.Enum.clear()
     apis, protocol = check_args(filename, code_type, **kwargs)
     kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
     code_type = code_type.upper()
@@ -147,4 +149,4 @@ def gen_code_file(
 
 def gen_code_files(filenames, code_type, **kwargs):
     for filename in filenames:
-        gen_code_file(filename, code_type, **kwargs)
+        __gen_code_file(filename, code_type, **kwargs)

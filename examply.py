@@ -11,7 +11,7 @@ if __name__ == '__main__':
     gen.gen_code_files(
             filenames=[
                 "json/api_url.json",
-                # "json/api.json",
+                "json/api.json",
                 ],
             code_type='go',
             project_dir=dst_dir,

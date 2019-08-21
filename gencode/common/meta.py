@@ -309,6 +309,12 @@ class Node:
     def all_nodes():
         return Node.__nodes
 
+    @staticmethod
+    def clear():
+        Node.__nodes = []
+        Node.__req_nodes = []
+        Node.__resp_nodes = []
+
     def __init__(self, name, required, note, _type, value, is_req):
         self.__name = name
         self.__required = required
@@ -472,6 +478,11 @@ class Enum:
     @staticmethod
     def enums():
         return Enum.__enums
+
+    @staticmethod
+    def clear():
+        Enum.__types = []
+        Enum.__enums = []
 
     # @staticmethod
     # def add_type(_type):

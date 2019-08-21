@@ -3,7 +3,7 @@
     "DataSourceType":{
         "type":"Enum",
         "note":"数据源类型",
-        "value":["MySql", "Oracle", "Hive", "DB2"]
+        "value":["Mysql", "Oracle", "Hive", "DB2", "Hadoop"]
     },
     "AuditStatus":{
         "type":"Enum",
