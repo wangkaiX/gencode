@@ -23,7 +23,7 @@ type  ${node.type.name} struct {
 % for field in node.fields + node.nodes:
     <%
     _type = '[]' * field.dimension + field.type.name
-    if node.is_req and field.required:
+    if node.attr.is_req and field.required:
         required = ' binding:"required"'
     else:
         required = ''

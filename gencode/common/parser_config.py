@@ -39,7 +39,7 @@ def parser_api(api_map, protocol):
             req['type'] = util.gen_upper_camel(k) + "Req"
         if 'note' not in req:
             req['note'] = ""
-        req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], True)
+        req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], 'req')
 
         # resp
         if 'name' not in resp:
@@ -48,7 +48,7 @@ def parser_api(api_map, protocol):
             resp['type'] = util.gen_upper_camel(k) + "Resp"
         if 'note' not in resp:
             resp['note'] = ""
-        resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], False)
+        resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], 'resp')
 
         # url
         if 'note' not in v:
@@ -72,7 +72,7 @@ def parser_api(api_map, protocol):
             for field_name, field_value in url_param['fields'].items():
                 print("fields:", field_name, field_value)
                 assert not tool.contain_dict(field_value)
-            url_param = meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], True)
+            url_param = meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], 'url_param')
         else:
             url_param = None
 

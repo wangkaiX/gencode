@@ -291,6 +291,21 @@ class Field:
         return s
 
 
+class Attr:
+    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param')
+
+    def __init__(self, _type):
+        if _type not in Attr.__type_list:
+            print(_type)
+            assert False
+
+        self.__type = _type
+
+    def __getattr__(self, name):
+        assert 'is_' == name[:3] and name[3:] in Attr.__type_list
+        return name == ('is_' + self.__type)
+
+
 class Node:
 
     __req_nodes = []
@@ -315,7 +330,7 @@ class Node:
         Node.__req_nodes = []
         Node.__resp_nodes = []
 
-    def __init__(self, name, required, note, _type, value, is_req):
+    def __init__(self, name, required, note, _type, value, attr):
         self.__name = name
         self.__required = required
         self.__note = note
@@ -323,7 +338,10 @@ class Node:
             _type = util.gen_upper_camel(name)
         self.__ori_type = _type
         self.__value = value
-        self.__is_req = is_req
+        if isinstance(attr, str):
+            self.__attr = Attr(attr)
+        elif isinstance(attr, Attr):
+            self.__attr = attr
         self.__nodes = []
         self.__fields = []
         self.__dimension = 0
@@ -345,8 +363,8 @@ class Node:
         return ""
 
     @property
-    def is_req(self):
-        return self.__is_req
+    def attr(self):
+        return self.__attr
 
     @staticmethod
     def merge_nodes(nodes, node):
@@ -361,7 +379,7 @@ class Node:
 
     @staticmethod
     def merge_all_nodes(node):
-        if node.__is_req:
+        if node.attr.is_req:
             Node.merge_nodes(Node.req_nodes(), node)
         else:
             Node.merge_nodes(Node.resp_nodes(), node)
@@ -409,13 +427,13 @@ class Node:
         for k, v in value.items():
             if isinstance(v, list) and isinstance(v[0], dict):
                 value, level = tool.get_list_dict_level(v)
-                node = tool.make_node(k, value, self.__is_req)
+                node = tool.make_node(k, value, self.attr)
                 node.dimension = level
                 node.index = self.__curr_child_index
                 # print("list object:", k, level)
                 self.__nodes.append(node)
             elif tool.contain_dict(v):
-                node = tool.make_node(k, v, self.__is_req)
+                node = tool.make_node(k, v, self.attr)
                 node.index = self.__curr_child_index
                 self.__nodes.append(node)
             else:
@@ -443,19 +461,6 @@ class Node:
     @property
     def value(self):
         return self.__value
-
-    # @name.setter
-    # def name(self, value):
-    #     assert self.__name is None
-    #     self.__name = value
-
-    # def add_field(self, field):
-    #     util.assert_unique([field.name for field in self.__fields], field.name)
-    #     self.__fields.append(field)
-
-    # def add_node(self, node):
-    #     util.assert_unique([node.name for node in self.__nodes], node.name)
-    #     self.__nodes.append(node)
 
     @property
     def nodes(self):
