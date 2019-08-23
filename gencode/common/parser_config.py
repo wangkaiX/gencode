@@ -18,12 +18,16 @@ def parser_enum(enum_map):
         meta.Enum.add_enum(tool.make_enum(k, v['note'], v['value']))
 
 
-def parser_api(api_map, protocol):
+def parser_api(api_map, protocol_map):
     apis = []
-    if 'url_prefix' in protocol:
-        url_prefix = protocol['url_prefix']
-    else:
-        url_prefix = ""
+
+    protocol = meta.Protocol(protocol_map['protocol'])
+    if 'method' in protocol_map:
+        protocol.method = protocol_map['method']
+    if 'url_prefix' in protocol_map:
+        protocol.url_prefix = protocol_map['url_prefix']
+    if 'url' in protocol_map:
+        protocol.url_prefix = protocol_map['url']
 
     for k, v in api_map.items():
         if k in [api.name for api in apis]:
@@ -54,7 +58,7 @@ def parser_api(api_map, protocol):
         if 'note' not in v:
             v['note'] = ""
         if 'url' not in v:
-            v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
+            v['url'] = "%s/%s" % (protocol.url_prefix, util.gen_underline_name(k))
 
         # url_param
         if protocol['type'] == meta.proto_http:
@@ -84,7 +88,7 @@ def parser_api(api_map, protocol):
         api.method = v['method']
         api.url_param = url_param
         apis.append(api)
-    return apis, protocol['type']
+    return apis, protocol
 
 
 def map_to_apis(json_map):

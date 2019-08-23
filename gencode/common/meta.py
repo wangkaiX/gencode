@@ -159,9 +159,10 @@ Type = TypeGo
 class Protocol:
     def __init__(self, protocol, method):
         self.__protocol = protocol.upper()
-        self.__method = None
+        self.__method = ""
         if method:
             self.__method = method.upper()
+        self.__url_prefix = ""
 
     @property
     def protocol(self):
@@ -170,6 +171,26 @@ class Protocol:
     @property
     def method(self):
         return self.__method
+
+    @method.setter
+    def method(self, m):
+        self.__method = m.upper()
+
+    @property
+    def url(self):
+        return self.__url
+
+    @url.setter
+    def url(self, u):
+        self.__url = u
+
+    @property
+    def url_prefix(self):
+        return self.__url_prefix
+
+    @url_prefix.setter
+    def url_prefix(self, u):
+        self.__url_prefix = u
 
     def __str__(self):
         return "[%s] [%s]\n" % (self.protocol, self.method)

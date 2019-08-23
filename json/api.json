@@ -23,6 +23,20 @@
             "passwd":"ucloud.cn"
         }
     },
+    "enum":{
+        "DataSourceType":{
+            "note":"数据源类型",
+            "value":["Mysql", "Oracle", "Hive", "DB2", "Hadoop"]
+        },
+        "SandboxStatus":{
+            "note":"沙箱状态",
+            "value":["ENABLE", "DISABLE"]
+        },
+        "AuditStatus":{
+            "note":"审核状态",
+            "value":["Unaudited", "Auditing", "Approved", "Refused"]
+        }
+    },
     "api":{
         "DataSourceInfoList":{
             "note":"数据源信息列表",
@@ -430,18 +444,15 @@
             }
         }
     },
-    "enum":{
-        "DataSourceType":{
-            "note":"数据源类型",
-            "value":["Mysql", "Oracle", "Hive", "DB2", "Hadoop"]
-        },
-        "SandboxStatus":{
-            "note":"沙箱状态",
-            "value":["ENABLE", "DISABLE"]
-        },
-        "AuditStatus":{
-            "note":"审核状态",
-            "value":["Unaudited", "Auditing", "Approved", "Refused"]
+    "db":{
+        "type":"mysql",
+        "ip":"0.0.0.0",
+        "port":3306,
+        "database":"db_test"
+        "table_list":{
+            "t_book":{
+                "encoding":"utf8"
+            }
         }
     }
 }
