@@ -138,7 +138,7 @@ def dict2json(req):
 
 def gen_code(mako_file, **kwargs):
     util.assert_file(mako_file)
-    t = Template(filename=mako_file)
+    t = Template(filename=mako_file, input_encoding='utf8')
     r = t.render(
             **kwargs,
             )

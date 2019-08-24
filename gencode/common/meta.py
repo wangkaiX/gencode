@@ -21,6 +21,8 @@ Types = ["string", "int", "float",
 
 
 class TypeBase:
+    __gin_file = 'GINFILE'
+
     def __init__(self, _type):
         assert _type
         self.__type = _type
@@ -73,7 +75,7 @@ class TypeBase:
             self.__cpp = 'std::string'
             self.__graphql = 'Time'
             self.__grpc = 'string'
-        elif _type.upper() == 'GINFILE':
+        elif _type.upper() == TypeBase.__gin_file:
             _type = _type.upper()
             self.__go = '*multipart.FileHeader'
         else:
@@ -157,16 +159,14 @@ Type = TypeGo
 
 
 class Protocol:
-    def __init__(self, protocol, method):
-        self.__protocol = protocol.upper()
-        self.__method = ""
-        if method:
-            self.__method = method.upper()
+    def __init__(self, _type):
+        self.__type = _type.upper()
+        self.__method = "POST"
         self.__url_prefix = ""
 
     @property
-    def protocol(self):
-        return self.__protocol
+    def type(self):
+        return self.__type
 
     @property
     def method(self):
@@ -331,7 +331,8 @@ class Node:
 
     __req_nodes = []
     __resp_nodes = []
-    __nodes = []
+    __req_resp_nodes = []
+    __config_nodes = []
 
     @staticmethod
     def req_nodes():
@@ -342,14 +343,41 @@ class Node:
         return Node.__resp_nodes
 
     @staticmethod
-    def all_nodes():
-        return Node.__nodes
+    def req_resp_nodes():
+        return Node.__req_resp_nodes
+
+    @staticmethod
+    def config_nodes():
+        return Node.__config_nodes
+
+    @staticmethod
+    def merge_nodes(nodes, node):
+        try:
+            i = nodes.index(node)
+            for n in node.nodes:
+                nodes[i].add_node(n)
+            for f in node.fields:
+                nodes[i].add_field(f)
+        except ValueError:
+            nodes.append(node)
+
+    @staticmethod
+    def merge_all_nodes(node):
+        if node.attr.is_req:
+            Node.merge_nodes(Node.req_nodes(), node)
+            Node.merge_nodes(Node.req_resp_nodes(), node)
+        elif node.attr.is_resp:
+            Node.merge_nodes(Node.resp_nodes(), node)
+            Node.merge_nodes(Node.req_resp_nodes(), node)
+        elif node.attr.is_config:
+            Node.merge_nodes(Node.config_nodes(), node)
 
     @staticmethod
     def clear():
-        Node.__nodes = []
+        Node.__req_resp_nodes = []
         Node.__req_nodes = []
         Node.__resp_nodes = []
+        Node.__config_nodes = []
 
     def __init__(self, name, required, note, _type, value, attr):
         self.__name = name
@@ -386,25 +414,6 @@ class Node:
     @property
     def attr(self):
         return self.__attr
-
-    @staticmethod
-    def merge_nodes(nodes, node):
-        try:
-            i = nodes.index(node)
-            for n in node.nodes:
-                nodes[i].add_node(n)
-            for f in node.fields:
-                nodes[i].add_field(f)
-        except ValueError:
-            nodes.append(node)
-
-    @staticmethod
-    def merge_all_nodes(node):
-        if node.attr.is_req:
-            Node.merge_nodes(Node.req_nodes(), node)
-        else:
-            Node.merge_nodes(Node.resp_nodes(), node)
-        Node.merge_nodes(Node.all_nodes(), node)
 
     def add_node(self, node):
         if node not in self.nodes:
@@ -510,16 +519,6 @@ class Enum:
         Enum.__types = []
         Enum.__enums = []
 
-    # @staticmethod
-    # def add_type(_type):
-    #     util.assert_unique(Enum.__types, _type)
-    #     Enum.__types.append(_type)
-    #     print(str(Enum.__types))
-
-    # @staticmethod
-    # def types():
-    #     return Enum.__types
-
     def __init__(self, name, note, values=[]):
         self.__name = name
         self.__values = values
@@ -542,12 +541,6 @@ class Enum:
     def values(self):
         return self.__values
 
-    # @values.setter
-    # def values(self, vs):
-    #     assert self.__values == [] or self.__values is None
-    #     assert vs
-    #     self.__values = vs
-
 
 class File:
     def __init__(self, path, name):
@@ -561,3 +554,7 @@ class File:
     @property
     def path_name(self):
         return os.path.join(self.__path, self.__name)
+
+
+# class Config:
+#     def __init__(self, name, required, note, _type, value, attr):

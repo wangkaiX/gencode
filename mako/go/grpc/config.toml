@@ -1,0 +1,11 @@
+% for group, members in config_map.items():
+[${group}]
+    % for k, v in members.items():
+        % if isinstance(v, str):
+${k} = "${v}"
+        % else:
+${k} = ${v}
+        % endif
+    % endfor
+
+% endfor

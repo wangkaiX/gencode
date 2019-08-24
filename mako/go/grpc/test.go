@@ -13,7 +13,7 @@ import (
 )
 
 func Test${gen_upper_camel(api.name)}(t *testing.T) {
-    conn, err := grpc.Dial("${grpc_ip}:${grpc_port}", grpc.WithInsecure())
+    conn, err := grpc.Dial("${config_map['grpc_addr']['ip']}:${config_map['grpc_addr']['port']}", grpc.WithInsecure())
     if err != nil {
         log.Fatal(err)
     }

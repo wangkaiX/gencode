@@ -18,16 +18,19 @@ def parser_enum(enum_map):
         meta.Enum.add_enum(tool.make_enum(k, v['note'], v['value']))
 
 
-def parser_api(api_map, protocol_map):
-    apis = []
-
-    protocol = meta.Protocol(protocol_map['protocol'])
+def parser_protocol(protocol_map):
+    protocol = meta.Protocol(protocol_map['type'].upper())
     if 'method' in protocol_map:
         protocol.method = protocol_map['method']
     if 'url_prefix' in protocol_map:
         protocol.url_prefix = protocol_map['url_prefix']
     if 'url' in protocol_map:
         protocol.url_prefix = protocol_map['url']
+    return protocol
+
+
+def parser_node(api_map, protocol):
+    apis = []
 
     for k, v in api_map.items():
         if k in [api.name for api in apis]:
@@ -61,7 +64,7 @@ def parser_api(api_map, protocol_map):
             v['url'] = "%s/%s" % (protocol.url_prefix, util.gen_underline_name(k))
 
         # url_param
-        if protocol['type'] == meta.proto_http:
+        if protocol.type == meta.proto_http:
             if 'url_param' not in v:
                 v['url_param'] = {}
             url_param = v['url_param']
@@ -88,14 +91,24 @@ def parser_api(api_map, protocol_map):
         api.method = v['method']
         api.url_param = url_param
         apis.append(api)
-    return apis, protocol
+    return apis
+
+
+def parser_config(config_map, protocol):
+    configs = []
+    for k, v in config_map.items():
+        name, required, note, _type = tool.split_ori_name(k)
+        config = meta.Node(name, required, note, _type, v, 'config')
+        configs.append(config)
+    return configs
 
 
 def map_to_apis(json_map):
     parser_enum(json_map['enum'])
-    protocol = json_map['protocol']
-    protocol['type'] = protocol['type'].upper()
-    return parser_api(json_map['api'], protocol)
+    protocol = parser_protocol(json_map['protocol'])
+    configs = parser_config(json_map['config'], protocol)
+    apis = parser_node(json_map['api'], protocol)
+    return apis, protocol, configs, json_map['config']
 
 
 def gen_apis(filename):

@@ -3,21 +3,21 @@
         "type":"grpc"
     },
     "config":{
-        "GrpcAddr":{
+        "grpc_addr":{
             "ip":"0.0.0.0",
-            "port":"20001"
+            "port":20001
         },
-        "Restful":{
+        "restful":{
             "ip":"0.0.0.0",
-            "port":"20002"
+            "port":20002
         },
-        "GraphqlAddr":{
+        "graphql_addr":{
             "ip":"0.0.0.0",
-            "port":"20003"
+            "port":20003
         },
-        "ServerDB":{
+        "server_db":{
             "ip":"192.168.150.221",
-            "port":"3306",
+            "port":3306,
             "schema":"ucloud",
             "user":"ucloud",
             "passwd":"ucloud.cn"
@@ -448,7 +448,7 @@
         "type":"mysql",
         "ip":"0.0.0.0",
         "port":3306,
-        "database":"db_test"
+        "database":"db_test",
         "table_list":{
             "t_book":{
                 "encoding":"utf8"

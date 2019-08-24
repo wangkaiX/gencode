@@ -10,7 +10,7 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
-                "json/api_url.json",
+                # "json/api_url.json",
                 "json/api.json",
                 ],
             code_type='go',
@@ -41,4 +41,5 @@ if __name__ == '__main__':
             gen_client=None,
             gen_test=True,
             gen_doc=True,
+            gen_out=False,
             )

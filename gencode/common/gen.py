@@ -79,25 +79,20 @@ def check_args(
     assert service_name
     assert mako_dir
 
-    apis, protocol = parser_config.gen_apis(filename)
-    protocol = protocol.upper()
+    apis, protocol, configs, config_map = parser_config.gen_apis(filename)
+    protocol = protocol.type
     if protocol == meta.proto_graphql:
         assert graphql_dir and \
                graphql_schema_dir and \
                graphql_define_pkg_name and \
-               graphql_resolver_pkg_name and \
-               graphql_ip and graphql_port
+               graphql_resolver_pkg_name
     elif protocol == meta.proto_http:
         assert restful_api_dir and \
                restful_define_package_name and \
-               restful_api_package_name and \
-               restful_ip and \
-               restful_port
+               restful_api_package_name
     elif protocol == meta.proto_grpc:
         assert grpc_proto_dir and \
                grpc_api_dir and \
-               grpc_ip and \
-               grpc_port and \
                grpc_service_name and \
                grpc_service_type_name and \
                grpc_package_name and \
@@ -106,7 +101,7 @@ def check_args(
         print("未知的协议[%s]" % protocol)
         assert False
 
-    return apis, protocol
+    return apis, protocol, configs, config_map
 
 
 def __gen_code_file(
@@ -116,11 +111,11 @@ def __gen_code_file(
             ):
     meta.Node.clear()
     meta.Enum.clear()
-    apis, protocol = check_args(filename, code_type, **kwargs)
+    apis, protocol, configs, config_map = check_args(filename, code_type, **kwargs)
     kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
     code_type = code_type.upper()
 
-    nodes = meta.Node.all_nodes()
+    nodes = meta.Node.req_resp_nodes()
     types = set([node.type.name for node in nodes])
     unique_nodes = []
     for node in nodes:
@@ -134,6 +129,8 @@ def __gen_code_file(
     kwargs['gen_lower_camel'] = util.gen_lower_camel
     kwargs['gen_underline_name'] = util.gen_underline_name
     kwargs['apis'] = apis
+    kwargs['configs'] = configs
+    kwargs['config_map'] = config_map
 
     if code_type in meta.code_go:
         if protocol == meta.proto_grpc:

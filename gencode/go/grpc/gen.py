@@ -74,6 +74,27 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
                                **kwargs,
                                )
 
+        # config.toml
+        output_file = os.path.join(kwargs['project_dir'], 'configs', 'config.toml')
+        tool.gen_code_file(os.path.join(mako_dir, 'config.toml'),
+                           output_file,
+                           **kwargs,
+                           )
+        # main.go
+        output_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
+        tool.gen_code_file(os.path.join(mako_dir, 'main.go'),
+                           output_file,
+                           package_project_path=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           **kwargs,
+                           )
+
+        # config.go
+        output_file = os.path.join(kwargs['project_dir'], 'app', 'define', 'config.go')
+        tool.gen_code_file(os.path.join(mako_dir, 'config.go'),
+                           output_file,
+                           **kwargs,
+                           )
+
     if gen_test:
         # test
         gen_tests_file(os.path.join(mako_dir, 'test.go'),
