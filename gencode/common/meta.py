@@ -363,7 +363,7 @@ class Node:
 
     @staticmethod
     def merge_all_nodes(node):
-        if node.attr.is_req:
+        if node.attr.is_req or node.attr.is_url_param:
             Node.merge_nodes(Node.req_nodes(), node)
             Node.merge_nodes(Node.req_resp_nodes(), node)
         elif node.attr.is_resp:
@@ -377,7 +377,7 @@ class Node:
         Node.__req_resp_nodes = []
         Node.__req_nodes = []
         Node.__resp_nodes = []
-        Node.__config_nodes = []
+        # Node.__config_nodes = []
 
     def __init__(self, name, required, note, _type, value, attr):
         self.__name = name

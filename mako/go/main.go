@@ -2,6 +2,7 @@ package main
 
 import (
     "flag"
+	"fmt"
 
 	"log"
     "${package_project_path}/app/define"
@@ -21,4 +22,17 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+	fmt.Printf("%+v\n", define.Cfg)
+<%
+from gencode.common import meta
+%>
+% for protocol in protocols:
+	% if protocol.type == meta.proto_grpc:
+	go InitGrpc()
+	% elif protocol.type == meta.proto_http:
+	go InitRestful()
+	% endif
+% endfor
+	select {}
+
 }

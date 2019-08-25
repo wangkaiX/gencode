@@ -106,9 +106,14 @@ def parser_config(config_map, protocol):
 def map_to_apis(json_map):
     parser_enum(json_map['enum'])
     protocol = parser_protocol(json_map['protocol'])
-    configs = parser_config(json_map['config'], protocol)
+    if 'config' in json_map:
+        configs = parser_config(json_map['config'], protocol)
+        config_map = json_map['config']
+    else:
+        configs = []
+        config_map = {}
     apis = parser_node(json_map['api'], protocol)
-    return apis, protocol, configs, json_map['config']
+    return apis, protocol, configs, config_map
 
 
 def gen_apis(filename):

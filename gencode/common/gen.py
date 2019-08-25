@@ -5,6 +5,7 @@ import os
 # import shutil
 from gencode.common import parser_config
 import util
+from gencode.common import tool
 from gencode.common import meta
 from gencode.go.grpc import gen as go_grpc_gen
 from gencode.go.restful import gen as go_restful_gen
@@ -80,17 +81,16 @@ def check_args(
     assert mako_dir
 
     apis, protocol, configs, config_map = parser_config.gen_apis(filename)
-    protocol = protocol.type
-    if protocol == meta.proto_graphql:
+    if protocol.type == meta.proto_graphql:
         assert graphql_dir and \
                graphql_schema_dir and \
                graphql_define_pkg_name and \
                graphql_resolver_pkg_name
-    elif protocol == meta.proto_http:
+    elif protocol.type == meta.proto_http:
         assert restful_api_dir and \
                restful_define_package_name and \
                restful_api_package_name
-    elif protocol == meta.proto_grpc:
+    elif protocol.type == meta.proto_grpc:
         assert grpc_proto_dir and \
                grpc_api_dir and \
                grpc_service_name and \
@@ -112,8 +112,6 @@ def __gen_code_file(
     meta.Node.clear()
     meta.Enum.clear()
     apis, protocol, configs, config_map = check_args(filename, code_type, **kwargs)
-    kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
-    code_type = code_type.upper()
 
     nodes = meta.Node.req_resp_nodes()
     types = set([node.type.name for node in nodes])
@@ -125,25 +123,63 @@ def __gen_code_file(
 
     kwargs['nodes'] = unique_nodes
     kwargs['enums'] = meta.Enum.enums()
-    kwargs['gen_upper_camel'] = util.gen_upper_camel
-    kwargs['gen_lower_camel'] = util.gen_lower_camel
-    kwargs['gen_underline_name'] = util.gen_underline_name
     kwargs['apis'] = apis
-    kwargs['configs'] = configs
-    kwargs['config_map'] = config_map
+    kwargs['protocols'].append(protocol)
+    kwargs['configs'] += configs
+    kwargs['config_map'] = dict(kwargs['config_map'], **config_map)
+
+    # print("config_map:", kwargs['config_map'])
 
     if code_type in meta.code_go:
-        if protocol == meta.proto_grpc:
+        if protocol.type == meta.proto_grpc:
             go_grpc_gen.gen_code_file(**kwargs)
-        elif protocol == meta.proto_http:
+        elif protocol.type == meta.proto_http:
             go_restful_gen.gen_code_file(**kwargs)
     elif code_type in meta.code_cpp:
         pass
     else:
         print("不支持的语言[%s]" % (code_type))
         assert False
+    return protocol, kwargs['configs'], kwargs['config_map']
 
 
 def gen_code_files(filenames, code_type, **kwargs):
+    kwargs['protocols'] = []
+    kwargs['configs'] = []
+    kwargs['config_map'] = {}
+    kwargs['gen_upper_camel'] = util.gen_upper_camel
+    kwargs['gen_lower_camel'] = util.gen_lower_camel
+    kwargs['gen_underline_name'] = util.gen_underline_name
+    code_type = code_type.upper()
+    kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
     for filename in filenames:
-        __gen_code_file(filename, code_type, **kwargs)
+        protocol, configs, config_map = __gen_code_file(filename, code_type, **kwargs)
+        kwargs['configs'] = configs
+        kwargs['config_map'] = config_map
+
+    if code_type in meta.code_go:
+        # config.toml
+        output_file = os.path.join(kwargs['project_dir'], 'configs', 'config.toml')
+        tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'config.toml'),
+                           output_file,
+                           **kwargs,
+                           )
+
+        # config.go
+        # print("configs:", configs)
+        # print("config_map:", config_map)
+        output_file = os.path.join(kwargs['project_dir'], 'app', 'define', 'config.go')
+        tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'config.go'),
+                           output_file,
+                           **kwargs,
+                           )
+        # main
+        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
+        tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
+                           out_file,
+                           package_project_path=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           **kwargs)
+        tool.go_fmt(out_file)
+    else:
+        print("不支持的语言[%s]" % (code_type))
+        assert False

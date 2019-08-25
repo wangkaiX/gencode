@@ -4,14 +4,16 @@ import (
 	api "${package_grpc_api_dir}"
 	"log"
 	"net"
+	"fmt"
 	pb "${package_grpc_proto_dir}"
+	"${package_project_dir}/app/define"
 
 	"google.golang.org/grpc"
 	// "google.golang.org/grpc/reflection"
 )
 
 func InitGrpc() {
-	lis, err := net.Listen("tcp", ":20001")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", define.Cfg.GrpcAddr.Port))
 	if err != nil {
 		log.Fatal(err)
 	}

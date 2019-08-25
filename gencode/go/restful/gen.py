@@ -77,14 +77,14 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
 
         # init_restful
         out_file = os.path.join(kwargs['project_dir'], 'cmd', 'init_restful.go')
-        if not os.path.exists(out_file):
-            tool.gen_code_file(os.path.join(mako_dir, 'init_restful.go'),
-                               out_file,
-                               package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
-                               package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
-                               **kwargs,
-                               )
-            tool.go_fmt(out_file)
+        # if not os.path.exists(out_file):
+        tool.gen_code_file(os.path.join(mako_dir, 'init_restful.go'),
+                           out_file,
+                           package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
+                           package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           **kwargs,
+                           )
+        tool.go_fmt(out_file)
 
     if gen_test:
         # test

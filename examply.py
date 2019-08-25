@@ -10,8 +10,8 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
-                # "json/api_url.json",
                 "json/api.json",
+                "json/api_url.json",
                 ],
             code_type='go',
             project_dir=dst_dir,

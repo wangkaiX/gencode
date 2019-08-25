@@ -7,13 +7,12 @@ import (
 type Config struct {
 % for config in configs:
 	${gen_upper_camel(config.name)} struct {
-		% for field in config.fields:
+	% for field in config.fields:
 		${gen_upper_camel(field.name)} ${field.type.name} `toml:"${field.name}"`
-		% endfor
-	}
+	% endfor
+} `toml:"${config.name}"`
 
 % endfor
-
 }
 
 var Cfg = new(Config)
