@@ -5,6 +5,7 @@ import os
 # from mako.template import Template
 import util
 from gencode.common import tool
+from gencode.common import meta
 # import copy
 
 
@@ -41,6 +42,11 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, project_start_dir, api
 
 
 def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):
+
+    # add code msg
+    for api in kwargs['apis']:
+        api.resp.add_field(meta.field_code)
+        api.resp.add_field(meta.field_msg)
 
     mako_dir = os.path.join(mako_dir, 'go', 'grpc')
 

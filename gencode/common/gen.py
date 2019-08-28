@@ -109,6 +109,7 @@ def __gen_code_file(
             code_type,
             **kwargs,
             ):
+    print("file:", filename)
     meta.Node.clear()
     meta.Enum.clear()
     apis, protocol, configs, config_map = check_args(filename, code_type, **kwargs)

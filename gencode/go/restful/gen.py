@@ -5,7 +5,7 @@ import os
 # from mako.template import Template
 import util
 from gencode.common import tool
-# from gencode.common import meta
+from gencode.common import meta
 # import copy
 
 
@@ -45,6 +45,11 @@ def gen_defines_file(mako_file, output_dir, apis, nodes, project_start_dir, **kw
 def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):
 
     mako_dir = os.path.join(mako_dir, 'go', 'restful')
+
+    # add code msg
+    for api in kwargs['apis']:
+        api.resp.add_field(meta.field_code)
+        api.resp.add_field(meta.field_msg)
 
     # enum
     out_file = os.path.join(kwargs['restful_define_dir'], 'restful_enum.go')

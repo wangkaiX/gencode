@@ -57,9 +57,7 @@
                         "coverage":"上海",
                         "data_level":"10亿级"
                     }
-                    ],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    ]
                 }
             }
         },
@@ -95,9 +93,7 @@
                                 "description":"电话号码"
                             }]
                         }
-                    ],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    ]
                 }
             }
         },
@@ -133,9 +129,7 @@
                         },
                         "begin_time|||int64":12312,
                         "end_time|||int64":213213
-                    }],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    }]
                 }
             }
         },
@@ -160,9 +154,7 @@
                 "name":"applyTableResp",
                 "note":"申请数据源数据应答参数",
                 "fields":{
-                    "apply_id":"apy101ijfj",
-                    "code":0,
-                    "msg":"SUCCESS"
+                    "apply_id":"apy101ijfj"
                 }
             }
         },
@@ -183,8 +175,6 @@
                 "name":"updateApplyTableResp",
                 "note":"更新数据表审核结果请求参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -217,9 +207,7 @@
                             "audit_result|||AuditStatus":3,
                             "refuse_reason":"没有权限"
                         }
-                    ],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    ]
                 }
             }
         },
@@ -244,9 +232,7 @@
                 "name":"applyResultDataResp",
                 "note":"申请结果审核应答参数",
                 "fields":{
-                    "apply_id":"ap2109313",
-                    "code":0,
-                    "msg":"SUCCESS"
+                    "apply_id":"ap2109313"
                 }
             }
         },
@@ -267,8 +253,6 @@
                 "name":"updateApplyResultDataResp",
                 "note":"结果审核结果通知应答参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -301,9 +285,7 @@
                             "refuse_reason":"",
                             "apply_reason":"测试"
                         }
-                    ],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    ]
                 }
             }
         },
@@ -338,8 +320,6 @@
                 "name":"syncDataSourceTableResp",
                 "note":"同步数据源表信息到主控区应答参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -360,8 +340,6 @@
                 "name":"syncDataSourceTableStrategyResp",
                 "note":"同步数据源表策略应答参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -382,8 +360,6 @@
                 "name":"syncDataSourceTableSampleResp",
                 "note":"同步数据源样例数据请求参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -412,8 +388,6 @@
                 "name":"syncUserSandboxInfoResp",
                 "note":"同步用户沙箱映射关系应答参数",
                 "fields":{
-                    "code":0,
-                    "msg":"SUCCESS"
                 }
             }
         },
@@ -433,9 +407,7 @@
                 "name":"resultFileListResp",
                 "note":"结果文件列表应答参数",
                 "fields":{
-                    "file_list":["file1", "file2"],
-                    "code":0,
-                    "msg":"SUCCESS"
+                    "file_list":["file1", "file2"]
                 }
             }
         }

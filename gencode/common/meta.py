@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import copy
 from gencode.common import tool
 # from abc import abstractmethod
 import util
@@ -312,6 +313,10 @@ class Field:
         return s
 
 
+field_code = Field("code", True, "", int, 0)
+field_msg = Field("msg", True, "", str, "SUCCESS")
+
+
 class Attr:
     __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param')
 
@@ -319,7 +324,6 @@ class Attr:
         if _type not in Attr.__type_list:
             print(_type)
             assert False
-
         self.__type = _type
 
     def __getattr__(self, name):
@@ -416,12 +420,24 @@ class Node:
         return self.__attr
 
     def add_node(self, node):
+        node = copy.copy(node)
+        assert isinstance(node, Node)
+        print("add node in:", self.type.name, self.__curr_child_index)
         if node not in self.nodes:
+            node.index = self.__curr_child_index
             self.nodes.append(node)
+            self.__curr_child_index = self.__curr_child_index + 1
 
     def add_field(self, field):
+        field = copy.copy(field)
+        assert isinstance(field, Field)
+        print("add field in:", self.type.name, self.__curr_child_index)
         if field not in self.fields:
+            field.index = self.__curr_child_index
+            print("before:", field.name, field.index)
             self.fields.append(field)
+            self.__curr_child_index = self.__curr_child_index + 1
+            print("after:", field.name, field.index)
 
     @property
     def index(self):
@@ -454,6 +470,7 @@ class Node:
         return s
 
     def __parse_values(self, value):
+        print("in:", self.type.name, self.__curr_child_index)
         for k, v in value.items():
             if isinstance(v, list) and isinstance(v[0], dict):
                 value, level = tool.get_list_dict_level(v)
@@ -470,6 +487,7 @@ class Node:
                 field = tool.make_field(k, v)
                 field.index = self.__curr_child_index
                 self.__fields.append(field)
+            print(k, v)
             self.__curr_child_index = self.__curr_child_index + 1
 
     @property
