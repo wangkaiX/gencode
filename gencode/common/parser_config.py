@@ -36,7 +36,11 @@ def parser_node(api_map, protocol):
         if k in [api.name for api in apis]:
             print("api [%s] already existed" % (k))
             assert False
+        if 'req' not in v:
+            v['req'] = {}
         req = v['req']
+        if 'resp' not in v:
+            v['resp'] = {}
         resp = v['resp']
 
         # req
@@ -46,6 +50,8 @@ def parser_node(api_map, protocol):
             req['type'] = util.gen_upper_camel(k) + "Req"
         if 'note' not in req:
             req['note'] = ""
+        if 'fields' not in req:
+            req['fields'] = {}
         req = meta.Node(req['name'], True, req['note'], req['type'], req['fields'], 'req')
 
         # resp
@@ -55,6 +61,9 @@ def parser_node(api_map, protocol):
             resp['type'] = util.gen_upper_camel(k) + "Resp"
         if 'note' not in resp:
             resp['note'] = ""
+        if 'fields' not in resp:
+            resp['fields'] = {}
+
         resp = meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], 'resp')
 
         # url
