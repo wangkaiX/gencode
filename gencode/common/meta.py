@@ -203,9 +203,18 @@ class Api:
         self.__req = req
         self.__resp = resp
         self.__note = note
+        # self.__context = None
         # self.__url = None
         # self.__url_param = None
         # self.__method = None
+
+    @property
+    def context(self):
+        return self.__context
+
+    @context.setter
+    def context(self, ctx):
+        self.__context = ctx
 
     @property
     def name(self):
@@ -318,7 +327,7 @@ field_msg = Field("msg", True, "", str, "SUCCESS")
 
 
 class Attr:
-    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param')
+    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param', 'context')
 
     def __init__(self, _type):
         if _type not in Attr.__type_list:

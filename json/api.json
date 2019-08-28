@@ -2,6 +2,15 @@
     "protocol":{
         "type":"grpc"
     },
+    "default":{
+        "resp":{
+            "code":0,
+            "msg":"SUCCESS"
+        },
+        "context":{
+            "user_id":"uid1231231"
+        }
+    },
     "config":{
         "grpc_addr":{
             "ip":"0.0.0.0",
