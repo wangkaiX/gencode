@@ -32,7 +32,7 @@ def parser_protocol(protocol_map):
 def gen_req(api_name, api_map, default_req):
     if 'req' not in api_map:
         api_map['req'] = {}
-    req = {**default_req, **api_map['req']}
+    req = api_map['req']
 
     if 'name' not in req:
         req['name'] = util.gen_lower_camel(api_name) + "Req"
@@ -42,6 +42,7 @@ def gen_req(api_name, api_map, default_req):
         req['note'] = ""
     if 'fields' not in req:
         req['fields'] = {}
+    req['fields'] = {**req['fields'], **default_req}
 
     return meta.Node(req['name'], True, req['note'], req['type'], req['fields'], 'req')
 
@@ -49,7 +50,7 @@ def gen_req(api_name, api_map, default_req):
 def gen_resp(api_name, api_map, default_resp):
     if 'resp' not in api_map:
         api_map['resp'] = {}
-    resp = {**default_resp, **api_map['resp']}
+    resp = api_map['resp']
 
     if 'name' not in resp:
         resp['name'] = util.gen_lower_camel(api_name) + "Resp"
@@ -58,7 +59,8 @@ def gen_resp(api_name, api_map, default_resp):
     if 'note' not in resp:
         resp['note'] = ""
     if 'fields' not in resp:
-        resp['fields'] = {}
+        resp['fields'] = {**default_resp}
+    resp['fields'] = {**resp['fields'], **default_resp}
 
     return meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], 'resp')
 
@@ -66,7 +68,7 @@ def gen_resp(api_name, api_map, default_resp):
 def gen_context(api_name, api_map, default_context):
     if 'context' not in api_map:
         api_map['context'] = {}
-    context = {**default_context, **api_map['context']}
+    context = api_map['context']
 
     # context
     if 'name' not in context:
@@ -77,6 +79,8 @@ def gen_context(api_name, api_map, default_context):
         context['note'] = ""
     if 'fields' not in context:
         context['fields'] = {}
+    context['fields'] = {**api_map['context'], **default_context}
+
     return meta.Node(context['name'], True, context['note'], context['type'], context['fields'], 'context')
 
 
@@ -105,10 +109,8 @@ def get_default(default_map, name):
     return default_map[name]
 
 
-def parser_node(apis_map, protocol):
+def parser_node(apis_map, default_map, protocol):
     apis = []
-
-    default_map = get_default(apis_map, 'default')
 
     default_context = get_default(default_map, 'context')
     default_req = get_default(default_map, 'req')
@@ -138,6 +140,8 @@ def parser_node(apis_map, protocol):
                 v['method'] = 'POST'
             elif protocol.type == meta.proto_graphql:
                 v['method'] = 'query'
+            else:
+                v['method'] = ''
 
         # api
         api = meta.Api(k, req, resp, v['note'])
@@ -161,13 +165,16 @@ def parser_config(config_map, protocol):
 def map_to_apis(json_map):
     parser_enum(json_map['enum'])
     protocol = parser_protocol(json_map['protocol'])
+
+    default_map = get_default(json_map, 'default')
+
     if 'config' in json_map:
         configs = parser_config(json_map['config'], protocol)
         config_map = json_map['config']
     else:
         configs = []
         config_map = {}
-    apis = parser_node(json_map['api'], protocol)
+    apis = parser_node(json_map['api'], default_map, protocol)
     return apis, protocol, configs, config_map
 
 

@@ -322,8 +322,8 @@ class Field:
         return s
 
 
-field_code = Field("code", True, "", int, 0)
-field_msg = Field("msg", True, "", str, "SUCCESS")
+# field_code = Field("code", True, "", int, 0)
+# field_msg = Field("msg", True, "", str, "SUCCESS")
 
 
 class Attr:
