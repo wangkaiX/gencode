@@ -149,7 +149,7 @@
                 "name":"applyTableReq",
                 "note":"申请数据源数据请求参数",
                 "fields":{
-                    "user_id":"test001",
+                    "user_id|Y":"test001",
                     "user_name":"使用者姓名",
                     "data_source_id":"testds001",
                     "table_id":"testtb001",
@@ -195,7 +195,7 @@
                 "note":"查询数据审核结果请求参数",
                 "fields":{
                     "user_id":"uid01dfpjf",
-                    "apply_id":"wopfjeewo1"
+                    "apply_id|Y":"wopfjeewo1"
                 }
             },
             "resp":{

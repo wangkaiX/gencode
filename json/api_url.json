@@ -9,6 +9,12 @@
         "type":"http",
         "url_prefix":"/apis"
     },
+    "default":{
+        "resp":{
+            "code":0,
+            "msg":"SUCCESS"
+        }
+    },
     "enum":{
         "DataSourceType":{
             "note":"数据源类型",

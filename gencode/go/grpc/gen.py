@@ -68,6 +68,14 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
                                         "%s.go" % util.gen_underline_name(kwargs['grpc_service_type_name'])),
                            **kwargs)
 
+        # check_args
+        tool.gen_code_file(os.path.join(mako_dir, 'check_args.go'),
+                           os.path.join(kwargs['grpc_api_dir'], 'check_args.go'),
+                           package_grpc_api_dir=tool.package_name(kwargs['grpc_api_dir'], kwargs['project_start_dir']),
+                           package_grpc_proto_dir=tool.package_name(kwargs['grpc_proto_dir'], kwargs['project_start_dir']),
+                           **kwargs,
+                           )
+
         # apis
         gen_apis_file(os.path.join(mako_dir, 'api.go'),
                       kwargs['grpc_api_dir'], **kwargs)
