@@ -103,9 +103,9 @@ def gen_url_param(api_name, api_map, default_url_param):
     return meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], 'url_param')
 
 
-def get_default(default_map, name):
+def get_default(default_map, name, default_value={}):
     if name not in default_map:
-        default_map[name] = {}
+        default_map[name] = default_value
     return default_map[name]
 
 
@@ -116,7 +116,7 @@ def parser_node(apis_map, default_map, protocol):
     default_req = get_default(default_map, 'req')
     default_resp = get_default(default_map, 'resp')
     default_url_param = get_default(default_map, 'url_param')
-    url_prefix = get_default(default_map, "url_prefix")
+    url_prefix = get_default(default_map, "url_prefix", "")
 
     for k, v in apis_map.items():
         if k in [api.name for api in apis]:
