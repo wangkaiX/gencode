@@ -117,6 +117,8 @@ def parser_node(apis_map, default_map, protocol):
     default_resp = get_default(default_map, 'resp')
     default_url_param = get_default(default_map, 'url_param')
     url_prefix = get_default(default_map, "url_prefix", "")
+    default_http_method = get_default(default_map, "http_method", "POST")
+    default_graphql_method = get_default(default_map, "graphql_method", "query")
 
     for k, v in apis_map.items():
         if k in [api.name for api in apis]:
@@ -132,16 +134,18 @@ def parser_node(apis_map, default_map, protocol):
         if 'note' not in v:
             v['note'] = ""
         if 'url' not in v:
-            v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
+            v['url'] = "%s/%s" % (url_prefix, k)
 
         # method
         if 'method' not in v:
             if protocol.type == meta.proto_http:
-                v['method'] = 'POST'
+                v['method'] = default_http_method
             elif protocol.type == meta.proto_graphql:
-                v['method'] = 'query'
-            else:
+                v['method'] = default_graphql_method
+            elif protocol.type == meta.proto_grpc:
                 v['method'] = ''
+            else:
+                assert False
 
         # api
         api = meta.Api(k, req, resp, v['note'])
