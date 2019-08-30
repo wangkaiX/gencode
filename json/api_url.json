@@ -1,6 +1,6 @@
 {
     "config":{
-        "restful_addr":{
+        "http_addr":{
             "ip":"0.0.0.0",
             "port":20002
         }
