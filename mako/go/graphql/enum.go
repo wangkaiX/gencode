@@ -1,4 +1,5 @@
-package ${graphql_define_package_name}
+<% import os %>
+package ${os.path.basename(graphql_define_dir)}
 
 const (
 % for enum in enums:

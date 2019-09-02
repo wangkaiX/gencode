@@ -9,15 +9,15 @@ from gencode.common import tool
 # import copy
 
 
-def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, project_start_dir, **kwargs):
+def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, go_module, **kwargs):
     for api in apis:
         filename = "%s.go" % util.gen_underline_name(api.name)
         filename = os.path.join(output_dir, filename)
         if not os.path.exists(filename):
             tool.gen_code_file(mako_file, filename,
                                api=api,
-                               package_grpc_api_dir=tool.package_name(grpc_api_dir, project_start_dir),
-                               package_grpc_proto_dir=tool.package_name(grpc_proto_dir, project_start_dir),
+                               package_grpc_api_dir=tool.package_name(grpc_api_dir, go_module),
+                               package_grpc_proto_dir=tool.package_name(grpc_proto_dir, go_module),
                                **kwargs)
     tool.go_fmt(output_dir)
 
@@ -29,13 +29,13 @@ def gen_pb_file(make_dir):
     os.chdir(old_path)
 
 
-def gen_tests_file(mako_file, output_dir, grpc_proto_dir, project_start_dir, apis, **kwargs):
+def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwargs):
     for api in apis:
         filename = "%s_test.go" % util.gen_upper_camel(api.name)
         filename = os.path.join(output_dir, filename)
         tool.gen_code_file(mako_file, filename,
                            api=api,
-                           package_grpc_proto_dir=tool.package_name(grpc_proto_dir, project_start_dir),
+                           package_grpc_proto_dir=tool.package_name(grpc_proto_dir, go_module),
                            json_input=tool.dict2json(api.req.value),
                            **kwargs)
     tool.go_fmt(output_dir)
@@ -52,7 +52,7 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
 
     # proto
     tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
-                       os.path.join(kwargs['grpc_proto_dir'], '%s.proto' % kwargs['proto_package_name']), **kwargs)
+                       os.path.join(kwargs['grpc_proto_dir'], '%s.proto' % kwargs['proto_package']), **kwargs)
 
     # makefile
     tool.gen_code_file(os.path.join(mako_dir, 'proto.mak'),
@@ -65,14 +65,14 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
         # service_define
         tool.gen_code_file(os.path.join(mako_dir, 'service_define.go'),
                            os.path.join(kwargs['grpc_api_dir'],
-                                        "%s.go" % util.gen_underline_name(kwargs['grpc_service_type_name'])),
+                                        "%s.go" % util.gen_underline_name(kwargs['grpc_service_type'])),
                            **kwargs)
 
         # check_args
         tool.gen_code_file(os.path.join(mako_dir, 'check_args.go'),
                            os.path.join(kwargs['grpc_api_dir'], 'check_args.go'),
-                           package_grpc_api_dir=tool.package_name(kwargs['grpc_api_dir'], kwargs['project_start_dir']),
-                           package_grpc_proto_dir=tool.package_name(kwargs['grpc_proto_dir'], kwargs['project_start_dir']),
+                           package_grpc_api_dir=tool.package_name(kwargs['grpc_api_dir'], kwargs['go_module']),
+                           package_grpc_proto_dir=tool.package_name(kwargs['grpc_proto_dir'], kwargs['go_module']),
                            **kwargs,
                            )
 
@@ -85,9 +85,9 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
         # if not os.path.exists(output_file):
         tool.gen_code_file(os.path.join(mako_dir, 'init_grpc.go'),
                            output_file,
-                           package_grpc_api_dir=tool.package_name(kwargs['grpc_api_dir'], kwargs['project_start_dir']),
-                           package_grpc_proto_dir=tool.package_name(kwargs['grpc_proto_dir'], kwargs['project_start_dir']),
-                           package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           package_grpc_api_dir=tool.package_name(kwargs['grpc_api_dir'], kwargs['go_module']),
+                           package_grpc_proto_dir=tool.package_name(kwargs['grpc_proto_dir'], kwargs['go_module']),
+                           package_project_dir=kwargs['go_module'],
                            **kwargs,
                            )
 

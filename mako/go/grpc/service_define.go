@@ -1,5 +1,4 @@
-package ${grpc_package_name}
+package ${grpc_package}
 
 
-type ${grpc_service_type_name} struct {}
-
+type ${grpc_service_type} struct {}

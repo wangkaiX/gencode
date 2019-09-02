@@ -41,8 +41,7 @@ def check_args(
             filename,
             code_type,
             project_dir,
-            project_start_dir,
-            service_name,
+            # service_name,
             main_dir,
             mako_dir,
             error_package,
@@ -53,16 +52,13 @@ def check_args(
             graphql_ip=None,
             graphql_port=None,
             restful_api_dir=None,
-            restful_define_package_name=None,
-            restful_api_package_name=None,
-            restful_ip=None,
-            restful_port=None,
+            restful_define_dir=None,
             grpc_proto_dir=None,
             grpc_service_name=None,
-            grpc_service_type_name=None,
+            grpc_service_type=None,
             # grpc_service_dir=None,
-            grpc_package_name=None,
-            proto_package_name=None,
+            grpc_package=None,
+            proto_package=None,
             grpc_api_dir=None,
             # grpc_define_pkg_name="Server",
             grpc_ip=None,
@@ -77,7 +73,7 @@ def check_args(
     assert gen_server or gen_client or gen_test
     if code_type not in meta.code_go + meta.code_cpp:
         print("不支持的语言[%s]" % code_type)
-    assert service_name
+    # assert service_name
     assert mako_dir
 
     apis, protocol, configs, config_map = parser_config.gen_apis(filename)
@@ -88,15 +84,14 @@ def check_args(
                graphql_resolver_pkg_name
     elif protocol.type == meta.proto_http:
         assert restful_api_dir and \
-               restful_define_package_name and \
-               restful_api_package_name
+               restful_define_dir
     elif protocol.type == meta.proto_grpc:
         assert grpc_proto_dir and \
                grpc_api_dir and \
                grpc_service_name and \
-               grpc_service_type_name and \
-               grpc_package_name and \
-               proto_package_name
+               grpc_service_type and \
+               grpc_package and \
+               proto_package
     else:
         print("未知的协议[%s]" % protocol)
         assert False
@@ -178,7 +173,7 @@ def gen_code_files(filenames, code_type, **kwargs):
         out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
                            out_file,
-                           package_project_path=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           package_project_dir=kwargs['go_module'],
                            **kwargs)
         tool.go_fmt(out_file)
     else:

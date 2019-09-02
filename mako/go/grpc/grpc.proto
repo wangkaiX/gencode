@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ${proto_package_name};
+package ${proto_package};
 
 service ${grpc_service_name} {
 % for api in apis:

@@ -10,33 +10,6 @@ from gencode.common.read_config import gen_request_response
 import shutil
 
 
-# def gen_define(st, mako_dir, data_type_out_dir):
-#     package = os.path.basename(data_type_out_dir)
-#     ctx = {
-#             "st": st,
-#             "gen_title_name": util.gen_title_name,
-#             "to_underline": util.to_underline,
-#             "package": package,
-#           }
-#     mako_file = mako_dir + "/define.mako"
-#     util.check_file(mako_file)
-#     t = Template(filename=mako_file, input_encoding='utf8')
-#     # include_dir = defines_out_dir
-#     if not os.path.exists(data_type_out_dir):
-#         os.makedirs(data_type_out_dir)
-
-#     data_type_file = "%s/%s.go" % (data_type_out_dir, st.get_name())
-#     hfile = open(data_type_file, "w")
-#     hfile.write(t.render(**ctx))
-#     hfile.close()
-
-
-# def gen_defines(all_type, mako_dir, data_type_out_dir):
-#     for st in all_type:
-#         if len(st.fields()) != 0 or len(st.get_nodes()) != 0:
-#             gen_define(st, mako_dir, data_type_out_dir)
-
-
 def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path, query_list):
     if not os.path.exists(resolver_out_dir):
         os.makedirs(resolver_out_dir)
@@ -49,36 +22,6 @@ def gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir
     for struct_info in all_type:
         if struct_info.is_resp():
             gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path)
-
-
-# def gen_func(interface, mako_dir, func_out_dir, resolver_out_dir, query_list, pro_path, interface_type):
-#     resolver = ""
-#     mako_file = "func.mako"
-#     out_dir = func_out_dir
-#     if interface_type == data_type.InterfaceEnum.resolver:
-#         mako_file = "func_resolver.mako"
-#         out_dir = resolver_out_dir
-#         if interface.get_name() in query_list:
-#             resolver = "_query"
-#         else:
-#             resolver = "_mutation"
-#     filename = interface.get_name() + resolver
-
-#     filepath = "%s/%s.go" % (out_dir, filename)
-#     if os.path.exists(filepath) and interface_type == data_type.InterfaceEnum.func:
-#         return
-
-#     mako_file = mako_dir + "/" + mako_file
-#     util.check_file(mako_file)
-
-#     t = Template(filename=mako_file, input_encoding="utf8")
-#     sfile = open(filepath, "w")
-#     sfile.write(t.render(
-#         pro_path=pro_path,
-#         gen_title_name=util.gen_title_name,
-#         interface=interface,
-#         ))
-#     sfile.close()
 
 
 def gen_resolver(struct_info, mako_dir, resolver_out_dir, pro_path):
@@ -138,23 +81,6 @@ def gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port, query_li
     # import pdb; pdb.set_trace()
     for interface in all_interface:
         gen_test(interface, mako_dir, go_test_out_dir, pro_path, port, query_list)
-
-
-# def get_field(fields, resps):
-#     fieldstr = ""
-#     for field in fields:
-#         # import pdb; pdb.set_trace()
-#         if field.is_object():
-#             fieldstr = fieldstr + field.get_name() + "{\n" + get_field(resps[field.get_type().get_name()].fields(), resps) + "\n}\n"
-#         else:
-#             fieldstr = fieldstr + '\t' * 3 + field.get_name() + "\n"
-#     return fieldstr
-
-
-# def get_value(field):
-#     if field.get_type()._type in ["int", "float", "double", "bool"]:
-#         return str(field.get_value())
-#     return '"' + str(field.get_value()) + '"'
 
 
 def remove_quotes(json_str, remove_value=False):
@@ -238,22 +164,6 @@ def gen_test(interface, mako_dir, go_test_out_dir, pro_path, port, query_list):
         sfile.close()
 
 
-# def gen_enums(all_enum, mako_dir, data_type_out_dir):
-#     util.check_file(mako_dir)
-#     if not os.path.exists(data_type_out_dir):
-#         os.makedirs(data_type_out_dir)
-
-#     filepath = data_type_out_dir + "/" + "enums_gen.go"
-#     mako_file = mako_dir + "/enum.mako"
-#     t = Template(filename=mako_file, input_encoding="utf8")
-#     sfile = open(filepath, "w")
-#     sfile.write(t.render(
-#         all_enum=all_enum,
-#         ))
-
-#     sfile.close()
-
-
 def gen_run(mako_dir, schema_out_dir, pro_path, ip, port):
     util.check_file(mako_dir)
     if not os.path.exists(schema_out_dir):
@@ -274,60 +184,61 @@ def gen_run(mako_dir, schema_out_dir, pro_path, ip, port):
     sfile.close()
 
 
-def gen_code(
-        filenames,
-        common_mako_dir,
-        mako_dir,
-        data_type_out_dir,
-        func_out_dir,
-        resolver_out_dir, schema_out_dir,
-        go_test_out_dir,
-        query_list,
-        pro_path,
-        ip,
-        port,
-        gen_server, gen_client):
-    assert filenames
-    assert mako_dir
-    assert data_type_out_dir
-    assert resolver_out_dir
-    assert schema_out_dir
-    assert go_test_out_dir
-    assert pro_path
-    if not ip:
-        ip = ""
-    assert port
+def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):
 
-    pro_path = util.package_name(pro_path)
-    all_interface = []
-    all_type = []
-    all_enum = []
+    mako_dir = os.path.join(mako_dir, 'go', 'graphql')
 
-    common_mako_dir = util.abs_path(common_mako_dir)
-    mako_dir = util.abs_path(mako_dir)
-    data_type_out_dir = os.path.abspath(data_type_out_dir)
-    resolver_out_dir = util.abs_path(resolver_out_dir)
-    schema_out_dir = util.abs_path(schema_out_dir)
-    go_test_out_dir = util.abs_path(go_test_out_dir)
+    # enum
+    out_file = os.path.join(kwargs['graphql_define_dir'], 'graphql_enum.go')
+    tool.gen_code_file(os.path.join(mako_dir, 'enum.go'),
+                       out_file,
+                       **kwargs)
 
-    # 数据整理
-    # print(filenames)
-    for filename in filenames:
-        interfaces = gen_request_response(filename, all_enum)
-        util.add_interface(all_interface, interfaces)
-        for interface in interfaces:
-            for t in interface.get_types():
-                util.add_struct(all_type, t)
-            for enum in interface.get_enums():
-                util.add_enum(all_enum, enum)
+    # define
+    gen_defines_file(os.path.join(mako_dir, 'define.go'),
+                     kwargs['graphql_define_dir'],
+                     **kwargs)
 
-    # 生成.h文件
-    gen_defines(all_type, pro_path, mako_dir, "define.mako", data_type_out_dir + "/graphqldefine")
-    gen_defines(all_type, pro_path, common_mako_dir, "define.mako", data_type_out_dir)
-    gen_enums(all_enum, mako_dir, data_type_out_dir)
     if gen_server:
-        # 生成服务端接口实现文件
-        gen_run(mako_dir, schema_out_dir, pro_path, ip, port)
-        gen_servers(all_interface, all_type, common_mako_dir, mako_dir, func_out_dir, resolver_out_dir, pro_path, query_list)
-        gen_schema(all_interface, all_type, all_enum, schema_out_dir, mako_dir, query_list)
-        gen_tests(all_interface, mako_dir, go_test_out_dir, pro_path, port, query_list)
+        # router
+        out_file = os.path.join(kwargs['restful_api_dir'], "router.go")
+        tool.gen_code_file(os.path.join(mako_dir, 'router.go'),
+                           out_file,
+                           package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
+                           package_restful_define_dir=tool.package_name(kwargs['restful_define_dir'], kwargs['project_start_dir']),
+                           # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           package_project_dir=os.path.basename(kwargs['project_dir']),
+                           **kwargs)
+        tool.go_fmt(out_file)
+
+        # define
+        gen_defines_file(os.path.join(mako_dir, 'define.go'),
+                         kwargs['restful_define_dir'],
+                         # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                         package_project_dir=os.path.basename(kwargs['project_dir']),
+                         **kwargs)
+
+        # apis
+        gen_apis_file(os.path.join(mako_dir, 'api.go'),
+                      kwargs['restful_api_dir'],
+                      package_project_dir=os.path.basename(kwargs['project_dir']),
+                      # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                      **kwargs)
+
+        # init_restful
+        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'init_restful.go')
+        # if not os.path.exists(out_file):
+        tool.gen_code_file(os.path.join(mako_dir, 'init_restful.go'),
+                           out_file,
+                           package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
+                           package_project_dir=os.path.basename(kwargs['project_dir']),
+                           # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           **kwargs,
+                           )
+        tool.go_fmt(out_file)
+
+    if gen_test:
+        # test
+        gen_tests_file(os.path.join(mako_dir, 'test.go'),
+                       os.path.join(kwargs['restful_api_dir'], 'test_restful'),
+                       **kwargs)

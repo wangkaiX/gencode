@@ -1,4 +1,4 @@
-package ${grpc_package_name}
+package ${grpc_package}
 
 import "golang.org/x/net/context"
 import "${error_package}"

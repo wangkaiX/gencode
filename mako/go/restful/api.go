@@ -1,5 +1,5 @@
 <% import os %>
-package ${restful_api_package_name}
+package ${restful_api_package}
 
 import "${package_restful_define_dir}"
 import "${package_project_dir}/app/errno"

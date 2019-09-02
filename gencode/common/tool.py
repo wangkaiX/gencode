@@ -108,17 +108,18 @@ def go_fmt(filename):
     os.chdir(old_path)
 
 
-def package_name(abspath, project_dir):
+def package_name(abspath, go_module):
     abspath = util.abs_path(abspath)
-    project_dir = util.abs_path(project_dir)
-    abspath.index(project_dir)
-    abspath = abspath[len(project_dir):]
-    if abspath and abspath[0] == '/':
-        abspath = abspath[1:]
-    if abspath:
-        return os.path.join(os.path.basename(project_dir), abspath)
-    else:
-        return os.path.basename(project_dir)
+    # project_dir = util.abs_path(project_dir)
+    i = abspath.index(go_module)
+    # abspath = abspath[len(project_dir):]
+    return abspath[i:]
+    # if abspath and abspath[0] == '/':
+    #     abspath = abspath[1:]
+    # if abspath:
+    #     return os.path.join(os.path.basename(project_dir), abspath)
+    # else:
+    #     return os.path.basename(project_dir)
 
 
 def dict2json(req):

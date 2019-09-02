@@ -1,6 +1,5 @@
-package ${graphql_define_package_name}
-
-import "${package_project_dir}/app/define"
+<% import os %>
+package ${os.path.basename(graphql_define_dir)}
 
 % for field in api.fields():
     % if 'time.Time' == field.type.name:

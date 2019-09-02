@@ -1,4 +1,4 @@
-package ${grpc_package_name}
+package ${grpc_package}
 
 import "golang.org/x/net/context"
 import protopb "${package_grpc_proto_dir}"
@@ -6,7 +6,7 @@ import protopb "${package_grpc_proto_dir}"
 % for api in apis:
 
 // ${api.note}
-func (s *${grpc_service_type_name})${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.type.name}) (resp *protopb.${api.resp.type.name}, err error) {
+func (s *${grpc_service_type})${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.type.name}) (resp *protopb.${api.resp.type.name}, err error) {
 	resp = &protopb.${api.resp.type.name}{}
 	% for field in api.req.fields:
 		% if field.required and field.type.name == 'string':
