@@ -8,17 +8,16 @@ import (
 
     "context"
 
-    "${pro_path}/app/define/graphqldefine"
+    "${package_graphql_define_dir}
     "github.com/machinebox/graphql"
 )
 
 <%
-    interface_name = interface.get_name()
-    resp = interface.get_resp()
+import os
 %>
 
-type ${interface_name}${resp.get_name()}_${name}Struct struct {
-    ${gen_title_name(interface_name)} graphqldefine.${resp.get_name()}
+type ${api.resp.type.name}Test struct {
+    ${gen_upper_camel(api.name)} ${os.path.basename(package_graphql_define_dir)}.${api.resp.name}
 }
 
 ##<%def name="gen_print(interface_name, fields)">
@@ -27,13 +26,13 @@ type ${interface_name}${resp.get_name()}_${name}Struct struct {
 ##% endfor
 ##</%def>
 
-func Test${gen_title_name(interface_name)}${resp.get_name()}_${name}(t *testing.T) {
-    client := graphql.NewClient("http://localhost:${port}/graphql")
-    req := graphql.NewRequest(`${query_type} {
+func Test${gen_upper_camel(api.name)}(t *testing.T) {
+    client := graphql.NewClient("http://localhost:${config_map['graphql_addr']['ip']}:${config_map['graphql_addr']['port']}/graphql")
+    req := graphql.NewRequest(`${api.graphql_method} {
 % if input_args == "":
-    ${interface_name}() {
+    ${api.name}() {
 % else:
-    ${interface_name}(${input_args}) {
+    ${api.name}(${input_args}) {
 % endif
         ${output_args}
         }
@@ -41,7 +40,7 @@ func Test${gen_title_name(interface_name)}${resp.get_name()}_${name}(t *testing.
     `)
     req.Header.Set("Cache-Control", "no-cache")
     req.Header.Set("sf_user_id", "622212323")
-    var respData ${interface_name}${resp.get_name()}_${name}Struct
+    var respData ${api.resp.type.name}Test
     ctx := context.Background()
     if err := client.Run(ctx, req, &respData); err != nil {
         log.Fatal(err)

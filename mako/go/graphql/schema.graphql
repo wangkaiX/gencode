@@ -1,0 +1,82 @@
+schema {
+    query :Query
+    mutation :Mutation
+}
+
+scalar Time
+
+% for enum in enums:
+enum ${enum.name} {
+    % for value in enum.values:
+    ${value} 
+    % endfor
+}
+
+% endfor
+
+% for api in apis:
+    <%
+    if api.is_req:
+        type_t = 'input'
+    elif st.is_resp():
+        type_t = 'type'
+    %>
+# ${st.note}
+${type_t} ${api.name} {
+    % for field in api.fields:
+        <%
+        if (api.is_req and not field.is_required):
+            flag = ''
+        else:
+            flag = '!'
+        %>
+        % if field.dimension > 0:
+    ${field.name}:[${field.type.name}!]${flag}
+        % else:
+    ${field.name}:${field.type.name}${flag}
+        % endif
+    % endfor
+    % for node in api.nodes:
+        <%
+        if node.dimension > 0:
+            n = node[0]
+        else:
+            n = node
+        %>
+    ${n.name}:${n.type.name}
+    % endfor
+}
+
+% endfor
+
+<%def name='api_list(api, method)' >
+    % if api.graphql_method.upper() == method.upper():
+    <%
+    req = api.req
+    resp = api.resp
+    %>
+    # ${api.note}
+        % if len(req.fields) > 0:
+    ${api.name}(${req.type.name}:${req.type.name)}):${resp.type.name}
+        % else:
+    ${api.name}():${resp.type.name}
+        % endif
+    % endif
+% endfor
+
+</%def>
+
+
+type Query {
+% for api in apis:
+    ${api_list(api, 'query')}
+% endfor
+}
+
+type Mutation{
+% for api in apis:
+    ${api_list(api, 'mutation')}
+% endfor
+
+
+}

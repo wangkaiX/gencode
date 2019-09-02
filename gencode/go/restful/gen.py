@@ -58,20 +58,23 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
                            out_file,
                            package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
                            package_restful_define_dir=tool.package_name(kwargs['restful_define_dir'], kwargs['project_start_dir']),
-                           package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           package_project_dir=os.path.basename(kwargs['go_mod_dir']),
                            **kwargs)
         tool.go_fmt(out_file)
 
         # define
         gen_defines_file(os.path.join(mako_dir, 'define.go'),
                          kwargs['restful_define_dir'],
-                         package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                         # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                         package_project_dir=os.path.basename(kwargs['go_mod_dir']),
                          **kwargs)
 
         # apis
         gen_apis_file(os.path.join(mako_dir, 'api.go'),
                       kwargs['restful_api_dir'],
-                      package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                      package_project_dir=os.path.basename(kwargs['go_mod_dir']),
+                      # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
                       **kwargs)
 
         # init_restful
@@ -80,7 +83,8 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
         tool.gen_code_file(os.path.join(mako_dir, 'init_restful.go'),
                            out_file,
                            package_restful_api_dir=tool.package_name(kwargs['restful_api_dir'], kwargs['project_start_dir']),
-                           package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
+                           package_project_dir=os.path.basename(kwargs['go_mod_dir']),
+                           # package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['project_start_dir']),
                            **kwargs,
                            )
         tool.go_fmt(out_file)
