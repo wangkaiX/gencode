@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+# import copy
 # from mako.template import Template
 import util
 from gencode.common import tool
-# from gencode.common import meta
+from gencode.common import meta
 # import copy
 
 
@@ -41,6 +42,19 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwa
     tool.go_fmt(output_dir)
 
 
+def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
+    # proto
+    tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
+                       os.path.join(grpc_proto_dir, '%s.proto' % kwargs['proto_package']), **kwargs)
+
+    # makefile
+    tool.gen_code_file(os.path.join(mako_dir, 'proto.mak'),
+                       os.path.join(grpc_proto_dir, 'makefile'), **kwargs)
+
+    # pb.go
+    gen_pb_file(make_dir=grpc_proto_dir)
+
+
 def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):
 
     # add code msg
@@ -51,15 +65,13 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
     mako_dir = os.path.join(mako_dir, 'go', 'grpc')
 
     # proto
-    tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
-                       os.path.join(kwargs['grpc_proto_dir'], '%s.proto' % kwargs['proto_package']), **kwargs)
+    gen_pb(mako_dir, **kwargs)
 
-    # makefile
-    tool.gen_code_file(os.path.join(mako_dir, 'proto.mak'),
-                       os.path.join(kwargs['grpc_proto_dir'], 'makefile'), **kwargs)
-
-    # pb.go
-    gen_pb_file(make_dir=kwargs['grpc_proto_dir'])
+    # private proto
+    private_kwargs = kwargs.copy()
+    private_kwargs['apis'] = [api for api in private_kwargs['apis'] if api.tag == meta.public]
+    private_kwargs['grpc_proto_dir'] = private_kwargs['private_grpc_proto_dir']
+    gen_pb(mako_dir, **private_kwargs)
 
     if gen_server:
         # service_define

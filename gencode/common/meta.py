@@ -197,6 +197,10 @@ class Protocol:
         return "[%s] [%s]\n" % (self.protocol, self.method)
 
 
+public = 'PUBLIC'
+private = 'PRIVATE'
+
+
 class Api:
     def __init__(self, name, req, resp, note):
         self.__name = name
@@ -207,6 +211,14 @@ class Api:
         # self.__url = None
         # self.__url_param = None
         # self.__method = None
+
+    @property
+    def tag(self):
+        return self.__tag
+
+    @tag.setter
+    def tag(self, value):
+        self.__tag = value
 
     @property
     def context(self):

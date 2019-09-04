@@ -147,12 +147,17 @@ def parser_node(apis_map, default_map, protocol):
             else:
                 assert False
 
+        # tag
+        if 'tag' not in v:
+            v['tag'] = meta.public
+
         # api
         api = meta.Api(k, req, resp, v['note'])
         api.url = v['url']
         api.method = v['method']
         api.url_param = url_param
         api.context = context
+        api.tag = v['tag'].upper()
         apis.append(api)
     return apis
 
