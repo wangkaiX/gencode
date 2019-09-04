@@ -19,8 +19,11 @@ func (r *${graphql_resolver_type_name})${func_name}(ctx context.Context, args st
 func (r *Resolver)${func_name}(ctx context.Context)(resp *${resp.name}Resolver, err error) {
 % endif
     resp = &${resp.name}Resolver{}
-    ec := errno.Success()
+    var ec *errno.Error
     defer func() {
+        if ec == nil {
+            ec = errno.GenSuccess()
+        }
         err = ec.Error()
     }()
     // code here

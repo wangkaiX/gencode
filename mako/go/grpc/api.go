@@ -7,8 +7,11 @@ import protopb "${package_grpc_proto_dir}"
 // ${api.note}
 func ${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.type.name}) (resp *protopb.${api.resp.type.name}, err error) {
 	resp = &protopb.${api.resp.type.name}{}
-	ec := errno.GenSuccess()
+    var ec *errno.Error
 	defer func() {
+        if ec == nil {
+	        ec = errno.GenSuccess()
+        }
 		resp.Code = ec.Code
 		resp.Msg = ec.Msg
 	}()

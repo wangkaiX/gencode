@@ -24,3 +24,12 @@ var ${enum.name}_name = map[${enum.name}]string {
 
 % endfor
 
+% for enum in enums:
+var ${enum.name}_value = map[string]${enum.name} {
+	% for i, value in zip(range(0, len(enum.values)), enum.values):
+	"${enum.name}${value}" : ${i},
+	% endfor
+}
+
+% endfor
+

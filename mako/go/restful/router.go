@@ -54,7 +54,7 @@ func Run(addr string)(err error) {
     % endif
 
 	<% import os %>
-        resp := ${api.name}(c, &param, &req)
+        resp := ${gen_lower_camel(api.name)}(c, &param, &req)
         c.JSON(http.StatusOK, resp) 
     })
 
