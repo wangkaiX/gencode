@@ -7,4 +7,4 @@ COPY . /root/gencode
 
 WORKDIR /root/gencode
 
-CMD [./examply.py]
+CMD ["./examply.py"]
