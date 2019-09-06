@@ -95,17 +95,18 @@ def save_file(filename, txt):
 
 
 def go_fmt(filename):
-    old_path = os.path.abspath('.')
-    if os.path.isdir(filename):
-        os.chdir(filename)
-        cmd = "go fmt"
-    elif os.path.isfile(filename):
-        dirname = os.path.dirname(filename)
-        os.chdir(dirname)
-        filename = os.path.basename(filename)
-        cmd = "go fmt %s" % filename
-    os.system(cmd)
-    os.chdir(old_path)
+    pass
+    # old_path = os.path.abspath('.')
+    # if os.path.isdir(filename):
+    #     os.chdir(filename)
+    #     cmd = "go fmt"
+    # elif os.path.isfile(filename):
+    #     dirname = os.path.dirname(filename)
+    #     os.chdir(dirname)
+    #     filename = os.path.basename(filename)
+    #     cmd = "go fmt %s" % filename
+    # os.system(cmd)
+    # os.chdir(old_path)
 
 
 def package_name(abspath, go_module):

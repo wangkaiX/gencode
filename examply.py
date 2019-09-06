@@ -31,6 +31,7 @@ if __name__ == '__main__':
             # restful_define_package="restful_define",
             # restful_api_package="restful_api",
             grpc_proto_dir=os.path.join(dst_dir, "grpc_pb"),
+            private_grpc_proto_dir=os.path.join(dst_dir, "private_grpc_pb"),
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             grpc_service_name="GrpcExampleServer",
             grpc_service_type="Server",
