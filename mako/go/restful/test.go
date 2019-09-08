@@ -20,6 +20,9 @@ func Test${gen_upper_camel(api.name)}(t *testing.T) {
         log.Fatal(err)
     }
     request.Header.Set("Content-Type", "application/json")
+% for field in api.context.fields:
+    request.Header.Set("${field.name}", "${field.value}")
+% endfor
     respond, err := client.Do(request)
     if err != nil {
         log.Fatal("client do fatal:", err)
