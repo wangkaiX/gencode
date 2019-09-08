@@ -443,7 +443,6 @@ class Node:
     def add_node(self, node):
         node = copy.copy(node)
         assert isinstance(node, Node)
-        print("add node in:", self.type.name, self.__curr_child_index)
         if node not in self.nodes:
             node.index = self.__curr_child_index
             self.nodes.append(node)
@@ -452,13 +451,10 @@ class Node:
     def add_field(self, field):
         field = copy.copy(field)
         assert isinstance(field, Field)
-        print("add field in:", self.type.name, self.__curr_child_index)
         if field not in self.fields:
             field.index = self.__curr_child_index
-            print("before:", field.name, field.index)
             self.fields.append(field)
             self.__curr_child_index = self.__curr_child_index + 1
-            print("after:", field.name, field.index)
 
     @property
     def index(self):
@@ -491,14 +487,12 @@ class Node:
         return s
 
     def __parse_values(self, value):
-        print("in:", self.type.name, self.__curr_child_index)
         for k, v in value.items():
             if isinstance(v, list) and isinstance(v[0], dict):
                 value, level = tool.get_list_dict_level(v)
                 node = tool.make_node(k, value, self.attr)
                 node.dimension = level
                 node.index = self.__curr_child_index
-                # print("list object:", k, level)
                 self.__nodes.append(node)
             elif tool.contain_dict(v):
                 node = tool.make_node(k, v, self.attr)
@@ -508,7 +502,6 @@ class Node:
                 field = tool.make_field(k, v)
                 field.index = self.__curr_child_index
                 self.__fields.append(field)
-            print(k, v)
             self.__curr_child_index = self.__curr_child_index + 1
 
     @property

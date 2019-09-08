@@ -1,4 +1,4 @@
-from w505703394/centos:base
+from w505703394/centos:dev_base
 
 ENV PYTHONPATH=${PYTHONPATH}:/root/gencode \
     GOPATH=/root/go
@@ -7,4 +7,4 @@ COPY . /root/gencode
 
 WORKDIR /root/gencode
 
-CMD [./examply.py]
+CMD ["python3", "examply.py"]
