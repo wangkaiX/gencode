@@ -22,7 +22,10 @@ from gencode.common import meta
 type  ${node.type.name} struct {
 % for field in node.fields + node.nodes:
     <%
-    _type = '[]' * field.dimension + field.type.name
+    if isinstance(field, meta.Node):
+        _type = '[]' * field.dimension + "*" + field.type.name
+    else:
+        _type = '[]' * field.dimension + field.type.name
     if node.attr.is_req and field.required:
         required = ' binding:"required"'
     else:

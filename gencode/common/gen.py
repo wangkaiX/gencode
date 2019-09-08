@@ -171,11 +171,12 @@ def gen_code_files(filenames, code_type, **kwargs):
                            )
         # main
         out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
-        tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
-                           out_file,
-                           package_project_dir=kwargs['go_module'],
-                           **kwargs)
-        tool.go_fmt(out_file)
+        if not os.path.exists(out_file):
+            tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
+                               out_file,
+                               package_project_dir=kwargs['go_module'],
+                               **kwargs)
+            tool.go_fmt(out_file)
     else:
         print("不支持的语言[%s]" % (code_type))
         assert False

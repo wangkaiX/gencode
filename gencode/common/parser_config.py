@@ -79,7 +79,7 @@ def gen_context(api_name, api_map, default_context):
         context['note'] = ""
     if 'fields' not in context:
         context['fields'] = {}
-    context['fields'] = {**api_map['context'], **default_context}
+    context['fields'] = {**context['fields'], **default_context}
 
     return meta.Node(context['name'], True, context['note'], context['type'], context['fields'], 'context')
 
