@@ -73,6 +73,7 @@ def check_args(
     assert gen_server or gen_client or gen_test
     if code_type not in meta.code_go + meta.code_cpp:
         print("不支持的语言[%s]" % code_type)
+        assert False
     # assert service_name
     assert mako_dir
 
@@ -104,7 +105,6 @@ def __gen_code_file(
             code_type,
             **kwargs,
             ):
-    print("file:", filename)
     meta.Node.clear()
     meta.Enum.clear()
     apis, protocol, configs, config_map = check_args(filename, code_type, **kwargs)
@@ -123,8 +123,6 @@ def __gen_code_file(
     kwargs['protocols'].append(protocol)
     kwargs['configs'] += configs
     kwargs['config_map'] = dict(kwargs['config_map'], **config_map)
-
-    # print("config_map:", kwargs['config_map'])
 
     if code_type in meta.code_go:
         if protocol.type == meta.proto_grpc:
@@ -162,8 +160,6 @@ def gen_code_files(filenames, code_type, **kwargs):
                            )
 
         # config.go
-        # print("configs:", configs)
-        # print("config_map:", config_map)
         output_file = os.path.join(kwargs['project_dir'], 'app', 'define', 'config.go')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'config.go'),
                            output_file,
