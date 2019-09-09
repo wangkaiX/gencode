@@ -46,6 +46,7 @@ def gen_req(api_name, api_map, default_req):
         req['note'] = api_map['note'] + "请求参数"
     if 'fields' not in req:
         req['fields'] = {}
+    assert isinstance(req['fields'], dict)
     req['fields'] = {**req['fields'], **default_req}
 
     return meta.Node(req['name'], True, req['note'], req['type'], req['fields'], 'req')
@@ -64,6 +65,7 @@ def gen_resp(api_name, api_map, default_resp):
         resp['note'] = api_map['note'] + "应答参数"
     if 'fields' not in resp:
         resp['fields'] = {**default_resp}
+    assert isinstance(resp['fields'], dict)
     resp['fields'] = {**resp['fields'], **default_resp}
 
     return meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], 'resp')
