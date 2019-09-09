@@ -1,4 +1,4 @@
-from w505703394/centos:base
+from w505703394/centos:dev_base
 
 ENV PYTHONPATH=${PYTHONPATH}:/root/gencode \
     GOPATH=/root/go
