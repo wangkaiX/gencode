@@ -405,7 +405,6 @@
             "req":{
                 "type":"ResultFileListReq",
                 "name":"resultFileListReq",
-                "note":"结果文件列表请求参数",
                 "fields":{
                     "user_id":"test001"
                 }
@@ -414,7 +413,6 @@
             "resp":{
                 "type":"ResultFileListResp",
                 "name":"resultFileListResp",
-                "note":"结果文件列表应答参数",
                 "fields":{
                     "file_list":["file1", "file2"]
                 }

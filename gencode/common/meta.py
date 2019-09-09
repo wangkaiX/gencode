@@ -555,7 +555,16 @@ class Enum:
         self.__name = name
         self.__values = values
         self.__note = note
+        self.__option = ""
         # Enum.add_(name)
+
+    @property
+    def option(self):
+        return self.__option
+
+    @option.setter
+    def option(self, o):
+        self.__option = o
 
     @property
     def name(self):

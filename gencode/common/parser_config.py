@@ -15,7 +15,11 @@ def parser_enum(enum_map):
         assert tool.contain_dict(v)
         if 'note' not in v:
             v['note'] = ""
-        meta.Enum.add_enum(tool.make_enum(k, v['note'], v['value']))
+        enum = tool.make_enum(k, v['note'], v['value'])
+        if 'option' not in v:
+            v['option'] = ""
+        enum.option = v['option']
+        meta.Enum.add_enum(enum)
 
 
 def parser_protocol(protocol_map):
@@ -39,7 +43,7 @@ def gen_req(api_name, api_map, default_req):
     if 'type' not in req:
         req['type'] = util.gen_upper_camel(api_name) + "Req"
     if 'note' not in req:
-        req['note'] = ""
+        req['note'] = api_map['note'] + "请求参数"
     if 'fields' not in req:
         req['fields'] = {}
     req['fields'] = {**req['fields'], **default_req}
@@ -57,7 +61,7 @@ def gen_resp(api_name, api_map, default_resp):
     if 'type' not in resp:
         resp['type'] = util.gen_upper_camel(api_name) + "Resp"
     if 'note' not in resp:
-        resp['note'] = ""
+        resp['note'] = api_map['note'] + "应答参数"
     if 'fields' not in resp:
         resp['fields'] = {**default_resp}
     resp['fields'] = {**resp['fields'], **default_resp}
@@ -124,11 +128,6 @@ def parser_node(apis_map, default_map, protocol):
             print("api [%s] already existed" % (k))
             assert False
 
-        req = gen_req(k, v, default_req)
-        resp = gen_resp(k, v, default_resp)
-        context = gen_context(k, v, default_context)
-        url_param = gen_url_param(k, v, default_url_param)
-
         # url
         if 'note' not in v:
             v['note'] = ""
@@ -149,6 +148,11 @@ def parser_node(apis_map, default_map, protocol):
         # tag
         if 'tag' not in v:
             v['tag'] = meta.public
+
+        req = gen_req(k, v, default_req)
+        resp = gen_resp(k, v, default_resp)
+        context = gen_context(k, v, default_context)
+        url_param = gen_url_param(k, v, default_url_param)
 
         # api
         api = meta.Api(k, req, resp, v['note'])
