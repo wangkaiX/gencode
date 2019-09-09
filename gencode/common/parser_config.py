@@ -98,7 +98,6 @@ def gen_url_param(api_name, api_map, default_url_param):
     if 'fields' not in url_param:
         url_param['fields'] = {}
     for field_name, field_value in url_param['fields'].items():
-        print("fields:", field_name, field_value)
         assert not tool.contain_dict(field_value)
     return meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], 'url_param')
 

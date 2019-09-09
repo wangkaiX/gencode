@@ -26,7 +26,7 @@ def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, go_
 def gen_pb_file(make_dir):
     old_path = os.path.abspath('.')
     os.chdir(make_dir)
-    os.system("make")
+    os.system("make 1>/dev/null")
     os.chdir(old_path)
 
 
