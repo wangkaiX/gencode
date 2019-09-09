@@ -171,7 +171,8 @@ def parser_config(config_map, protocol):
 
 
 def map_to_apis(json_map):
-    parser_enum(json_map['enum'])
+    default_enum = get_default(json_map, 'enum')
+    parser_enum(default_enum)
     protocol = parser_protocol(json_map['protocol'])
 
     default_map = get_default(json_map, 'default')
