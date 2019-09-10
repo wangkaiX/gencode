@@ -416,6 +416,14 @@
                     "file_list":["file1", "file2"]
                 }
             }
+        },
+        "download_file":{
+            "note":"测试文件下载",
+            "resp":{
+                "fields":{
+                    "filename":"a.txt"
+                }
+            }
         }
     }
 }

@@ -19,8 +19,9 @@ def assert_unique(l, value):
 
 
 def abs_path(path):
-    if path[0] == '~':
-        path = os.environ['HOME'] + path[1:]
+    assert path[0] != '~'
+    # if path[0] == '~':
+    #     path = os.environ['HOME'] + path[1:]
     return os.path.abspath(path)
 
 

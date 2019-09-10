@@ -18,7 +18,7 @@ if __name__ == '__main__':
             # project_start_dir=dst_dir,
             go_module='example',
             service_name="example",
-            mako_dir="~/gencode/mako",
+            mako_dir="/home/ubuntu/gencode/mako",
             main_dir=os.path.join(dst_dir, "cmd"),
             error_package="example/app/errno",
             # graphql_define_package="graphql_define",
