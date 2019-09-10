@@ -104,7 +104,7 @@ def go_fmt(filename):
         os.chdir(dirname)
         filename = os.path.basename(filename)
         cmd = "go fmt %s" % filename
-    os.system(cmd + " 1>/dev/null")
+    os.system(cmd)
     os.chdir(old_path)
 
 

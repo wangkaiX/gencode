@@ -148,6 +148,7 @@ def gen_code_files(filenames, code_type, **kwargs):
     code_type = code_type.upper()
     kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
     for filename in filenames:
+        util.assert_file(filename)
         protocol, configs, config_map = __gen_code_file(filename, code_type, **kwargs)
         kwargs['configs'] = configs
         kwargs['config_map'] = config_map
