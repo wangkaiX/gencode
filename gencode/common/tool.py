@@ -113,7 +113,9 @@ def package_name(abspath, go_module):
     # project_dir = util.abs_path(project_dir)
     i = abspath.index(go_module)
     # abspath = abspath[len(project_dir):]
-    return abspath[i:]
+    ret = abspath[i:]
+    # 支持windows
+    return ret.replace("\\", "/")
     # if abspath and abspath[0] == '/':
     #     abspath = abspath[1:]
     # if abspath:
