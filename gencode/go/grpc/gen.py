@@ -28,7 +28,7 @@ def gen_pb_file(make_dir):
     print("pb file")
     old_path = os.path.abspath('.')
     os.chdir(make_dir)
-    os.system("make 1>/dev/null")
+    os.system("make")
     os.chdir(old_path)
 
 
