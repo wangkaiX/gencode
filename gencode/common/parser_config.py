@@ -43,7 +43,7 @@ def gen_req(api_name, api_map, default_req):
     if 'type' not in req:
         req['type'] = util.gen_upper_camel(api_name) + "Req"
     if 'note' not in req:
-        req['note'] = api_map['note'] + "请求参数"
+        req['note'] = ""
     if 'fields' not in req:
         req['fields'] = {}
     assert isinstance(req['fields'], dict)
@@ -62,7 +62,7 @@ def gen_resp(api_name, api_map, default_resp):
     if 'type' not in resp:
         resp['type'] = util.gen_upper_camel(api_name) + "Resp"
     if 'note' not in resp:
-        resp['note'] = api_map['note'] + "应答参数"
+        resp['note'] = ""
     if 'fields' not in resp:
         resp['fields'] = {**default_resp}
     assert isinstance(resp['fields'], dict)
@@ -131,8 +131,8 @@ def parser_node(apis_map, default_map, protocol):
             assert False
 
         # url
-        if 'note' not in v:
-            v['note'] = ""
+        # if 'note' not in v:
+        #     v['note'] = ""
         if 'url' not in v:
             v['url'] = "%s/%s" % (url_prefix, k)
 
