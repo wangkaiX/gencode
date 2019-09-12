@@ -12,7 +12,6 @@ from gencode.common import meta
 
 def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, go_module, **kwargs):
     for api in apis:
-        print("api:", api.name)
         filename = "%s.go" % util.gen_underline_name(api.name)
         filename = os.path.join(output_dir, filename)
         if not os.path.exists(filename):
@@ -25,16 +24,16 @@ def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, go_
 
 
 def gen_pb_file(make_dir):
-    print("pb file")
     old_path = os.path.abspath('.')
     os.chdir(make_dir)
-    os.system("make")
+    r = os.popen("make")
+    r.read()
+    # os.system("make")
     os.chdir(old_path)
 
 
 def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwargs):
     for api in apis:
-        print("test file:", api.name)
         filename = "%s_test.go" % util.gen_upper_camel(api.name)
         filename = os.path.join(output_dir, filename)
         tool.gen_code_file(mako_file, filename,
@@ -47,7 +46,6 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwa
 
 def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
     # proto
-    print("gen_pb")
     util.assert_file(os.path.join(mako_dir, 'grpc.proto'))
     tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
                        os.path.join(grpc_proto_dir, '%s.proto' % kwargs['proto_package']), **kwargs)

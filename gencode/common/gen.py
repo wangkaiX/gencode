@@ -34,7 +34,10 @@ def save_file(filename, txt):
 
 def go_fmt(filename):
     cmd = "go fmt %s" % filename
-    os.system(cmd)
+    r = os.popen(cmd)
+    r.read()
+    # r.close()
+    # os.system(cmd)
 
 
 def check_args(
