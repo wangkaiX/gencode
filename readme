@@ -19,3 +19,4 @@ common:
     api.go  grpc.proto  init_grpc  proto.mak service_define.go  test.go enum.mako  router.mako  init_rest.go  init_graphql.go   define.go
     schema_go.mako schema.graphql  resolver_define.go   resolver.go  main.go
     
+    test merge
