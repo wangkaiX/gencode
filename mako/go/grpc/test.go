@@ -1,4 +1,5 @@
-// +build grapqltest
+// +build grpctest
+
 package testgrpc
 
 import (

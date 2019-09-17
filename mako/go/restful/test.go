@@ -1,4 +1,5 @@
-// +build grapqltest
+// +build restfultest
+
 package test
 
 import (
@@ -16,7 +17,7 @@ func Test${gen_upper_camel(api.name)}(t *testing.T) {
         ${json_input}
                `
 
-    request, err := http.NewRequest("POST", "http://localhost:${config_map['http_addr']['port']}${api.url}${api.url_param.url_param}", strings.NewReader(input))
+    request, err := http.NewRequest("POST", "http://${config_map['http_addr']['ip']}:${config_map['http_addr']['port']}${api.url}${api.url_param.url_param}", strings.NewReader(input))
     if err != nil {
         log.Fatal(err)
     }
