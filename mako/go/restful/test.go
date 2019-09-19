@@ -1,4 +1,4 @@
-// +build restfultest
+// +build integration
 
 package test
 
