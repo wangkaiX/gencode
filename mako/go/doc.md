@@ -12,7 +12,7 @@ ${api.method}
 ```
 
 % if len(api.cookie.fields) > 0:
-cookie:(*为必填项, 如果不走网关则此项不需要)
+cookie:(*为必填项, 如果不走网关则cookie不需要)
 |名称|类型|描述|
 |----|----|----|
 % for field in api.cookie.fields:
@@ -21,7 +21,7 @@ cookie:(*为必填项, 如果不走网关则此项不需要)
 % endif
 
 % if len(api.url_param.fields) > 0:
-URL参数:(*为必填项, 如果走网关则此项不需要)
+URL参数:(*为必填项)
 |名称|类型|描述|
 |----|----|----|
 % for field in api.url_param.fields:
@@ -30,7 +30,7 @@ URL参数:(*为必填项, 如果走网关则此项不需要)
 % endif
 
 % if len(api.context.fields) > 0:
-HEAD参数:(*为必填项)
+HEAD参数:(*为必填项, 如果走网关则head不需要)
 |名称|类型|描述|
 |----|----|----|
 % for field in api.context.fields:
