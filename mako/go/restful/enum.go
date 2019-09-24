@@ -1,5 +1,6 @@
 <% import os %>
 package ${os.path.basename(restful_define_dir)}
+// 不要修改此文件
 
 % for enum in enums:
 type ${enum.name} int32

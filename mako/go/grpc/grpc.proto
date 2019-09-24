@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package ${proto_package};
+// 不要修改此文件
 
 service ${grpc_service_name} {
 % for api in apis:

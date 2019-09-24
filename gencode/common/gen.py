@@ -9,6 +9,9 @@ from gencode.common import tool
 from gencode.common import meta
 from gencode.go.grpc import gen as go_grpc_gen
 from gencode.go.restful import gen as go_restful_gen
+from gencode.common import error
+import markdown
+import codecs
 # from gencode import cpp
 
 
@@ -44,6 +47,10 @@ def check_args(
             filename,
             code_type,
             project_dir,
+            error_config_file,
+            error_out_dir,
+            errno_begin,
+            errno_end,
             # service_name,
             main_dir,
             mako_dir,
@@ -138,7 +145,22 @@ def __gen_code_file(
         print("不支持的语言[%s]" % (code_type))
         assert False
     # doc
-    return protocol, kwargs['configs'], kwargs['config_map']
+    return apis, protocol, kwargs['configs'], kwargs['config_map']
+
+
+def gen_doc(**kwargs):
+    # doc
+    # kwargs['json_input'] = tool.dict2json(api.req.value)
+    out_file = os.path.join(kwargs['project_dir'], 'doc', os.path.basename(kwargs['project_dir']) + '.md')
+    out_html_file = os.path.join(kwargs['project_dir'], 'doc', os.path.basename(kwargs['project_dir']) + '.html')
+    tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'doc.md'),
+                       out_file,
+                       dict2json=tool.dict2json,
+                       **kwargs)
+    input_file = codecs.open(out_file, mode="r", encoding="utf-8")
+    html = markdown.markdown(input_file.read())
+    output_file = codecs.open(out_html_file, mode="w", encoding="utf-8")
+    output_file.write(html)
 
 
 def gen_code_files(filenames, code_type, **kwargs):
@@ -150,34 +172,61 @@ def gen_code_files(filenames, code_type, **kwargs):
     kwargs['gen_underline_name'] = util.gen_underline_name
     code_type = code_type.upper()
     kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
+    kwargs['error_package'] = tool.package_name(kwargs["error_out_dir"], kwargs["go_module"])
+    kwargs['apis'] = []
     for filename in filenames:
         util.assert_file(filename)
-        protocol, configs, config_map = __gen_code_file(filename, code_type, **kwargs)
+        apis, protocol, configs, config_map = __gen_code_file(filename, code_type, **kwargs)
         kwargs['configs'] = configs
         kwargs['config_map'] = config_map
+        kwargs['apis'] += apis
 
     if code_type in meta.code_go:
+        # error.go
+        out_file = os.path.join(kwargs["error_out_dir"], "error.go")
+        print(out_file)
+        gen = error.GoGen(kwargs['mako_dir'], kwargs["error_config_file"], kwargs["errno_begin"], kwargs["errno_end"],
+                          out_file,
+                          )
+        gen.gen()
+        tool.go_fmt(out_file)
+
         # config.toml
-        output_file = os.path.join(kwargs['project_dir'], 'configs', 'config.toml')
+        out_file = os.path.join(kwargs['project_dir'], 'configs', 'config.toml')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'config.toml'),
-                           output_file,
+                           out_file,
                            **kwargs,
                            )
 
         # config.go
-        output_file = os.path.join(kwargs['project_dir'], 'app', 'define', 'config.go')
+        out_file = os.path.join(kwargs['project_dir'], 'app', 'define', 'config.go')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'config.go'),
-                           output_file,
+                           out_file,
                            **kwargs,
                            )
-        # main
-        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
+        tool.go_fmt(out_file)
+
+        # init
+        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'init.go')
         if not os.path.exists(out_file):
-            tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
+            tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'init.go'),
                                out_file,
-                               package_project_dir=kwargs['go_module'],
+                               # package_project_dir=kwargs['go_module'],
                                **kwargs)
             tool.go_fmt(out_file)
+
+        # main
+        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
+        tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
+                           out_file,
+                           package_project_dir=kwargs['go_module'],
+                           **kwargs)
+        tool.go_fmt(out_file)
+
+        # doc
+        print("len apis:", len(apis))
+        gen_doc(**kwargs)
+
     else:
         print("不支持的语言[%s]" % (code_type))
         assert False

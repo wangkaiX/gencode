@@ -1,6 +1,7 @@
-// +build grpctest
+// +build integration
 
 package testgrpc
+// 不要修改此文件
 
 import (
     pb "${package_grpc_proto_dir}"
@@ -12,6 +13,7 @@ import (
     "golang.org/x/net/context"
 
     "google.golang.org/grpc"
+    "google.golang.org/grpc/metadata"
 )
 
 func Test${gen_upper_camel(api.name)}(t *testing.T) {
@@ -32,7 +34,14 @@ func Test${gen_upper_camel(api.name)}(t *testing.T) {
     }
 	fmt.Printf("test:[%v]\n", string(buf))
 
-    ctx := context.Background()
+    <%
+        template = '"%s","%s",' 
+        kv_list = ""
+        for field in api.context.fields:
+            kv_list = kv_list + template % (field.name, field.value)
+    %>
+    md := metadata.Pairs(${kv_list[:-1]})
+    ctx := metadata.NewOutgoingContext(context.Background(), md)
     out, err := client.${gen_upper_camel(api.name)}(ctx, in)
 	if err != nil {
         log.Fatal(err)

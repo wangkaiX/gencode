@@ -3,6 +3,7 @@ import os
 define = os.path.basename(restful_define_dir)
 %>
 package ${os.path.basename(restful_api_dir)}
+// 不要修改此文件
 
 import "net/http"
 import "github.com/gin-gonic/gin"
