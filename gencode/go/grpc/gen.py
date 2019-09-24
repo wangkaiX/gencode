@@ -72,7 +72,7 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
 
     # private proto
     private_kwargs = kwargs.copy()
-    private_kwargs['apis'] = [api for api in private_kwargs['apis'] if api.tag == meta.public]
+    private_kwargs['apis'] = [api for api in private_kwargs['apis'] if api.api_tag == meta.public]
     private_kwargs['grpc_proto_dir'] = private_kwargs['private_grpc_proto_dir']
     gen_pb(mako_dir, **private_kwargs)
 

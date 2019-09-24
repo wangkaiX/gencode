@@ -39,6 +39,12 @@ def get_default(default_map, name, default_value={}):
     return default_map[name]
 
 
+def get_value(json_map, name, default_value):
+    if name not in json_map:
+        json_map[name] = default_value
+    return json_map[name]
+
+
 def gen_node(api_name, api_map, default_map, node_name):
     default_fields = get_default(default_map, node_name)
     if node_name not in api_map:
@@ -64,6 +70,8 @@ def parser_node(apis_map, default_map, protocol):
     url_prefix = get_default(default_map, "url_prefix", "")
     default_http_method = get_default(default_map, "http_method", "POST")
     default_graphql_method = get_default(default_map, "graphql_method", "query")
+    default_api_tag = get_default(default_map, "api_tag", "public")
+    default_doc_tag = get_default(default_map, "doc_tag", "")
 
     for k, v in apis_map.items():
         if k in [api.name for api in apis]:
@@ -91,8 +99,8 @@ def parser_node(apis_map, default_map, protocol):
                 assert False
 
         # tag
-        if 'tag' not in v:
-            v['tag'] = meta.public
+        v['api_tag'] = get_value(v, 'api_tag', default_api_tag)
+        v['doc_tag'] = get_value(v, 'doc_tag', default_doc_tag)
 
         req = gen_node(k, v, default_map, 'req')
         resp = gen_node(k, v, default_map, 'resp')
@@ -106,7 +114,8 @@ def parser_node(apis_map, default_map, protocol):
         api.method = v['method']
         api.url_param = url_param
         api.context = context
-        api.tag = v['tag'].upper()
+        api.api_tag = v['api_tag'].upper()
+        api.doc_tag = v['doc_tag']
         api.cookie = cookie
         apis.append(api)
     return apis

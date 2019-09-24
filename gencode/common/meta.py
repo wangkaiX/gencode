@@ -231,12 +231,20 @@ class Api:
         self.__cookie = value
 
     @property
-    def tag(self):
-        return self.__tag
+    def api_tag(self):
+        return self.__api_tag
 
-    @tag.setter
-    def tag(self, value):
-        self.__tag = value
+    @api_tag.setter
+    def api_tag(self, value):
+        self.__api_tag = value
+
+    @property
+    def doc_tag(self):
+        return self.__doc_tag
+
+    @doc_tag.setter
+    def doc_tag(self, value):
+        self.__doc_tag = value
 
     @property
     def context(self):

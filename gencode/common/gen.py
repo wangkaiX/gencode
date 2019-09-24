@@ -149,10 +149,24 @@ def __gen_code_file(
 
 
 def gen_doc(**kwargs):
+    tags = [api.doc_tag for api in kwargs['apis']]
+    tags.append('')
+    for tag in tags:
+        gen_tag_doc(tag, **kwargs)
+
+
+def gen_tag_doc(doc_tag, **kwargs):
     # doc
     # kwargs['json_input'] = tool.dict2json(api.req.value)
-    out_file = os.path.join(kwargs['project_dir'], 'doc', os.path.basename(kwargs['project_dir']) + '.md')
-    out_html_file = os.path.join(kwargs['project_dir'], 'doc', os.path.basename(kwargs['project_dir']) + '.html')
+    if doc_tag:
+        apis = kwargs['apis']
+        apis = [api for api in apis if api.doc_tag == doc_tag]
+        kwargs['apis'] = apis
+        filename = "%s_%s" % (os.path.basename(kwargs['project_dir']), doc_tag)
+    else:
+        filename = os.path.basename(kwargs['project_dir'])
+    out_file = os.path.join(kwargs['project_dir'], 'doc', filename + ".md")
+    out_html_file = os.path.join(kwargs['project_dir'], 'doc', filename + ".html")
     tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'doc.md'),
                        out_file,
                        dict2json=tool.dict2json,
