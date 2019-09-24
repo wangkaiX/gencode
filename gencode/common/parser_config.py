@@ -33,110 +33,10 @@ def parser_protocol(protocol_map):
     return protocol
 
 
-'''
-def gen_req(api_name, api_map, default_req):
-    if 'req' not in api_map:
-        api_map['req'] = {}
-    req = api_map['req']
-
-    if 'name' not in req:
-        req['name'] = util.gen_lower_camel(api_name) + "Req"
-    if 'type' not in req:
-        req['type'] = util.gen_upper_camel(api_name) + "Req"
-    if 'note' not in req:
-        req['note'] = ""
-    if 'fields' not in req:
-        req['fields'] = {}
-    assert isinstance(req['fields'], dict)
-    req['fields'] = {**req['fields'], **default_req}
-
-    return meta.Node(req['name'], True, req['note'], req['type'], req['fields'], 'req', '')
-
-
-def gen_resp(api_name, api_map, default_resp):
-    if 'resp' not in api_map:
-        api_map['resp'] = {}
-    resp = api_map['resp']
-
-    if 'name' not in resp:
-        resp['name'] = util.gen_lower_camel(api_name) + "Resp"
-    if 'type' not in resp:
-        resp['type'] = util.gen_upper_camel(api_name) + "Resp"
-    if 'note' not in resp:
-        resp['note'] = ""
-    if 'fields' not in resp:
-        resp['fields'] = {**default_resp}
-    assert isinstance(resp['fields'], dict)
-    resp['fields'] = {**resp['fields'], **default_resp}
-
-    return meta.Node(resp['name'], True, resp['note'], resp['type'], resp['fields'], 'resp', '')
-
-
-def gen_context(api_name, api_map, default_context):
-    if 'context' not in api_map:
-        api_map['context'] = {}
-    context = api_map['context']
-
-    # context
-    if 'name' not in context:
-        context['name'] = util.gen_lower_camel(api_name) + "Context"
-    if 'type' not in context:
-        context['type'] = util.gen_upper_camel(api_name) + "Context"
-    if 'note' not in context:
-        context['note'] = ""
-    if 'fields' not in context:
-        context['fields'] = {}
-    context['fields'] = {**context['fields'], **default_context}
-
-    return meta.Node(context['name'], True, context['note'], context['type'], context['fields'], 'context', '')
-
-
-def gen_url_param(api_name, api_map, default_url_param):
-    if 'url_param' not in api_map:
-        api_map['url_param'] = {}
-    url_param = api_map['url_param']
-
-    if 'type' not in url_param:
-        url_param['type'] = util.gen_upper_camel(api_name) + "UrlParam"
-    if 'note' not in url_param:
-        url_param['note'] = ""
-    if 'name' not in url_param:
-        url_param['name'] = util.gen_lower_camel(api_name) + "UrlParam"
-    if 'fields' not in url_param:
-        url_param['fields'] = {}
-    for field_name, field_value in url_param['fields'].items():
-        assert not tool.contain_dict(field_value)
-    url_param = {**url_param['field'], **default_url_param}
-    return meta.Node(url_param['name'], True, url_param['note'], url_param['type'], url_param['fields'], 'url_param', '')
-'''
-
-
 def get_default(default_map, name, default_value={}):
     if name not in default_map:
         default_map[name] = default_value
     return default_map[name]
-
-
-'''
-def gen_cookie(api_name, api_map, default_cookie):
-    if 'cookie' not in api_map:
-        api_map['cookie'] = {}
-    cookie = api_map['cookie']
-
-    # cookie
-    if 'name' not in cookie:
-        cookie['name'] = util.gen_lower_camel(api_name) + "Cookie"
-    if 'type' not in cookie:
-        cookie['type'] = util.gen_upper_camel(api_name) + "Cookie"
-    if 'note' not in cookie:
-        cookie['note'] = ""
-    if 'fields' not in cookie:
-        cookie['fields'] = {}
-    assert isinstance(cookie['fields'], dict)
-    cookie['fields'] = {**cookie['fields'], **default_cookie}
-
-    return meta.Node(cookie['name'], True, cookie['note'], cookie['type'], cookie['fields'], 'cookie', '')
-'''
 
 
 def gen_node(api_name, api_map, default_map, node_name):
@@ -160,14 +60,6 @@ def gen_node(api_name, api_map, default_map, node_name):
 
 def parser_node(apis_map, default_map, protocol):
     apis = []
-
-    '''
-    default_context = get_default(default_map, 'context')
-    default_req = get_default(default_map, 'req')
-    default_resp = get_default(default_map, 'resp')
-    default_url_param = get_default(default_map, 'url_param')
-    default_cookie = get_default(default_map, 'cookie')
-    '''
 
     url_prefix = get_default(default_map, "url_prefix", "")
     default_http_method = get_default(default_map, "http_method", "POST")
