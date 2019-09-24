@@ -1,4 +1,5 @@
 package main
+// 不要修改此文件
 
 import (
     "flag"
@@ -23,6 +24,7 @@ func main() {
         log.Fatal(err)
     }
 	fmt.Printf("%+v\n", define.Cfg)
+    Init()
 <%
 from gencode.common import meta
 %>

@@ -1,4 +1,5 @@
 package ${grpc_package}
+// 不要修改此文件
 
 import "golang.org/x/net/context"
 import protopb "${package_grpc_proto_dir}"

@@ -16,6 +16,8 @@ func ${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.ty
 		resp.Msg = ec.Msg
 	}()
 
+    // code here
+
 
 	return
 }

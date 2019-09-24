@@ -212,6 +212,24 @@ class Api:
         # self.__url_param = None
         # self.__method = None
 
+    def req_md_fields(self):
+        fields = self.req.fields + tool.md_nodes2fields(self.req.nodes)
+        # print("req:", fields)
+        return fields
+
+    def resp_md_fields(self):
+        fields = self.resp.fields + tool.md_nodes2fields(self.resp.nodes)
+        # print("resp:", fields)
+        return fields
+
+    @property
+    def cookie(self):
+        return self.__cookie
+
+    @cookie.setter
+    def cookie(self, value):
+        self.__cookie = value
+
     @property
     def tag(self):
         return self.__tag
@@ -273,8 +291,39 @@ class Api:
         return s
 
 
-class Field:
+class Member:
+    def __init__(self):
+        self.__full_path = []
+
+    @property
+    def full_path(self):
+        return self.__full_path
+
+    @full_path.setter
+    def full_path(self, p):
+        p = copy.deepcopy(p)
+        self.__full_path = p
+
+    @property
+    def md_full_path(self):
+        # print("get full path:", self.__full_path)
+        r = ""
+        for p in self.__full_path[2:]:
+            r = r + p + "::"
+        return r[:-2]
+
+    def append_full_path(self, paths):
+        if not isinstance(paths, list):
+            paths = [paths]
+        for p in paths:
+            self.__full_path.append(p)
+
+        # print("self.name fullpath:", self.__full_path)
+
+
+class Field(Member):
     def __init__(self, name, required, note, _type, value):
+        Member.__init__(self)
         self.__name = name
         self.__required = required
         self.__note = note
@@ -286,6 +335,16 @@ class Field:
         self.__dimension = 0
 
         self.__count_dimension(value)
+        if self.type.is_enum:
+            i = [e.name for e in Enum.enums()].index(self.type.name)
+            enum = Enum.enums()[i]
+            note = note + ":"
+            for pos, value in zip(range(len(enum.values)), enum.values):
+                note = note + "%s->%s," % (pos, value)
+            note = note[:-1]
+            self.__note = note
+        if not self.__note:
+            self.__note = self.__name
 
     def __eq__(self, o):
         return self.name == o.name
@@ -339,7 +398,7 @@ class Field:
 
 
 class Attr:
-    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param', 'context')
+    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param', 'context', 'cookie')
 
     def __init__(self, _type):
         if _type not in Attr.__type_list:
@@ -352,7 +411,7 @@ class Attr:
         return name == ('is_' + self.__type)
 
 
-class Node:
+class Node(Member):
 
     __req_nodes = []
     __resp_nodes = []
@@ -388,6 +447,7 @@ class Node:
 
     @staticmethod
     def merge_all_nodes(node):
+        node = copy.copy(node)
         if node.attr.is_req or node.attr.is_url_param:
             Node.merge_nodes(Node.req_nodes(), node)
             Node.merge_nodes(Node.req_resp_nodes(), node)
@@ -404,7 +464,12 @@ class Node:
         Node.__resp_nodes = []
         # Node.__config_nodes = []
 
-    def __init__(self, name, required, note, _type, value, attr):
+    def __init__(self, name, required, note, _type, value, attr, full_path):
+        Member.__init__(self)
+        self.append_full_path(full_path)
+        self.append_full_path(name)
+        print("node init:", self.full_path)
+        # self.node_full_path = self.full_path
         self.__name = name
         self.__required = required
         self.__note = note
@@ -424,17 +489,21 @@ class Node:
 
         assert tool.contain_dict(value)
         self.__parse_values(value)
+        if not self.__note:
+            self.__note = self.__name
         # construct done
         Node.merge_all_nodes(self)
+
+    # @property
+    # def md_fields(self):
+    #     return tool.md_nodes2fields(self.nodes) + self.fields
 
     @property
     def url_param(self):
         ret = "?"
         for field in self.fields:
             ret += "%s=%s&" % (field.name, field.value)
-        if len(ret) > 1:
-            return ret[:-1]
-        return ""
+        return ret[:-1]
 
     @property
     def attr(self):
@@ -445,14 +514,20 @@ class Node:
         assert isinstance(node, Node)
         if node not in self.nodes:
             node.index = self.__curr_child_index
+            # node.full_path = self.full_path
+            # node.append_full_path(node.name)
             self.nodes.append(node)
+            print("add_node get node:", node.full_path)
             self.__curr_child_index = self.__curr_child_index + 1
 
     def add_field(self, field):
-        field = copy.copy(field)
+        # field = copy.copy(field)
         assert isinstance(field, Field)
         if field not in self.fields:
             field.index = self.__curr_child_index
+            # field.append_full_path(self.full_path)
+            field.full_path = self.full_path
+            field.append_full_path(field.name)
             self.fields.append(field)
             self.__curr_child_index = self.__curr_child_index + 1
 
@@ -490,19 +565,22 @@ class Node:
         for k, v in value.items():
             if isinstance(v, list) and isinstance(v[0], dict):
                 value, level = tool.get_list_dict_level(v)
-                node = tool.make_node(k, value, self.attr)
+                node = tool.make_node(k, value, self.attr, self.full_path)
                 node.dimension = level
-                node.index = self.__curr_child_index
-                self.__nodes.append(node)
+                # node.index = self.__curr_child_index
+                # self.__nodes.append(node)
+                self.add_node(node)
             elif tool.contain_dict(v):
-                node = tool.make_node(k, v, self.attr)
-                node.index = self.__curr_child_index
-                self.__nodes.append(node)
+                node = tool.make_node(k, v, self.attr, self.full_path)
+                # node.index = self.__curr_child_index
+                # self.__nodes.append(node)
+                self.add_node(node)
             else:
                 field = tool.make_field(k, v)
-                field.index = self.__curr_child_index
-                self.__fields.append(field)
-            self.__curr_child_index = self.__curr_child_index + 1
+                # field.index = self.__curr_child_index
+                # self.__fields.append(field)
+                self.add_field(field)
+            # self.__curr_child_index = self.__curr_child_index + 1
 
     @property
     def name(self):
@@ -599,3 +677,12 @@ class File:
 
 # class Config:
 #     def __init__(self, name, required, note, _type, value, attr):
+
+class ErrorInfo():
+    def __init__(self, code, msg, number):
+        self.code = code
+        self.msg = msg
+        self.number = number
+
+    def __eq__(self, o):
+        return self.code == o.code or self.number == o.number

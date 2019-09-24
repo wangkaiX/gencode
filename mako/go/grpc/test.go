@@ -1,6 +1,7 @@
 // +build integration
 
 package testgrpc
+// 不要修改此文件
 
 import (
     pb "${package_grpc_proto_dir}"

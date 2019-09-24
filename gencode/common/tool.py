@@ -4,6 +4,7 @@
 import os
 import util
 import json
+import copy
 
 from gencode.common import meta
 from mako.template import Template
@@ -66,10 +67,10 @@ def make_field(ori_name, value):
     return meta.Field(*attrs, value)
 
 
-def make_node(ori_name, value, is_req):
+def make_node(ori_name, value, is_req, full_path):
     assert contain_dict(value)
     attrs = split_ori_name(ori_name)
-    return meta.Node(*attrs, value, is_req)
+    return meta.Node(*attrs, value, is_req, full_path)
 
 
 def split_ori_name(ori_name):
@@ -153,3 +154,25 @@ def gen_code(mako_file, **kwargs):
 def gen_code_file(mako_file, output_file, **kwargs):
     code = gen_code(mako_file, **kwargs)
     save_file(output_file, code)
+
+
+def md_nodes2fields(nodes):
+    nodes = copy.copy(nodes)
+    field_list = []
+    while len(nodes) > 0:
+        children = []
+        node = nodes[-1]
+        nodes.pop()
+        _type = "struct"
+        if node.dimension > 0:
+            _type = "struct[]"
+        field = meta.Field(node.name, node.required, node.note, _type, node.value)
+        field.full_path = node.full_path
+        field_list.append(field)
+        for field in node.fields:
+            field_list.append(field)
+        for node in node.nodes:
+            children.append(node)
+        nodes = children + nodes
+
+    return field_list

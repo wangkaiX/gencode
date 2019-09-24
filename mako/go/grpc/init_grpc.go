@@ -1,4 +1,5 @@
 package main
+// 不要修改此文件
 
 import (
 	api "${package_grpc_api_dir}"

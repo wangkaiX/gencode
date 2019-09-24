@@ -1,4 +1,5 @@
 package define
+// 不要修改此文件
 
 import (
     "github.com/BurntSushi/toml"
