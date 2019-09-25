@@ -48,16 +48,15 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwa
 def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
     # proto
     util.assert_file(os.path.join(mako_dir, 'grpc.proto'))
-    proto_package = os.path.basename(grpc_proto_dir)
+    if not kwargs['proto_package']:
+        kwargs['proto_package'] = os.path.basename(grpc_proto_dir)
     tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
-                       os.path.join(grpc_proto_dir, '%s.proto' % (proto_package)),
-                       proto_package=proto_package,
+                       os.path.join(grpc_proto_dir, '%s.proto' % (kwargs['proto_package'])),
                        **kwargs)
 
     # makefile
     tool.gen_code_file(os.path.join(mako_dir, 'proto.mak'),
                        os.path.join(grpc_proto_dir, 'makefile'),
-                       proto_package=proto_package,
                        **kwargs)
 
     # pb.go
@@ -77,10 +76,11 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
     gen_pb(mako_dir, **kwargs)
 
     # private proto
-    private_kwargs = kwargs.copy()
-    private_kwargs['apis'] = [api for api in private_kwargs['apis'] if api.api_tag == meta.public]
-    private_kwargs['grpc_proto_dir'] = private_kwargs['private_grpc_proto_dir']
-    gen_pb(mako_dir, **private_kwargs)
+    if 'private_grpc_proto_dir' in kwargs:
+        private_kwargs = kwargs.copy()
+        private_kwargs['apis'] = [api for api in private_kwargs['apis'] if api.api_tag == meta.public]
+        private_kwargs['grpc_proto_dir'] = private_kwargs['private_grpc_proto_dir']
+        gen_pb(mako_dir, **private_kwargs)
 
     if gen_server:
         # service_define

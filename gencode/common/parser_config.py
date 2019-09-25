@@ -83,7 +83,7 @@ def parser_node(apis_map, default_map, protocol):
         #     v['note'] = ""
         if 'url' not in v:
             if protocol.type == meta.proto_http:
-                v['url'] = "%s/%s" % (url_prefix, util.gen_upper_camel(k))
+                v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
             elif protocol.type == meta.proto_grpc:
                 v['url'] = "%s/%s/%s" % (url_prefix, util.gen_upper_camel(k), util.gen_upper_camel(k)) + "Req"
 
