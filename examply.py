@@ -64,7 +64,7 @@ if __name__ == '__main__':
             grpc_service_name="GrpcExampleServer",
             # 实例化的grpc接口对应的类名
             grpc_service_type="Server",
-            # proto_package="protopb",
+            proto_package="protopb",
             # grpc_package="grpc_pb",
 
             # grpc_define_pkg_name="define",

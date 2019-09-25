@@ -87,7 +87,6 @@ def split_ori_name(ori_name):
 
 
 def save_file(filename, txt):
-    # print("filename:", filename)
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
@@ -117,7 +116,6 @@ def package_name(abspath, go_module):
     abspath = util.abs_path(abspath)
     abspath = abspath.replace("\\", "/")
     # project_dir = util.abs_path(project_dir)
-    print(abspath, go_module)
     i = abspath.index(go_module)
     # abspath = abspath[len(project_dir):]
     ret = abspath[i:]
