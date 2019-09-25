@@ -214,12 +214,10 @@ class Api:
 
     def req_md_fields(self):
         fields = self.req.fields + tool.md_nodes2fields(self.req.nodes)
-        # print("req:", fields)
         return fields
 
     def resp_md_fields(self):
         fields = self.resp.fields + tool.md_nodes2fields(self.resp.nodes)
-        # print("resp:", fields)
         return fields
 
     @property
@@ -314,7 +312,6 @@ class Member:
 
     @property
     def md_full_path(self):
-        # print("get full path:", self.__full_path)
         r = ""
         for p in self.__full_path[2:]:
             r = r + p + "::"
@@ -325,8 +322,6 @@ class Member:
             paths = [paths]
         for p in paths:
             self.__full_path.append(p)
-
-        # print("self.name fullpath:", self.__full_path)
 
 
 class Field(Member):
@@ -476,7 +471,6 @@ class Node(Member):
         Member.__init__(self)
         self.append_full_path(full_path)
         self.append_full_path(name)
-        print("node init:", self.full_path)
         # self.node_full_path = self.full_path
         self.__name = name
         self.__required = required
@@ -525,7 +519,6 @@ class Node(Member):
             # node.full_path = self.full_path
             # node.append_full_path(node.name)
             self.nodes.append(node)
-            print("add_node get node:", node.full_path)
             self.__curr_child_index = self.__curr_child_index + 1
 
     def add_field(self, field):

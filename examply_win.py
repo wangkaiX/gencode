@@ -5,7 +5,6 @@ import os
 from gencode.common import gen
 
 if __name__ == '__main__':
-    
     if 'GOPATH' not in os.environ:
         os.environ['GOPATH'] = "."
     gopath = os.environ['GOPATH']
@@ -13,16 +12,21 @@ if __name__ == '__main__':
     dst_dir = os.path.join(os.environ['GOPATH'], "src", "example")  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
-                os.path.join("json","api.json"),
+                os.path.join("json", "api.json"),
                 os.path.join("json", "api_url.json"),
                 ],
+            error_config_file="json/errno.config",
+            error_out_dir=os.path.join(dst_dir, "app", "errno"),
+            errno_begin=10000,
+            errno_end=20000,
+
             code_type='go',
             project_dir=dst_dir,
             # project_start_dir=dst_dir,
             go_module='example',
             service_name="example",
             mako_dir=os.path.join("E:/", "gencode", "mako"),
-            #mako_dir="E:gencode\\mako",
+            # mako_dir="E:gencode\\mako",
             main_dir=os.path.join(dst_dir, "cmd"),
             error_package="example/app/errno",
             # graphql_define_package="graphql_define",

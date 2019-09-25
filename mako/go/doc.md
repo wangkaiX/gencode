@@ -1,5 +1,5 @@
-% for api in apis:
-# ${api.note}
+% for i, api in zip(range(1, len(apis)+1), apis):
+# ${i}、${api.note}
 
 请求地址
 ```
