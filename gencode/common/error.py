@@ -62,6 +62,6 @@ class GoGen:
         if not os.path.exists(d):
             os.makedirs(d)
         print("error_out_file:", self.out_file)
-        with open(self.out_file, "w") as f:
+        with open(self.out_file, "w", encoding='utf8') as f:
             f.write(s)
         return s
