@@ -1,5 +1,4 @@
 package ${package_name}
-// 不要修改此文件
 
 import (
     "encoding/json"

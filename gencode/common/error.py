@@ -26,7 +26,7 @@ class GoGen:
         print("error_file:", self.error_file)
         util.assert_file(self.error_file)
 
-        f = open(self.error_file)
+        f = open(self.error_file, encoding='utf8')
         ls = f.readlines()
         counter = self.begin_no
 

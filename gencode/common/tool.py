@@ -112,13 +112,16 @@ def go_fmt(filename):
 
 
 def package_name(abspath, go_module):
+    # 支持windows
+    go_module = go_module.replace("\\", "/")
     abspath = util.abs_path(abspath)
+    abspath = abspath.replace("\\", "/")
     # project_dir = util.abs_path(project_dir)
+    print(abspath, go_module)
     i = abspath.index(go_module)
     # abspath = abspath[len(project_dir):]
     ret = abspath[i:]
-    # 支持windows
-    return ret.replace("\\", "/")
+    return ret
     # if abspath and abspath[0] == '/':
     #     abspath = abspath[1:]
     # if abspath:

@@ -9,7 +9,7 @@ if __name__ == '__main__':
         os.environ['GOPATH'] = "."
     gopath = os.environ['GOPATH']
     assert gopath
-    dst_dir = os.path.join(os.environ['GOPATH'], "src", "example")  # env['GOPATH'] + "/src/"
+    dst_dir = os.path.join("E:/", "src", "example")  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
                 os.path.join("json", "api.json"),
