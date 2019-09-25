@@ -48,12 +48,17 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_module, apis, **kwa
 def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
     # proto
     util.assert_file(os.path.join(mako_dir, 'grpc.proto'))
+    proto_package = os.path.basename(grpc_proto_dir)
     tool.gen_code_file(os.path.join(mako_dir, 'grpc.proto'),
-                       os.path.join(grpc_proto_dir, '%s.proto' % kwargs['proto_package']), **kwargs)
+                       os.path.join(grpc_proto_dir, '%s.proto' % (proto_package)),
+                       proto_package=proto_package,
+                       **kwargs)
 
     # makefile
     tool.gen_code_file(os.path.join(mako_dir, 'proto.mak'),
-                       os.path.join(grpc_proto_dir, 'makefile'), **kwargs)
+                       os.path.join(grpc_proto_dir, 'makefile'),
+                       proto_package=proto_package,
+                       **kwargs)
 
     # pb.go
     gen_pb_file(make_dir=grpc_proto_dir)
