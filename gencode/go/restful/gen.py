@@ -16,6 +16,8 @@ def gen_apis_file(mako_file, output_dir, apis, go_module, **kwargs):
             tool.gen_code_file(mako_file, filename,
                                api=api,
                                package_restful_define_dir=tool.package_name(kwargs['restful_define_dir'], go_module),
+                               # restful_define_package=os.path.basename(kwargs['restful_define_dir']),
+                               restful_api_package=os.path.basename(kwargs['restful_api_dir']),
                                **kwargs)
     tool.go_fmt(output_dir)
 
@@ -37,6 +39,7 @@ def gen_defines_file(mako_file, output_dir, apis, nodes, **kwargs):
         filename = os.path.join(output_dir, filename)
         tool.gen_code_file(mako_file, filename,
                            node=node,
+                           # restful_define_package=os.path.basename(kwargs['restful_define_dir']),
                            **kwargs)
     tool.go_fmt(output_dir)
 

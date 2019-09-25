@@ -101,7 +101,6 @@ def check_args(
                grpc_api_dir and \
                grpc_service_name and \
                grpc_service_type and \
-               grpc_package and \
                proto_package
     else:
         print("未知的协议[%s]" % protocol)
