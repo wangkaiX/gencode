@@ -227,7 +227,7 @@ def gen_code_files(filenames, code_type, **kwargs):
             tool.go_fmt(out_file)
 
         # main
-        out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
+        out_file = os.path.join(kwargs['main_dir'], 'main.go')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
                            out_file,
                            package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['go_src']),

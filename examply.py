@@ -28,14 +28,11 @@ if __name__ == '__main__':
             project_dir=dst_dir,
             # project_start_dir=dst_dir,
             go_src=go_src,
-            # service_name="example",
             # 代码格式模板目录
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
             # 项目主目录路径
             main_dir=os.path.join(dst_dir, "cmd"),
-            # error_package="example/app/errno",
             # graphql
-            # graphql_define_package="graphql_define",
             # 请求，应答，数据类型定义生成目录
             graphql_define_dir=os.path.join(dst_dir, "app", "graphql_api", "graphql_define"),
             # 业务接口生成目录
@@ -50,8 +47,6 @@ if __name__ == '__main__':
             restful_api_dir=os.path.join(dst_dir, "app", "restful_api"),
             # 请求，应答，数据类型定义生成目录
             restful_define_dir=os.path.join(dst_dir, 'app', 'restful_api', "restful_define"),
-            # restful_define_package="restful_define",
-            # restful_api_package="restful_api",
 
             # grpc
             # proto 生成路径
@@ -64,10 +59,10 @@ if __name__ == '__main__':
             grpc_service_name="GrpcExampleServer",
             # 实例化的grpc接口对应的类名
             grpc_service_type="Server",
+            # proto文件中的包名
             proto_package="protopb",
             # grpc_package="grpc_pb",
 
-            # grpc_define_pkg_name="define",
             gen_server=True,
             gen_client=None,
             gen_test=True,
