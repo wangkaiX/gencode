@@ -156,7 +156,6 @@ def gen_doc(**kwargs):
 
 def gen_tag_doc(doc_tag, **kwargs):
     # doc
-    # kwargs['json_input'] = tool.dict2json(api.req.value)
     if doc_tag:
         apis = kwargs['apis']
         apis = [api for api in apis if api.doc_tag == doc_tag]
@@ -185,7 +184,7 @@ def gen_code_files(filenames, code_type, **kwargs):
     kwargs['gen_underline_name'] = util.gen_underline_name
     code_type = code_type.upper()
     kwargs['mako_dir'] = util.abs_path(kwargs['mako_dir'])
-    kwargs['error_package'] = tool.package_name(kwargs["error_out_dir"], kwargs["go_module"])
+    kwargs['error_package'] = tool.package_name(kwargs["error_out_dir"], kwargs["go_src"])
     kwargs['apis'] = []
     for filename in filenames:
         util.assert_file(filename)
@@ -224,7 +223,6 @@ def gen_code_files(filenames, code_type, **kwargs):
         if not os.path.exists(out_file):
             tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'init.go'),
                                out_file,
-                               # package_project_dir=kwargs['go_module'],
                                **kwargs)
             tool.go_fmt(out_file)
 
@@ -232,7 +230,7 @@ def gen_code_files(filenames, code_type, **kwargs):
         out_file = os.path.join(kwargs['project_dir'], 'cmd', 'main.go')
         tool.gen_code_file(os.path.join(kwargs['mako_dir'], 'go', 'main.go'),
                            out_file,
-                           package_project_dir=kwargs['go_module'],
+                           package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['go_src']),
                            **kwargs)
         tool.go_fmt(out_file)
 

@@ -5,9 +5,10 @@ import os
 from gencode.common import gen
 
 if __name__ == '__main__':
-    gopath = os.environ['GOPATH']
-    assert gopath
+    go_path = os.environ['GOPATH']
+    go_src = os.path.join(go_path, "src")
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
+    dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             # 接口配置文件路径
             filenames=[
@@ -26,8 +27,7 @@ if __name__ == '__main__':
             # 项目生成路径
             project_dir=dst_dir,
             # project_start_dir=dst_dir,
-            # go mod name
-            go_module='example',
+            go_src=go_src,
             # service_name="example",
             # 代码格式模板目录
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
@@ -57,7 +57,7 @@ if __name__ == '__main__':
             # proto 生成路径
             grpc_proto_dir=os.path.join(dst_dir, "grpc_pb"),
             # 一些对内的接口目录
-            private_grpc_proto_dir=os.path.join(dst_dir, "private_grpc_pb"),
+            # private_grpc_proto_dir=os.path.join(dst_dir, "private_grpc_pb"),
             # 业务接口生成目录
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             # proto中定义的grpc service

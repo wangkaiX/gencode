@@ -5,10 +5,8 @@ import os
 from gencode.common import gen
 
 if __name__ == '__main__':
-    if 'GOPATH' not in os.environ:
-        os.environ['GOPATH'] = "."
-    gopath = os.environ['GOPATH']
-    assert gopath
+    go_path = os.environ['GOPATH']
+    go_src = os.path.join(go_path, "src")
     dst_dir = os.path.join("E:/", "src", "example")  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
@@ -23,7 +21,7 @@ if __name__ == '__main__':
             code_type='go',
             project_dir=dst_dir,
             # project_start_dir=dst_dir,
-            go_module='example',
+            go_src=go_src,
             service_name="example",
             mako_dir=os.path.join("E:/", "gencode", "mako"),
             # mako_dir="E:gencode\\mako",

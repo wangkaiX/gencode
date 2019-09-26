@@ -110,15 +110,17 @@ def go_fmt(filename):
     os.chdir(old_path)
 
 
-def package_name(abspath, go_module):
+def package_name(abspath, go_src):
     # 支持windows
-    go_module = go_module.replace("\\", "/")
+    go_src = go_src.replace("\\", "/")
     abspath = util.abs_path(abspath)
     abspath = abspath.replace("\\", "/")
     # project_dir = util.abs_path(project_dir)
-    i = abspath.index(go_module)
+    if go_src[-1] == '/':
+        go_src = go_src[:-1]
+    abspath.index(go_src)
     # abspath = abspath[len(project_dir):]
-    ret = abspath[i:]
+    ret = abspath[len(go_src)+1:]
     return ret
     # if abspath and abspath[0] == '/':
     #     abspath = abspath[1:]
