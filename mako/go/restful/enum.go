@@ -10,7 +10,8 @@ type ${enum.name} int32
 const (
 % for enum in enums:
 	% for i, value in zip(range(0, len(enum.values)), enum.values):
-	${enum.name}${value} ${enum.name} = ${i}
+    // ${value.note}
+	${enum.name}${value.value} ${enum.name} = ${i}
 	% endfor
 
 % endfor
@@ -19,7 +20,8 @@ const (
 % for enum in enums:
 var ${enum.name}_name = map[${enum.name}]string {
 	% for i, value in zip(range(0, len(enum.values)), enum.values):
-	${i} : "${enum.name}${value}",
+    // ${value.note}
+	${i} : "${enum.name}${value.value}",
 	% endfor
 }
 
@@ -28,7 +30,8 @@ var ${enum.name}_name = map[${enum.name}]string {
 % for enum in enums:
 var ${enum.name}_value = map[string]${enum.name} {
 	% for i, value in zip(range(0, len(enum.values)), enum.values):
-	"${enum.name}${value}" : ${i},
+    // ${value.note}
+	"${enum.name}${value.value}" : ${i},
 	% endfor
 }
 

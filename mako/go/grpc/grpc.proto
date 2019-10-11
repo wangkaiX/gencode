@@ -39,7 +39,8 @@ message ${node.type.name} {
 enum ${enum.name} {
     ${enum.option}
     % for i, value in zip(range(0, len(enum.values)), enum.values):
-    ${value} = ${i};
+    // ${value.note}
+    ${value.value} = ${i};
     % endfor
 }
 

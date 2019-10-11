@@ -68,6 +68,7 @@ def parser_node(apis_map, default_map, protocol):
     apis = []
 
     url_prefix = get_default(default_map, "url_prefix", "")
+    gw_url_prefix = get_default(default_map, "gw_url_prefix", "")
     default_http_method = get_default(default_map, "http_method", "POST")
     default_graphql_method = get_default(default_map, "graphql_method", "query")
     default_api_tag = get_default(default_map, "api_tag", "public")
@@ -86,6 +87,13 @@ def parser_node(apis_map, default_map, protocol):
                 v['url'] = "%s/%s" % (url_prefix, util.gen_underline_name(k))
             elif protocol.type == meta.proto_grpc:
                 v['url'] = "%s/%s/%s" % (url_prefix, util.gen_upper_camel(k), util.gen_upper_camel(k)) + "Req"
+
+        # gw_url
+        if 'gw_url' not in v:
+            if protocol.type == meta.proto_http:
+                v['gw_url'] = "%s%s" % (gw_url_prefix, v['url'])
+            elif protocol.type == meta.proto_grpc:
+                v['gw_url'] = "%s%s" % (gw_url_prefix, v['url'])
 
         # method
         if 'method' not in v:
@@ -110,6 +118,7 @@ def parser_node(apis_map, default_map, protocol):
 
         # api
         api = meta.Api(k, req, resp, v['note'])
+        api.gw_url = v['gw_url']
         api.url = v['url']
         api.method = v['method']
         api.url_param = url_param

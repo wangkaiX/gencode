@@ -273,6 +273,14 @@ class Api:
         self.__url = v
 
     @property
+    def gw_url(self):
+        return self.__gw_url
+
+    @gw_url.setter
+    def gw_url(self, v):
+        self.__gw_url = v
+
+    @property
     def url_param(self):
         return self.__url_param
 
@@ -343,8 +351,11 @@ class Field(Member):
             enum = Enum.enums()[i]
             note = note + ":"
             for pos, value in zip(range(len(enum.values)), enum.values):
-                note = note + "%s->%s," % (pos, value)
-            note = note[:-1]
+                if value.note:
+                    note = note + "%s->%s(%s), " % (pos, value.value, value.note)
+                else:
+                    note = note + "%s->%s, " % (pos, value.value)
+            note = note[:-2]
             self.__note = note
         if not self.__note:
             self.__note = self.__name
@@ -612,6 +623,15 @@ class Node(Member):
         return self.__fields
 
 
+class EnumValue:
+    def __init__(self, value):
+        vs = value.split('|', -1)
+        if len(vs) < 2:
+            vs.append('')
+        self.value = vs[0]
+        self.note = vs[1]
+
+
 class Enum:
 
     __types = []
@@ -632,7 +652,9 @@ class Enum:
 
     def __init__(self, name, note, values=[]):
         self.__name = name
-        self.__values = values
+        self.__values = []
+        for value in values:
+            self.__values.append(EnumValue(value))
         self.__note = note
         self.__option = ""
         # Enum.add_(name)

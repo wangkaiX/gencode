@@ -3,7 +3,7 @@
 
 请求地址
 ```
-${api.url}
+${api.gw_url}
 ```
 
 请求方法:
@@ -69,7 +69,7 @@ HEAD参数:(*为必填项, 如果走网关则head不需要)
 %>
 ```
 curl -X ${api.method} \
-http://ip:port${api.url}${api.url_param.url_param} \
+http://ip:port${api.gw_url}${api.url_param.url_param} \
 -H 'Content-Type: application/json' \
 % for ctx in api.context.fields:
 -H '${ctx.name}: ${ctx.value}'
