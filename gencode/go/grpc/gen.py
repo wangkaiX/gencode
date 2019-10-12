@@ -47,6 +47,8 @@ def gen_tests_file(mako_file, output_dir, grpc_proto_dir, go_src, apis, **kwargs
 
 def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
     # proto
+    old_type = meta.Type
+    meta.Type = meta.TypeProto
     util.assert_file(os.path.join(mako_dir, 'grpc.proto'))
     if not kwargs['proto_package']:
         kwargs['proto_package'] = os.path.basename(grpc_proto_dir)
@@ -61,6 +63,7 @@ def gen_pb(mako_dir, grpc_proto_dir, **kwargs):
 
     # pb.go
     gen_pb_file(make_dir=grpc_proto_dir)
+    meta.Type = old_type
 
 
 def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):

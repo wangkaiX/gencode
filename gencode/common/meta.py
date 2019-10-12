@@ -76,6 +76,9 @@ class TypeBase:
             self.__cpp = 'std::string'
             self.__graphql = 'Time'
             self.__grpc = 'string'
+        elif _type == 'bytes':
+            self.__go = '[]byte'
+            self.__grpc = 'bytes'
         elif _type.upper() == TypeBase.__gin_file:
             _type = _type.upper()
             self.__go = '*multipart.FileHeader'
