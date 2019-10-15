@@ -20,6 +20,7 @@ def gen_apis_file(mako_file, output_dir, apis, grpc_api_dir, grpc_proto_dir, go_
                                package_grpc_api_dir=tool.package_name(grpc_api_dir, go_src),
                                package_grpc_proto_dir=tool.package_name(grpc_proto_dir, go_src),
                                grpc_package=os.path.basename(grpc_api_dir),
+                               json_output=tool.dict2json(api.resp.value),
                                **kwargs)
     tool.go_fmt(output_dir)
 
