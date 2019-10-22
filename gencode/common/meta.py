@@ -528,12 +528,16 @@ class Node(Member):
     def add_node(self, node):
         node = copy.copy(node)
         assert isinstance(node, Node)
-        if node not in self.nodes:
+        if node.name not in [n.name for n in self.nodes]:
             node.index = self.__curr_child_index
             # node.full_path = self.full_path
             # node.append_full_path(node.name)
             self.nodes.append(node)
             self.__curr_child_index = self.__curr_child_index + 1
+        else:
+            pass
+            # print(node.name, node)
+            # assert False
 
     def add_field(self, field):
         # field = copy.copy(field)
