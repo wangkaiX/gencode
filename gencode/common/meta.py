@@ -5,7 +5,7 @@ import os
 import copy
 from gencode.common import tool
 # from abc import abstractmethod
-import util
+import util.python.util as util
 
 
 code_cpp = ["CPP", "CXX", "C++"]

@@ -3,7 +3,7 @@
 
 import os
 # from mako.template import Template
-import util
+import util.python.util as util
 from gencode.common import tool
 # import copy
 

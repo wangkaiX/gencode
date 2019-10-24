@@ -4,7 +4,7 @@
 import os
 # import shutil
 from gencode.common import parser_config
-import util
+import util.python.util as util
 from gencode.common import tool
 from gencode.common import meta
 from gencode.go.grpc import gen as go_grpc_gen

@@ -3,7 +3,7 @@
 
 from gencode.common import tool
 from gencode.common import meta
-import util
+import util.python.util as util
 
 
 type_enum = 'ENUM'

@@ -5,7 +5,7 @@ from mako.template import Template
 import os
 from gencode.common import meta
 # from gencode.common import tool
-import util
+import util.python.util as util
 
 
 class GoGen:

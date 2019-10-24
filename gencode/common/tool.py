@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import util
+import util.python.util as util
 import json
 import copy
 

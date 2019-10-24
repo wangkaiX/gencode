@@ -3,7 +3,8 @@
 
 import os
 from mako.template import Template
-from gencode.common import util, data_type
+from gencode.common import data_type, tool
+import util.python.util as util
 from gencode.common.util import gen_defines, gen_func, gen_enums
 from gencode.common.read_config import gen_request_response
 # import json

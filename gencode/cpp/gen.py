@@ -4,7 +4,7 @@
 import os
 from data_type import err_code, err_msg, gen_title_name
 from mako.template import Template
-import util
+import util.python.util as util
 from read_config import gen_request_response
 
 

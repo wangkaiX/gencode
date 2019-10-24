@@ -4,7 +4,7 @@
 import os
 # import copy
 # from mako.template import Template
-import util
+import util.python.util as util
 from gencode.common import tool
 from gencode.common import meta
 # import copy
