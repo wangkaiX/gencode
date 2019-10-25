@@ -14,6 +14,7 @@ func ${gen_lower_camel(api.name)}(ctx *gin.Context, urlParam *${os.path.basename
         }
         resp.Code = ec.Code
         resp.Msg = ec.Msg
+        ctx.JSON(http.StatusOK, resp)
     }()
 
     // code here
