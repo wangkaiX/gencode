@@ -90,8 +90,9 @@ def save_file(filename, txt):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(filename, 'w', encoding="utf8") as f:
-        f.write(txt)
+    with open(filename, 'wb') as f:
+        btxt = bytes(txt, encoding="utf8")
+        f.write(btxt)
 
 
 def go_fmt(filename):
