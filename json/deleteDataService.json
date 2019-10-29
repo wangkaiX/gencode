@@ -1,9 +1,0 @@
-{
-	"deleteDataServiceReq": {
-        "tableID": "tbl0002"
-	},
-	"commonResp": {
-		"code": 100012,
-		"msg": "success"
-	}
-}

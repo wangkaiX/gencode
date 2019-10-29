@@ -159,3 +159,18 @@ def map_to_apis(json_map):
 def gen_apis(filename):
     json_map = util.readjson(filename)
     return map_to_apis(json_map)
+
+
+class Parser:
+    def __init__(self, filename, fp, text):
+        if (int(bool(filename)) + int(bool(fp)) + int(bool(text))) != 1:
+            print("参数有误", filename, fp, text)
+            assert False
+        self.filename = filename
+        self.fp = fp
+        self.text = text
+
+
+class Json(Parser):
+    def __init__(self, filename, fp, text):
+        self.Parser.__init__(self, filename, fp, text)
