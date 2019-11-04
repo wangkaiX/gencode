@@ -9,23 +9,13 @@ import copy
 from gencode.common import meta
 from mako.template import Template
 
-Type = None
 
-
-def type_go(_type):
-    return meta.TypeGo(_type)
-
-
-def type_cpp(_type):
-    return meta.TypeCPP(_type)
-
-
-def type_graphql(_type):
-    return meta.TypeGraphql(_type)
-
-
-def type_grpc(_type):
-    return meta.TypeGrpc
+def split(text, sep, size):
+    rets = [''] * size
+    sps = text.split(sep, -1)
+    for i, sp in zip(range(len(sps)), sps):
+        rets[i] = sp
+    return rets
 
 
 def contain_dict(value):
@@ -37,22 +27,36 @@ def contain_dict(value):
     return False
 
 
-def __get_list_dict_level(value, level):
-    assert contain_dict(value)
-    if isinstance(value, list) and contain_dict(value):
-        return __get_list_dict_level(value[0], level+1)
-    return value, level
+def get_value(v):
+    if isinstance(v, list):
+        return get_value(v[0])
+    return v
 
 
-def get_list_dict_level(value):
-    assert isinstance(value, list) and contain_dict(value)
-    return __get_list_dict_level(value, 0)
+def __get_dimension(obj, n):
+    if isinstance(obj, list):
+        return __get_dimension(obj[0], n+1)
+    return n
 
 
-def is_enum(t):
+def get_dimension(obj):
+    return __get_dimension(obj, 0)
+
+
+def is_enum(enums, t):
     if t:
-        return t in meta.Enum.types()
+        return t.name in [enum.name for enum in enums]
     return False
+
+
+def get_enum_note(enum):
+    note = enum.name + ":"
+    for pos, value in zip(range(len(enum.values)), enum.values):
+        if value.note:
+            note = note + "%s->%s(%s), " % (pos, value.value, value.note)
+        else:
+            note = note + "%s->%s, " % (pos, value.value)
+    return note[:-2]
 
 
 def make_enum(name, note, values):
@@ -74,11 +78,7 @@ def make_node(ori_name, value, is_req, full_path):
 
 
 def split_ori_name(ori_name):
-    attrs = [None] * 4
-    temps = ori_name.split('|')
-    for i in range(len(temps)):
-        attrs[i] = temps[i]
-
+    attrs = split(ori_name, '|', 4)
     if attrs[1] in ('Y', 'y'):
         attrs[1] = True
     else:
@@ -116,19 +116,11 @@ def package_name(abspath, go_src):
     go_src = go_src.replace("\\", "/")
     abspath = util.abs_path(abspath)
     abspath = abspath.replace("\\", "/")
-    # project_dir = util.abs_path(project_dir)
     if go_src[-1] == '/':
         go_src = go_src[:-1]
     abspath.index(go_src)
-    # abspath = abspath[len(project_dir):]
     ret = abspath[len(go_src)+1:]
     return ret
-    # if abspath and abspath[0] == '/':
-    #     abspath = abspath[1:]
-    # if abspath:
-    #     return os.path.join(os.path.basename(project_dir), abspath)
-    # else:
-    #     return os.path.basename(project_dir)
 
 
 def dict2json(req):
@@ -180,3 +172,71 @@ def md_nodes2fields(nodes):
         nodes = children + nodes
 
     return field_list
+
+
+def url_param2text(params):
+    ret = "?"
+    for field in params:
+        ret += "%s=%s&" % (field.name, field.value)
+    return ret[:-1]
+
+
+def append_unique_node(nodes, node):
+    if node.name not in [n.name for n in nodes]:
+        nodes.append(node)
+        return True
+    return False
+
+
+def append_unique_field(node, field):
+    if field not in node.fields:
+        node.fields.append(field)
+        return True
+    return False
+
+
+def append_member(members, member):
+    assert isinstance(members, list)
+    if member not in members:
+        members.append(member)
+        return True
+    return False
+
+
+def is_req(reqs, node):
+    return node.type.name in [req.type.name for req in reqs]
+
+
+def __json2node(father_full_path, father_nodes, father_fields, children, curr_index):
+    for k, v in children.items():
+        if contain_dict(v):
+            node = make_node(k, v, father_full_path)
+            node.index = curr_index
+            assert append_unique_node(father_nodes, node)
+            curr_index = __json2node(node.full_path, node.nodes, node.fields, v, curr_index + 1)
+        else:
+            field = make_field(k, v)
+            field.index = curr_index
+            assert append_unique_field(father_fields, field)
+        curr_index = curr_index + 1
+    return curr_index
+
+
+def json2node(father, children, start_index):
+    if father:
+        nodes = father.nodes
+        fields = father.fields
+        father_full_path = father.full_path
+    else:
+        nodes = []
+        fields = []
+        father_full_path = []
+    curr_index = __json2node(father_full_path, nodes, fields, children, start_index)
+    return nodes, fields, curr_index
+
+
+def markdown_full_path(full_path):
+    r = ""
+    for p in full_path[2:]:
+        r = r + p + "::"
+    return r[:-2]

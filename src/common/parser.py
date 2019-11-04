@@ -13,6 +13,7 @@ type_api = 'API'
 
 
 def parser_enum(enum_map):
+    enums = []
     for k, v in enum_map.items():
         assert tool.contain_dict(v)
         if 'note' not in v:
@@ -21,7 +22,7 @@ def parser_enum(enum_map):
         if 'option' not in v:
             v['option'] = ""
         enum.option = v['option']
-        meta.Enum.add_enum(enum)
+        assert tool.append_member(enums, enum)
 
 
 def parser_protocol(protocol_map):
@@ -35,7 +36,7 @@ def parser_protocol(protocol_map):
     return protocol
 
 
-def get_default(default_map, name, default_value={}):
+def get_default(default_map, name, default_value=None):
     if name not in default_map:
         default_map[name] = default_value
     return default_map[name]
@@ -73,7 +74,7 @@ def parser_node(apis_map, default_map, protocol):
     gw_url_prefix = get_default(default_map, "gw_url_prefix", "")
     default_http_method = get_default(default_map, "http_method", "POST")
     default_graphql_method = get_default(default_map, "graphql_method", "query")
-    default_api_tag = get_default(default_map, "api_tag", "public")
+    default_api_tag = get_default(default_map, "api_tag", "")
     default_doc_tag = get_default(default_map, "doc_tag", "")
 
     for k, v in apis_map.items():
@@ -202,6 +203,3 @@ class Json5(Parser):
 
     def parser_text(self):
         return json5.loads(self.text)
-
-
-class Apis(Parser):
