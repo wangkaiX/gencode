@@ -7,7 +7,7 @@ from gencode.common import gen
 if __name__ == '__main__':
     go_path = os.environ['GOPATH']
     go_src = os.path.join(go_path, "src")
-    dst_dir = os.path.join("E:/", "src", "example")  # env['GOPATH'] + "/src/"
+    dst_dir = os.path.join(go_src, "example")  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             filenames=[
                 os.path.join("json", "api.json"),
