@@ -1,5 +1,5 @@
 <%
-import os 
+import os
 define = os.path.basename(restful_define_dir)
 %>
 package ${os.path.basename(restful_api_dir)}

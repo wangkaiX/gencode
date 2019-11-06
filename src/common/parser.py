@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gencode.common import tool
-from gencode.common import meta
+from src.common import tool
+from src.common import meta
 import util.python.util as util
 from abc import abstractmethod
 import json5
-
-
-type_enum = 'ENUM'
-type_api = 'API'
 
 
 def parser_enum(enum_map):
@@ -19,9 +15,9 @@ def parser_enum(enum_map):
         if 'note' not in v:
             v['note'] = ""
         enum = tool.make_enum(k, v['note'], v['value'])
-        if 'option' not in v:
-            v['option'] = ""
-        enum.option = v['option']
+#         if 'option' not in v:
+#             v['option'] = ""
+#        enum.option = v['option']
         assert tool.append_member(enums, enum)
 
 
@@ -67,7 +63,7 @@ def gen_node(api_name, api_map, default_map, node_name):
     return meta.Node(node_map['name'], True, node_map['note'], node_map['type'], node_map['fields'], node_name, '')
 
 
-def parser_node(apis_map, default_map, protocol):
+def parser_apis(apis_map, default_map, protocol):
     apis = []
 
     url_prefix = get_default(default_map, "url_prefix", "")

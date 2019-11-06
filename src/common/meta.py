@@ -14,6 +14,8 @@ class Protocol:
         self.__apis = []
         self.__config = None
         self.__default = None
+        self.__enums = []
+        self.__imports = []
 
     @property
     def apis(self):
@@ -22,6 +24,10 @@ class Protocol:
     @property
     def config(self):
         return self.__config
+
+    @property
+    def enums(self):
+        return self.__enums
 
     def __str__(self):
         return "[%s] [%s]\n" % (self.protocol, self.default)
@@ -132,11 +138,15 @@ class Api:
 
 
 class Member:
-    def __init__(self, father, name, required, note, t, value):
-        if father:
-            self.__full_path = father.full_path + [self.name]
+    def __init__(self, parent, name, required, note, t, value):
+        if parent:
+            self.__full_path = parent.full_path + [self.name]
+            self.__grpc_index = parent.__curr_child_index
+            parent.__curr_child_index = parent.__curr_child_index + 1
         else:
             self.__full_path = [self.name]
+            self.__grpc_index = None
+        self.__parent = parent
         self.__name = name
         self.__required = required
         self.__note = note
@@ -146,14 +156,9 @@ class Member:
         #     self.__attr = Attr(attr)
         # elif isinstance(attr, Attr):
         #     self.__attr = attr
-        self.__nodes = []
-        self.__fields = []
         self.__dimension = tool.get_dimension(value)
-        self.__grpc_index = None
-        self.__curr_child_index = 1
 
-        assert tool.contain_dict(value)
-        self.__parse_values(value)
+        # self.__parse_values(value)
         if not self.__note:
             self.__note = self.__name
 
@@ -248,10 +253,17 @@ class Node(Member):
     #     elif node.attr.is_config:
     #         Node.merge_nodes(Node.config_nodes(), node)
 
-    def __init__(self, father, name, required, note, t, value):
+    def __init__(self, parent, name, required, note, t, value):
         if not t:
             t = util.gen_upper_camel(name)
-        Member.__init__(self, father, name, required, note, t, value)
+        Member.__init__(self, parent, name, required, note, t, value)
+        assert tool.contain_dict(value)
+
+        self.__curr_child_index = 1
+        self.__nodes = []
+        self.__fields = []
+
+        self.parser_children()
 
     # @property
     # def md_fields(self):
@@ -260,6 +272,37 @@ class Node(Member):
     # @property
     # def attr(self):
     #     return self.__attr
+
+    def add_member(self, member):
+        if isinstance(member, Node):
+            self.add_node(member)
+        elif isinstance(member, Field):
+            self.add_field(member)
+        else:
+            print("Unknown Type:", member)
+            assert False
+
+    def add_node(self, node):
+        if node.name not in [n.name for n in self.ndoes]:
+            self.nodes.append(node)
+        else:
+            print("重复的字段名:", node.name)
+
+    def add_field(self, field):
+        if field not in self.fields:
+            self.fields.append(field)
+        else:
+            print("重复的字段名:", field.name)
+
+    def parser_children(self):
+        value = tool.get_value(self.__value)
+        for k, v in value.items():
+            attrs = tool.split_ori_name(k)
+            if tool.contain_dict(v):
+                member = Node(self, *attrs, v)
+            else:
+                member = Field(self, *attrs, v)
+            self.add_member(member)
 
     def __eq__(self, o):
         return self.__type.name == o.__type.name  # and self.__name == o.__name

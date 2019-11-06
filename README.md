@@ -13,6 +13,10 @@
 7、在生成目录中直接执行scons即可编译，需要本地有对scons的支持
 8、对于go可以同时生成支持grpc, graphql, restful, 基于tcp的json, 即一个服务可以同时支持多个类型的接口，以及对应的单元测试文件
 
+
+环境初始化:
+先执行init.sh
+
 [ubuntu]
 sudo apt install python3 python3-pip
 sudo pip3 install mako markdown -i https://pypi.tuna.tsinghua.edu.cn/simple

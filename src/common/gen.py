@@ -3,13 +3,13 @@
 
 import os
 # import shutil
-from gencode.common import parser_config
+from src.common import parser_config
 import util.python.util as util
-from gencode.common import tool
-from gencode.common import meta
-from gencode.go.grpc import gen as go_grpc_gen
-from gencode.go.restful import gen as go_restful_gen
-from gencode.common import error
+from src.common import tool
+from src.common import meta
+from src.go.grpc import gen as go_grpc_gen
+from src.go.restful import gen as go_restful_gen
+from src.common import error
 import markdown
 import codecs
 # from gencode import cpp

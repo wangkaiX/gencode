@@ -429,5 +429,11 @@
                 "encoding":"utf8"
             }
         }
+    },
+    errno:{
+        Success:"成功|0",
+        AddTaskFail:"添加任务失败|1000",
+        TaskNotExist:"任务不存在",
+        TaskExist:"任务已经存在"
     }
 }

@@ -59,22 +59,22 @@ def get_enum_note(enum):
     return note[:-2]
 
 
-def make_enum(name, note, values):
-    assert isinstance(values, list)
-    assert not contain_dict(values)
-    return meta.Enum(name, note, values)
+# def make_enum(name, note, values):
+#     assert isinstance(values, list)
+#     assert not contain_dict(values)
+#     return meta.Enum(name, note, values)
 
 
-def make_field(ori_name, value):
-    assert not contain_dict(value)
-    attrs = split_ori_name(ori_name)
-    return meta.Field(*attrs, value)
+# def make_field(ori_name, value):
+#     assert not contain_dict(value)
+#     attrs = split_ori_name(ori_name)
+#     return meta.Field(*attrs, value)
 
 
-def make_node(ori_name, value, is_req, full_path):
-    assert contain_dict(value)
-    attrs = split_ori_name(ori_name)
-    return meta.Node(*attrs, value, is_req, full_path)
+# def make_node(ori_name, value, is_req, full_path):
+#     assert contain_dict(value)
+#     attrs = split_ori_name(ori_name)
+#     return meta.Node(*attrs, value, is_req, full_path)
 
 
 def split_ori_name(ori_name):
@@ -207,32 +207,32 @@ def is_req(reqs, node):
     return node.type.name in [req.type.name for req in reqs]
 
 
-def __json2node(father_full_path, father_nodes, father_fields, children, curr_index):
-    for k, v in children.items():
-        if contain_dict(v):
-            node = make_node(k, v, father_full_path)
-            node.index = curr_index
-            assert append_unique_node(father_nodes, node)
-            curr_index = __json2node(node.full_path, node.nodes, node.fields, v, curr_index + 1)
-        else:
-            field = make_field(k, v)
-            field.index = curr_index
-            assert append_unique_field(father_fields, field)
-        curr_index = curr_index + 1
-    return curr_index
+# def __json2node(father_full_path, father_nodes, father_fields, children, curr_index):
+#     for k, v in children.items():
+#         if contain_dict(v):
+#             node = make_node(k, v, father_full_path)
+#             node.index = curr_index
+#             assert append_unique_node(father_nodes, node)
+#             curr_index = __json2node(node.full_path, node.nodes, node.fields, v, curr_index + 1)
+#         else:
+#             field = make_field(k, v)
+#             field.index = curr_index
+#             assert append_unique_field(father_fields, field)
+#         curr_index = curr_index + 1
+#     return curr_index
 
 
-def json2node(father, children, start_index):
-    if father:
-        nodes = father.nodes
-        fields = father.fields
-        father_full_path = father.full_path
-    else:
-        nodes = []
-        fields = []
-        father_full_path = []
-    curr_index = __json2node(father_full_path, nodes, fields, children, start_index)
-    return nodes, fields, curr_index
+# def json2node(father, children, start_index):
+#     if father:
+#         nodes = father.nodes
+#         fields = father.fields
+#         father_full_path = father.full_path
+#     else:
+#         nodes = []
+#         fields = []
+#         father_full_path = []
+#     curr_index = __json2node(father_full_path, nodes, fields, children, start_index)
+#     return nodes, fields, curr_index
 
 
 def markdown_full_path(full_path):

@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-from gencode.common import gen
+from src.common import gen
 
 if __name__ == '__main__':
     go_path = os.environ['GOPATH']
     go_src = os.path.join(go_path, "src")
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
-    dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
+    # dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             # 接口配置文件路径
             filenames=[
