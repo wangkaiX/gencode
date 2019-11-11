@@ -1,6 +1,6 @@
 {
     "protocol":{
-        "type":"grpc"
+        "framework_type":"go_grpc"
     },
     "default":{
         "resp":{
@@ -432,8 +432,17 @@
     },
     errno:{
         Success:"成功|0",
-        AddTaskFail:"添加任务失败|1000",
-        TaskNotExist:"任务不存在",
-        TaskExist:"任务已经存在"
+        errno_list: [
+        {
+            begin_no:1000,
+            end_no:2000,
+            filename:"errno.config"
+        },
+        {
+            begin_no:2001,
+            end_no:3000,
+            filename:"errno2.config"
+        }
+        ]
     }
 }

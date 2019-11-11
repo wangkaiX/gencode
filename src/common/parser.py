@@ -15,9 +15,6 @@ def parser_enum(enum_map):
         if 'note' not in v:
             v['note'] = ""
         enum = tool.make_enum(k, v['note'], v['value'])
-#         if 'option' not in v:
-#             v['option'] = ""
-#        enum.option = v['option']
         assert tool.append_member(enums, enum)
 
 
@@ -172,21 +169,21 @@ class Parser:
 
     def parser(self):
         if self.filename:
-            self.parser_file()
+            self.__parser_file()
         elif self.fp:
-            self.parser_fp()
-        return self.parser_text()
+            self.__parser_fp()
+        return self.__parser_text()
 
-    def parser_file(self):
+    def __parser_file(self):
         self.fp = open(self.filename, "rb")
-        self.parser_fp()
+        self.__parser_fp()
 
-    def parser_fp(self):
+    def __parser_fp(self):
         self.text = self.fp.read()
-        self.parser_text()
+        self.__parser_text()
 
     @abstractmethod
-    def parser_text(self):
+    def __parser_text(self):
         assert False
 
     def parser_dict(self):
@@ -197,5 +194,8 @@ class Json5(Parser):
     def __init__(self, filename, fp, text):
         Parser.__init__(self, filename, fp, text)
 
-    def parser_text(self):
+    def __parser_text(self):
         return json5.loads(self.text)
+
+    # def parser(self):
+    #     return self.__parser_text()

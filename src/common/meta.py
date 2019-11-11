@@ -2,20 +2,67 @@
 # -*- coding: utf-8 -*-
 
 from src.common import tool
+from src.common import parser
+from src.common import enum_type
 # from abc import abstractmethod
 import util.python.util as util
 from src.common.field_type import FieldType
+# import json5
 # import copy
 
 
 class Protocol:
-    def __init__(self, protocol):
-        self.__protocol = protocol
+    def __init__(self, filename):
+        self.__protocol = None
         self.__apis = []
-        self.__config = None
-        self.__default = None
+        self.__configs = None
+        self.__defaults = None
         self.__enums = []
         self.__imports = []
+        tree_map = parser.Json5(filename=filename).parser()
+        self.__parser(tree_map)
+
+    def __parser(self, tree_map):
+        self.__parser_protocol(tree_map['protocol'])
+        self.__parser_import(tree_map['import'])
+        self.__parser_default(tree_map['default'])
+        self.__parser_enum(tree_map['enum'])
+        self.__parser_api(tree_map['api'])
+        self.__parser_config(tree_map['config'])
+
+    def __parser_protocol(self, protocol_map):
+        framework_type = protocol_map['framework_type']
+        tool.assert_framework_type(framework_type)
+        self.__protocol = framework_type
+
+    def __parser_api(self, api_map):
+        for k, v in api_map.items():
+            self.__apis.append(Api(k, v))
+
+    def __parser_config(self, config_map):
+        for k, v in config_map.items():
+            self.__configs.append(Node(k, v))
+
+    def __parser_default(self, default_map):
+        for k, v in default_map.items():
+            self.__defaults.append(Node(k, v))
+
+    def __parser_import(self, import_list):
+        for _import in import_list:
+            self.__imports.append(_import)
+
+    def __parser_enum(self, enum_map):
+        for k, v in enum_map.items():
+            self.__enums.append(enum_type.Enum(k, v))
+
+    def __check_go_graphql(self, arg_map):
+        pass
+
+    def __check_go_grpc(self, arg_map):
+        pass
+
+    def __check_go(self, arg_map):
+        pass
 
     @property
     def apis(self):
@@ -29,14 +76,18 @@ class Protocol:
     def enums(self):
         return self.__enums
 
+    @property
+    def type(self):
+        return self.__type
+
     def __str__(self):
         return "[%s] [%s]\n" % (self.protocol, self.default)
 
 
 class Api:
-    def __init__(self, name, note):
-        self.__name = name
-        self.__note = note
+    def __init__(self, api_name, api_map):
+        self.__name = api_name
+        self.__note = api_map['note']
         self.__req = None
         self.__resp = None
         self.__url_param = None

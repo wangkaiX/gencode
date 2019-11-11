@@ -7,11 +7,12 @@ from src.common import parser_config
 import util.python.util as util
 from src.common import tool
 from src.common import meta
+from src.common import field_type
 from src.go.grpc import gen as go_grpc_gen
 from src.go.restful import gen as go_restful_gen
-from src.common import error
-import markdown
-import codecs
+from src.common import errno
+# import markdown
+# import codecs
 # from gencode import cpp
 
 
@@ -31,7 +32,7 @@ def save_file(filename, txt):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(filename, 'w') as f:
+    with open(filename, 'wb') as f:
         f.write(txt)
 
 
@@ -47,20 +48,16 @@ def check_args(
             filename,
             code_type,
             project_dir,
-            error_config_file,
-            error_out_dir,
-            errno_begin,
-            errno_end,
+            errno_out_dir,
             # service_name,
             main_dir,
             mako_dir,
-            error_package,
             graphql_dir=None,
             graphql_schema_dir=None,
             graphql_define_pkg_name=None,
             graphql_resolver_pkg_name=None,
-            graphql_ip=None,
-            graphql_port=None,
+            ip=None,
+            port=None,
             restful_api_dir=None,
             restful_define_dir=None,
             grpc_proto_dir=None,
@@ -71,22 +68,20 @@ def check_args(
             proto_package=None,
             grpc_api_dir=None,
             # grpc_define_pkg_name="Server",
-            grpc_ip=None,
-            grpc_port=None,
             # gen_server=None,
             # gen_client=None,
             # gen_test=None,
             **kwargs,
             ):
-    assert code_type
-    code_type = code_type.upper()
-    assert gen_server or gen_client or gen_test
-    if code_type not in meta.code_go + meta.code_cpp:
-        print("不支持的语言[%s]" % code_type)
+    if code_type not in field_type.language_types:
+        print("仅支持[%s]" % field_type.language_types)
         assert False
-    # assert service_name
+    assert gen_server or gen_client or gen_test
     assert mako_dir
 
+    # return protocols
+
+'''
     apis, protocol, configs, config_map = parser_config.gen_apis(filename)
     if protocol.type == meta.proto_graphql:
         assert graphql_dir and \
@@ -107,6 +102,7 @@ def check_args(
         assert False
 
     return apis, protocol, configs, config_map
+'''
 
 
 def __gen_code_file(
@@ -175,7 +171,10 @@ def gen_tag_doc(doc_tag, **kwargs):
     output_file.write(html)
 
 
-def gen_code_files(filenames, code_type, **kwargs):
+def gen_code_files(filenames):
+    protocols = []
+    for filename in filenames:
+        protocols.append(meta.Protocol(filename))
     kwargs['protocols'] = []
     kwargs['configs'] = []
     kwargs['config_map'] = {}

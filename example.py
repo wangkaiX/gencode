@@ -16,12 +16,12 @@ if __name__ == '__main__':
                 "json/api_url.json",
                 ],
             # 错误码配置文件
-            error_config_file="json/errno.config",
+            # error_config_file="json/errno.config",
             # 错误码输出目录
-            error_out_dir=os.path.join(dst_dir, "app", "errno"),
+            # error_out_dir=os.path.join(dst_dir, "app", "errno"),
             # 错误码范围
-            errno_begin=10000,
-            errno_end=20000,
+            # errno_begin=10000,
+            # errno_end=20000,
             # 生成的项目语言, 支持[go]
             code_type='go',
             # 项目生成路径

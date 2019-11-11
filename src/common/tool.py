@@ -7,7 +7,14 @@ import json
 import copy
 
 from gencode.common import meta
+from gencode.common import code_type
 from mako.template import Template
+
+
+def assert_framework_type(t):
+    if t not in code_type.framework_types:
+        print("暂时支持的框架类型[%s]", code_type.framework_types)
+        assert False
 
 
 def split(text, sep, size):
