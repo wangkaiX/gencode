@@ -196,6 +196,3 @@ class Json5(Parser):
 
     def __parser_text(self):
         return json5.loads(self.text)
-
-    # def parser(self):
-    #     return self.__parser_text()

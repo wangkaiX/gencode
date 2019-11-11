@@ -6,7 +6,7 @@ from src.common import parser
 from src.common import enum_type
 # from abc import abstractmethod
 import util.python.util as util
-from src.common.field_type import FieldType
+from src.common.code_type import FieldType
 # import json5
 # import copy
 
@@ -85,9 +85,9 @@ class Protocol:
 
 
 class Api:
-    def __init__(self, api_name, api_map):
-        self.__name = api_name
-        self.__note = api_map['note']
+    def __init__(self, name, value_map):
+        self.__name = name
+        self.__note = value_map['note']
         self.__req = None
         self.__resp = None
         self.__url_param = None
@@ -99,9 +99,42 @@ class Api:
         self.__method = None
 
         # 接口对内对外
-        self.__api_tag = None
+        self.__api_tags = None
         # 文档类别(前端，后台)
-        self.__doc_tag = None
+        self.__doc_tags = None
+
+        self.__parser()
+
+        self.__value_map = value_map
+
+    def __parser(self):
+        upper_name = tool.gen_upper_camcl(self.name)
+        for k, v in self.__value_map.items():
+            if 'req' in k:
+                self.__req = Node(None, k, v)
+                self.__req.type = upper_name + 'Req'
+            elif 'resp' in k:
+                self.__resp = Node(None, k, v)
+                self.__req.type = upper_name + 'Resp'
+            elif 'url_param' in k:
+                self.__url_param = Node(None, k, v)
+                self.__url_param.type = upper_name + 'UrlParam'
+            elif 'context' in k:
+                self.__context = Node(None, k, v)
+                self.__context.type = upper_name + 'Context'
+            elif 'cookie' in k:
+                self.__cookie = Node(None, k, v)
+                self.__cookie.type = upper_name + 'Cookie'
+            elif 'url' == k:
+                self.__url = v
+            elif 'gw_url' == k:
+                self.__gw_url = v
+            elif 'method' == k:
+                self.__method = v
+            elif 'api_tags' == k:
+                self.__api_tags = v
+            elif 'doc_tags' == k:
+                self.__doc_tags = v
 
     @property
     def cookie(self):
@@ -189,25 +222,24 @@ class Api:
 
 
 class Member:
-    def __init__(self, parent, name, required, note, t, value):
+    # def __init__(self, parent, name, required, note, t, value):
+    def __init__(self, parent, name, value_map):
+        self.__name, self.__required, self.__note, self.__type = tool.split_ori_name(name)
         if parent:
-            self.__full_path = parent.full_path + [self.name]
+            self.__full_path = parent.full_path + [self.__name]
             self.__grpc_index = parent.__curr_child_index
             parent.__curr_child_index = parent.__curr_child_index + 1
         else:
-            self.__full_path = [self.name]
+            self.__full_path = [self.__name]
             self.__grpc_index = None
+        self.__curr_child_index = 1
         self.__parent = parent
-        self.__name = name
-        self.__required = required
-        self.__note = note
-        self.__type = FieldType(t)
-        self.__value = value
+        self.__value_map = value_map
         # if isinstance(attr, str):
         #     self.__attr = Attr(attr)
         # elif isinstance(attr, Attr):
         #     self.__attr = attr
-        self.__dimension = tool.get_dimension(value)
+        self.__dimension = tool.get_dimension(value_map)
 
         # self.__parse_values(value)
         if not self.__note:
@@ -231,6 +263,10 @@ class Member:
     def name(self):
         return self.__name
 
+    @name.setter
+    def name(self, name):
+        self.__name = name
+
     @property
     def required(self):
         return self.__required
@@ -243,9 +279,14 @@ class Member:
     def type(self):
         return self.__type
 
+    @type.setter
+    def type(self, t):
+        assert not isinstance(t, FieldType)
+        self.__type = FieldType(t)
+
     @property
-    def value(self):
-        return self.__value
+    def value_map(self):
+        return self.__value_map
 
     @property
     def dimension(self):
@@ -253,10 +294,11 @@ class Member:
 
 
 class Field(Member):
-    def __init__(self, father, name, required, note, t, value):
-        if not t:
-            t = util.get_base_type(value)
-        Member.__init__(self, father, name, required, note, t, value)
+    def __init__(self, father, name, value_map):
+        Member.__init__(self, father, name, value_map)
+        if not self.__type:
+            self.__type = util.get_base_type(value_map)
+            self.__type = FieldType(self.__type)
 
     def __eq__(self, o):
         return self.name == o.name
@@ -266,6 +308,7 @@ class Field(Member):
         return s
 
 
+'''
 class Attr:
     __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param', 'context', 'cookie')
 
@@ -278,6 +321,7 @@ class Attr:
     def __getattr__(self, name):
         assert 'is_' == name[:3] and name[3:] in Attr.__type_list
         return name == ('is_' + self.__type)
+'''
 
 
 class Node(Member):
@@ -304,11 +348,12 @@ class Node(Member):
     #     elif node.attr.is_config:
     #         Node.merge_nodes(Node.config_nodes(), node)
 
-    def __init__(self, parent, name, required, note, t, value):
-        if not t:
-            t = util.gen_upper_camel(name)
-        Member.__init__(self, parent, name, required, note, t, value)
-        assert tool.contain_dict(value)
+    def __init__(self, parent, name, value_map):
+        Member.__init__(self, parent, name, value_map)
+        assert tool.contain_dict(value_map)
+        if not self.__type:
+            self.__type = util.gen_upper_camel(self.__name)
+            self.__type = FieldType(self.__type)
 
         self.__curr_child_index = 1
         self.__nodes = []
@@ -338,21 +383,22 @@ class Node(Member):
             self.nodes.append(node)
         else:
             print("重复的字段名:", node.name)
+            assert False
 
     def add_field(self, field):
         if field not in self.fields:
             self.fields.append(field)
         else:
             print("重复的字段名:", field.name)
+            assert False
 
     def parser_children(self):
         value = tool.get_value(self.__value)
         for k, v in value.items():
-            attrs = tool.split_ori_name(k)
             if tool.contain_dict(v):
-                member = Node(self, *attrs, v)
+                member = Node(self, k, v)
             else:
-                member = Field(self, *attrs, v)
+                member = Field(self, k, v)
             self.add_member(member)
 
     def __eq__(self, o):

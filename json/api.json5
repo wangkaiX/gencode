@@ -44,20 +44,13 @@
     },
     "api":{
         "DataSourceInfoList":{
+            api_tag:['tag1', 'tag2'],
+            doc_tag:['doc1', 'doc2'],
             "note":"数据源信息列表",
-            "req":{
-                "type":"DataSourceInfoListReq",
-                "name":"dataSourceInfoListReq",
-                "note":"数据源信息列表请求参数",
-                "fields":{
-                    "user_id":"uid122113"
-                }
+            "req||数据源信息列表请求参数|":{
+                 "user_id":"uid122113"
             },
-            "resp":{
-                "type":"DataSourceInfoListResp",
-                "name":"dataSourceInfoListResp",
-                "note":"数据源信息列表应答参数",
-                "fields":{
+            "resp||数据源信息列表应答参数|DataSourceInfoListResp":{
                     "data_source_info_list|||DataSourceInfo":
                     [{
                         "data_source_id":"ds12313",
@@ -67,7 +60,6 @@
                         "data_level":"10亿级"
                     }
                     ]
-                }
             }
         },
         "DataSourceTableList":{

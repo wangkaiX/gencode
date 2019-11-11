@@ -15,24 +15,16 @@ class EnumValue:
 
 
 class Enum:
-    def __init__(self, name, note, values=[]):
+    def __init__(self, name, value_map):
         self.__name = name
         self.__values = []
-        for value in values:
+        for value in value_map['value']:
             enum_value = EnumValue(value)
             if enum_value in self.__values:
                 print("有重复的枚举值[%s]", enum_value)
                 assert False
             self.__values.append(EnumValue(value))
-        self.__note = note
-
-    # @property
-    # def option(self):
-    #     return self.__option
-
-    # @option.setter
-    # def option(self, o):
-    #     self.__option = o
+        self.__note = value_map['note']
 
     @property
     def name(self):
@@ -41,10 +33,6 @@ class Enum:
     @property
     def note(self):
         return self.__note
-
-    # def add_value(self, value):
-    #     util.assert_unique(self.__values, value)
-    #     self.__values.append(value)
 
     @property
     def values(self):
