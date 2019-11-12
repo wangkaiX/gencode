@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"log"
-    "${package_project_dir}/app/define"
+    "${package_project}/app/define"
 )
 
 var configFile string
@@ -26,13 +26,13 @@ func main() {
 	fmt.Printf("%+v\n", define.Cfg)
     Init()
 <%
-from gencode.common import meta
+from src.common import code_type
 %>
 % for protocol in protocols:
-	% if protocol.type == meta.proto_grpc:
+	% if protocol.framework_type == code_type.go_grpc:
 	go InitGrpc()
-	% elif protocol.type == meta.proto_http:
-	go InitRestful()
+	% elif protocol.framework_type == code_type.go_gin:
+	go InitGin()
 	% endif
 % endfor
 	select {}

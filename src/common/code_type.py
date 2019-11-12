@@ -4,32 +4,39 @@
 # import numpy
 
 convert = {}
-convert['int32'] = int
-convert['float32'] = float
+convert[int] = 'int32'
+convert[float] = 'float32'
+convert[bool] = 'bool'
+convert[str] = 'string'
 
 
 go = 'go'
 cpp = 'cpp'
 go_graphql = 'go_graphql'
 go_grpc = 'go_grpc'
+go_gin = 'go_gin'
 common = 'common'
 
-framework_types = [go_graphql, go_grpc]
+framework_types = [go_graphql, go_grpc, go_gin]
+http_methods = ['POST', 'GET']
+graphql_methods = ['mutation', 'query']
 
 code_types = {}
-code_types[common] =     [ str,           int,       float,     bool,     'int64',   'float64', 'time',    'file', 'bytes']
+code_types[common] =     ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
 code_types[go] =         ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
 code_types[cpp] =        ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
 code_types[go_graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', '']
 code_types[go_grpc] =    ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
 
+code_types[go_gin] = code_types[go]
+
 
 class FieldType:
     def __init__(self, t):
         self.__type = t
+        if t in convert:
+            t = convert[t]
         self.__lower = t.lower()
-        if self.__lower in convert:
-            self.__type = convert[self.__lower]
         if self.__lower == 'time':
             print("warning!!! time类型, 最好使用int64")
 

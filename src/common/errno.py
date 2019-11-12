@@ -1,67 +1,67 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mako.template import Template
-import os
-from gencode.common import meta
-# from gencode.common import tool
-import util.python.util as util
+from src.common import tool
+from util.python import util
 
 
-class GoGen:
-    def __init__(self, mako_dir, error_file, begin_no, end_no, out_file):
-        self.mako_dir = mako_dir
-        self.err_infos = []
-        self.error_file = error_file
+class ErrnoConfig:
+    def __init__(self, filename, begin_no, end_no):
+        self.filename = filename
         self.begin_no = begin_no
         self.end_no = end_no
-        self.out_file = out_file
-        self.package_name = os.path.basename(os.path.dirname(out_file))
 
-    def append(self, err_info):
-        if err_info not in self.err_infos:
-            self.err_infos.append(err_info)
+    def check_no(self, no):
+        if no < self.begin_no or no > self.end_no:
+            print("错误码[%s]超出规定范围", no)
+            assert False
 
-    def gen(self):
-        print("error_file:", self.error_file)
-        util.assert_file(self.error_file)
 
-        f = open(self.error_file, encoding='utf8')
-        ls = f.readlines()
-        counter = self.begin_no
+class Errno:
+    def __init__(self, code, msg, no):
+        self.__code = code
+        self.__msg = msg
+        self.__no = no
 
-        def check_number(number, begin, end):
-            if 0 != number:
-                assert number >= begin and number <= end
 
-        for l in ls:
-            if l.strip(" \n\r\t") == "" or l[0] == "#":
-                continue
+class ErrnoGen:
+    # def __init__(self, mako_file, out_file, errno_configs):
+    def __init__(self, errno_configs):
+        # self.__mako_file = mako_file
+        # self.__out_file = out_file
+        self.__errno_configs = errno_configs
+        self.__errnos = []
+        self.__unique_errno_set = set()
 
-            err_line = l.split()
-            assert len(err_line) > 1
-            if 2 == len(err_line):
-                code, msg = err_line
-                check_number(counter, self.begin_no, self.end_no)
-                number = counter
-                self.append(meta.ErrorInfo(code, msg, number))
-                counter = counter + 1
-            elif 3 == len(err_line):
-                code, msg, number = err_line
-                number = int(number)
-                check_number(number, self.begin_no, self.end_no)
-                self.append(meta.ErrorInfo(code, msg, number))
-                counter = number + 1
+    def __check_repeat(self, errno):
+        if errno.no in self.__unique_errno_set or errno.code in self.__unique_errno_set:
+            print("重复的错误码[%s]或重复的错误信息[%s]或重复的错误编号[%s]" % (errno.code, errno.msg, errno.no))
+            assert False
+        self.__unique_errno_set.add(errno.code)
+        self.__unique_errno_set.add(errno.msg)
+        self.__unique_errno_set.add(errno.no)
 
-        # curr_path = os.path.split(os.path.realpath(__file__))[0] + "/../"
-        mako_file = os.path.join(self.mako_dir,  "go", "error.go")
-        util.assert_file(mako_file)
-        t = Template(filename=mako_file, input_encoding="utf8")
-        s = t.render(err_infos=self.err_infos, package_name=self.package_name)
-        d = os.path.dirname(self.out_file)
-        if not os.path.exists(d):
-            os.makedirs(d)
-        print("error_out_file:", self.out_file)
-        with open(self.out_file, "w", encoding='utf8') as f:
-            f.write(s)
-        return s
+    def __parser_config(self, config):
+        counter = config.begin_no
+        util.assert_file(config.filename)
+        with open(config.filename, "rb") as fp:
+            for line in fp.readlines():
+                if len(line) == 0 or line.strip(" \n\r\t") == "" or line[0] == "#":
+                    continue
+                # line = tool.distinct_str(line, ' ')
+                code, msg, no = tool.split(line, None, 3)
+                assert code
+                assert msg
+                errno = Errno(code, msg, no)
+                self.__check_repeat(errno)
+                self.__errnos.append(errno)
+                if not no:
+                    no = counter
+                    counter += 1
+                else:
+                    no = int(no)
+                    counter = no + 1
+
+    def parser(self):
+        for errno_config in self.__errno_configs:
+            self.__parser_config(errno_config)

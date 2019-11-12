@@ -8,14 +8,14 @@ import (
 )
 
 const (
-% for err_info in err_infos:
-   ${err_info.code} int32 = ${err_info.number}
+% for errno in errnos:
+   ${errno.code} int32 = ${errno.no}
 % endfor
 )
 
 var ErrMsg = map[int32]string {
-% for err_info in err_infos:
-    ${err_info.code}:"${err_info.msg}",
+% for errno in errnos:
+    ${errno.code}:"${errno.msg}",
 % endfor
 }
 
@@ -61,4 +61,8 @@ func GenError(errCode int32) (*Error) {
 
 func GenErrorWithInfo(errCode int32, info string) (*Error) {
 	return &Error{errCode, ErrMsg[errCode], info}
+}
+
+func GenErrorWithDetail(errCode int32, info string) (*Error) {
+    return &Error{errCode, fmt.Sprintf("%s:[%s]", ErrMsg[errCode], info), info}
 }

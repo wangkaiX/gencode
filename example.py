@@ -3,6 +3,7 @@
 
 import os
 from src.common import gen
+from src.common import errno
 
 if __name__ == '__main__':
     go_path = os.environ['GOPATH']
@@ -12,26 +13,25 @@ if __name__ == '__main__':
     gen.gen_code_files(
             # 接口配置文件路径
             filenames=[
-                "json/api.json",
-                "json/api_url.json",
+                "json/api.json5",
+                # "json/api_url.json",
                 ],
+            service_name='example',
             # 错误码配置文件
+            errno_configs=[
+                errno.ErrnoConfig("json/errno.config", 1000, 2000)
+                ],
             # error_config_file="json/errno.config",
             # 错误码输出目录
-            # error_out_dir=os.path.join(dst_dir, "app", "errno"),
-            # 错误码范围
-            # errno_begin=10000,
-            # errno_end=20000,
-            # 生成的项目语言, 支持[go]
-            code_type='go',
+            errno_out_file=os.path.join(dst_dir, "app", "errno", "errno.go"),
             # 项目生成路径
-            project_dir=dst_dir,
+            service_dir=dst_dir,
             # project_start_dir=dst_dir,
-            go_src=go_src,
+            go_src_dir=go_src,
             # 代码格式模板目录
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
             # 项目主目录路径
-            main_dir=os.path.join(dst_dir, "cmd"),
+            # main_dir=os.path.join(dst_dir, "cmd"),
             # graphql
             # 请求，应答，数据类型定义生成目录
             graphql_define_dir=os.path.join(dst_dir, "app", "graphql_api", "graphql_define"),
@@ -60,12 +60,12 @@ if __name__ == '__main__':
             # 实例化的grpc接口对应的类名
             grpc_service_type="Server",
             # proto文件中的包名
-            proto_package="protopb",
+            proto_package_name="protopb",
             # grpc_package="grpc_pb",
 
             gen_server=True,
             gen_client=None,
             gen_test=True,
             gen_doc=True,
-            gen_out=False,
+            gen_mock=False,
             )

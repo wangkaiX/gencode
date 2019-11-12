@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func InitRestful() {
+func InitGin() {
 	<% import os %>
 	${os.path.basename(package_restful_api_dir)}.Run(fmt.Sprintf("%v:%v", define.Cfg.HttpAddr.Ip, define.Cfg.HttpAddr.Port))
 }

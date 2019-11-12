@@ -1,6 +1,8 @@
 {
     "protocol":{
-        "framework_type":"go_grpc"
+        "framework_type":"go_grpc",
+        gw_url_prefix:"/app/v1/grpc"
+
     },
     "default":{
         "resp":{
@@ -12,15 +14,15 @@
         }
     },
     "config":{
-        "grpc_addr":{
+        "grpc_addr|||ServiceAddr":{
             "ip":"0.0.0.0",
             "port":20001
         },
-        "graphql_addr":{
+        "graphql_addr|||ServiceAddr":{
             "ip":"0.0.0.0",
             "port":20003
         },
-        "server_db":{
+        "server_db|||DBAddr":{
             "ip":"192.168.150.221",
             "port":3306,
             "schema":"ucloud",

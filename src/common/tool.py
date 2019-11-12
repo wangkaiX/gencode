@@ -6,9 +6,78 @@ import util.python.util as util
 import json
 import copy
 
-from gencode.common import meta
-from gencode.common import code_type
+from src.common import meta
+from src.common import code_type
 from mako.template import Template
+
+
+def distinct_str(s, character):
+    if not isinstance(s, str):
+        print(s)
+        assert False
+
+    ret = ''
+    pre = ''
+    for c in s:
+        if c != character or pre != character:
+            ret += c
+        pre = c
+    return ret
+
+
+def url_concat(*paths):
+    url = ''
+    for p in paths:
+        print('before p:', p)
+        if isinstance(p, list) or isinstance(p, tuple):
+            p = url_concat(*p)
+        else:
+            p = distinct_str(p, '/')
+            if p == '/':
+                p = ''
+            elif p:
+                if p[0] != '/':
+                    p = '/' + p
+                if p[-1] == '/':
+                    p = p[:-1]
+        print('after p:', p)
+        url += p
+    return url
+
+
+def get_map_value(m, paths, default_value):
+    paths = paths.split(".")
+    print(paths)
+    for p in paths:
+        if not isinstance(m, dict) or p not in m.keys():
+            return default_value
+        m = m[p]
+    return m
+
+
+def merge_node(node1, node2):
+    for field in node2.fields:
+        if field not in node1.fields:
+            node1.add_field(field)
+    node_names = [n.name for n in node1.nodes]
+    for node in node2.nodes:
+        if node.name not in node_names:
+            node1.add_node(node)
+        else:
+            index = node_names.index(node.name)
+            merge_node(node1.nodes[index], node)
+
+
+def assert_http_method(method):
+    if method not in code_type.http_methods:
+        print("http 只支持[%s]", code_type.http_methods)
+        assert False
+
+
+def assert_graphql_method(method):
+    if method not in code_type.graphql_methods:
+        print("graphql 只支持[%s]", code_type.graphql_methods)
+        assert False
 
 
 def assert_framework_type(t):
@@ -100,6 +169,9 @@ def save_file(filename, txt):
     with open(filename, 'wb') as f:
         btxt = bytes(txt, encoding="utf8")
         f.write(btxt)
+        ext = os.path.basename(filename).splitext()
+        if len(ext) > 0 and 'go' == ext[-1]:
+            go_fmt(filename)
 
 
 def go_fmt(filename):
@@ -157,6 +229,7 @@ def gen_code(mako_file, **kwargs):
 def gen_code_file(mako_file, output_file, **kwargs):
     code = gen_code(mako_file, **kwargs)
     save_file(output_file, code)
+    return code
 
 
 def md_nodes2fields(nodes):
@@ -212,34 +285,6 @@ def append_member(members, member):
 
 def is_req(reqs, node):
     return node.type.name in [req.type.name for req in reqs]
-
-
-# def __json2node(father_full_path, father_nodes, father_fields, children, curr_index):
-#     for k, v in children.items():
-#         if contain_dict(v):
-#             node = make_node(k, v, father_full_path)
-#             node.index = curr_index
-#             assert append_unique_node(father_nodes, node)
-#             curr_index = __json2node(node.full_path, node.nodes, node.fields, v, curr_index + 1)
-#         else:
-#             field = make_field(k, v)
-#             field.index = curr_index
-#             assert append_unique_field(father_fields, field)
-#         curr_index = curr_index + 1
-#     return curr_index
-
-
-# def json2node(father, children, start_index):
-#     if father:
-#         nodes = father.nodes
-#         fields = father.fields
-#         father_full_path = father.full_path
-#     else:
-#         nodes = []
-#         fields = []
-#         father_full_path = []
-#     curr_index = __json2node(father_full_path, nodes, fields, children, start_index)
-#     return nodes, fields, curr_index
 
 
 def markdown_full_path(full_path):
