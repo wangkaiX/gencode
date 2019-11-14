@@ -7,7 +7,7 @@ from src.common import tool
 from src.common import doc
 
 
-class GenGoCode:
+class GoCode:
     def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, project_dir, go_src_dir, gen_doc):
         self.__mako_dir = kwargs['mako_dir']
         self.__errno_out_file = kwargs['errno_out_file']
@@ -26,7 +26,13 @@ class GenGoCode:
         self.gen_main()
         self.gen_doc()
 
-    def gen_errno_code(self):
+    def gen_enum(self):
+        out_file = os.path.join(kwargs['restful_define_dir'], 'restful_enum.go')
+        tool.gen_code_file(os.path.join(mako_dir, 'enum.go'),
+                           out_file,
+                           **kwargs)
+
+    def gen_errno(self):
         errno_mako = os.path.join(self.__mako_dir, 'go', 'errno.go')
         errno_gen = errno.GoErrnoGen(errno_mako, self.__errno_out_file, self.__errno_configs)
         errno_gen.gen_code()

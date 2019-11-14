@@ -13,12 +13,12 @@ from src.common import tool
 
 class GoErrnoGen(errno.ErrnoGen):
     def __init__(self, mako_file, out_file, errno_configs):  # config_file, begin_no, end_no):
-        errno.ErrnoGen.__init__(errno_configs)
+        errno.ErrnoGen.__init__(self, errno_configs)
         self.__mako_file = mako_file
         self.__out_file = out_file
         self.__package_name = os.path.basename(os.path.dirname(out_file))
 
     def gen_code(self):
         self.parser()
-        text = tool.gen_code_file(self.__mako_file, self.__out_file, errnos=self.__errnos, package_name=self.__package_name)
+        text = tool.gen_code_file(self.__mako_file, self.__out_file, errnos=self.errnos, package_name=self.__package_name)
         return text

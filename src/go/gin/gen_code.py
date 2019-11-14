@@ -4,33 +4,55 @@
 import os
 # from mako.template import Template
 import util.python.util as util
-from gencode.common import tool
+from src.common import tool
+from src.go.gen_code import GoCode
 # import copy
 
 
-def gen_apis_file(mako_file, output_dir, apis, go_src, **kwargs):
-    for api in apis:
-        filename = "%s.go" % util.gen_underline_name(api.name)
-        filename = os.path.join(output_dir, filename)
-        if not os.path.exists(filename):
+class GoGin(GoCode):
+    def __init__(self, protocol, **kwargs):
+        GoCode.__init__(self, protocol, **kwargs)
+        self.__api_dir = kwargs['go_gin_api_dir']
+        self.__test_dir = os.path.join(self.__api_dir, 'test_gin')
+
+        self.__restful_api_package_name = os.path.basename(self.__api_dir)
+        self.__go_gin_define_dir = tool.package_name(kwargs['go_gin_define_dir'])
+        self.__package_go_gin_define = tool.package_name(self.__go_gin_define_dir, self.__go_src)
+
+    def gen_code(self):
+        GoCode.gen_code(self)
+
+    def gen_api(self):
+        mako_file = os.path.join(self.__mako_dir, 'go', 'gin', 'api.go')
+        for api in self.__protocol.apis:
+            filename = "%s.go" % api.name
+            filename = os.path.join(self.__api_dir, filename)
+            if not os.path.exists(filename):
+                tool.gen_code_file(mako_file, filename,
+                                   api=api,
+                                   package_name=self.__restful_api_package_name,
+                                   package_go_gin_define=self.__package_go_gin_define,
+                                   package_project=self.__package_project
+                                   )
+
+    def gen_test(self):
+        mako_file = os.path.join(self.__mako_dir, 'go', 'gin', 'test.go')
+        for api in self.__protocol.apis:
+            filename = "%s_test.go" % util.gen_upper_camel(api.name)
+            filename = os.path.join(self.__test_dir, filename)
+            input_text = tool.dict2json(api.req.value_map)
             tool.gen_code_file(mako_file, filename,
                                api=api,
-                               package_restful_define_dir=tool.package_name(kwargs['restful_define_dir'], go_src),
-                               # restful_define_package=os.path.basename(kwargs['restful_define_dir']),
-                               restful_api_package=os.path.basename(kwargs['restful_api_dir']),
-                               **kwargs)
-    tool.go_fmt(output_dir)
+                               input_text=input_text,
+                               )
 
-
-def gen_tests_file(mako_file, output_dir, apis, **kwargs):
-    for api in apis:
-        filename = "%s_test.go" % util.gen_upper_camel(api.name)
-        filename = os.path.join(output_dir, filename)
-        kwargs['json_input'] = tool.dict2json(api.req.value)
-        tool.gen_code_file(mako_file, filename,
-                           api=api,
+    def gen_define(self):
+        out_file = os.path.join(kwargs['restful_define_dir'], 'restful_enum.go')
+        mako_file = os.path.join(mako_dir, 'enum.go')
+        tool.gen_code_file(os.path.join(mako_dir, 'enum.go'),
+                           out_file,
                            **kwargs)
-    tool.go_fmt(output_dir)
+
 
 
 def gen_defines_file(mako_file, output_dir, apis, nodes, **kwargs):
@@ -45,8 +67,6 @@ def gen_defines_file(mako_file, output_dir, apis, nodes, **kwargs):
 
 
 def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs):
-
-    mako_dir = os.path.join(mako_dir, 'go', 'restful')
 
     # enum
     out_file = os.path.join(kwargs['restful_define_dir'], 'restful_enum.go')
@@ -72,10 +92,10 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
                          **kwargs)
 
         # apis
-        gen_apis_file(os.path.join(mako_dir, 'api.go'),
-                      kwargs['restful_api_dir'],
-                      package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['go_src']),
-                      **kwargs)
+        # gen_apis_file(os.path.join(mako_dir, 'api.go'),
+        #               kwargs['restful_api_dir'],
+        #               package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['go_src']),
+        #               **kwargs)
 
         # init_restful
         out_file = os.path.join(kwargs['project_dir'], 'cmd', 'init_restful.go')
@@ -86,10 +106,9 @@ def gen_code_file(mako_dir, gen_server, gen_client, gen_test, gen_doc, **kwargs)
                            package_project_dir=tool.package_name(kwargs['project_dir'], kwargs['go_src']),
                            **kwargs,
                            )
-        tool.go_fmt(out_file)
 
     if gen_test:
         # test
-        gen_tests_file(os.path.join(mako_dir, 'test.go'),
-                       os.path.join(kwargs['restful_api_dir'], 'test_restful'),
-                       **kwargs)
+        # gen_tests_file(os.path.join(mako_dir, 'test.go'),
+        #                os.path.join(kwargs['restful_api_dir'], 'test_restful'),
+        #                **kwargs)

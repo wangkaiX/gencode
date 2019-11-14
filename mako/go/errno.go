@@ -5,6 +5,7 @@ package ${package_name}
 import (
     "encoding/json"
     "errors"
+    "fmt"
 )
 
 const (
@@ -55,12 +56,24 @@ func FromJson(buf []byte)(*Error, error) {
 //     return (&Error{errCode, ErrMsg[errCode], ErrMsg[errCode]}).Json()
 // }
 
+func Gen(errCode int32) (*Error) {
+    return GenError(errCode)
+}
+
 func GenError(errCode int32) (*Error) {
 	return &Error{errCode, ErrMsg[errCode], ""}
 }
 
+func GenWithInfo(errCode int32, info string) (*Error) {
+    return GenErrorWithInfo(errCode, info)
+}
+
 func GenErrorWithInfo(errCode int32, info string) (*Error) {
 	return &Error{errCode, ErrMsg[errCode], info}
+}
+
+func GenWithDetail(errCode int32, info string) (*Error) {
+    return GenErrorWithDetail(errCode, info)
 }
 
 func GenErrorWithDetail(errCode int32, info string) (*Error) {

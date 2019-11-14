@@ -11,6 +11,7 @@ if __name__ == '__main__':
     dst_dir = os.environ['GOPATH'] + "/src/example"  # env['GOPATH'] + "/src/"
     # dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
+            code_type="go",
             # 接口配置文件路径
             filenames=[
                 "json/api.json5",
@@ -42,11 +43,11 @@ if __name__ == '__main__':
             # resolver type name
             graphql_resolver_type="GraphqlResolver",
 
-            # restful
+            # go_gin
             # 业务接口生成目录
-            restful_api_dir=os.path.join(dst_dir, "app", "restful_api"),
+            go_gin_api_dir=os.path.join(dst_dir, "app", "gin_api"),
             # 请求，应答，数据类型定义生成目录
-            restful_define_dir=os.path.join(dst_dir, 'app', 'restful_api', "restful_define"),
+            go_gin_define_dir=os.path.join(dst_dir, 'app', 'gin_api', "gin_define"),
 
             # grpc
             # proto 生成路径

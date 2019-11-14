@@ -55,6 +55,23 @@ def get_map_value(m, paths, default_value):
     return m
 
 
+def get_all_nodes(nodes):
+    if not isinstance(nodes, list):
+        nodes = [nodes]
+    node_map = {}
+    __get_all_nodes(node_map, nodes)
+    return list(node_map.values())
+
+
+def __get_all_nodes(node_map, nodes):
+    for node in nodes:
+        if node.type.name in node_map.keys():
+            merge_node(node_map[node.type.name], node)
+        else:
+            node_map[node.type.name] = node
+        __get_all_nodes(node_map, node.nodes)
+
+
 def merge_node(node1, node2):
     for field in node2.fields:
         if field not in node1.fields:
@@ -77,6 +94,12 @@ def assert_http_method(method):
 def assert_graphql_method(method):
     if method not in code_type.graphql_methods:
         print("graphql 只支持[%s]", code_type.graphql_methods)
+        assert False
+
+
+def assert_code_type(t):
+    if t not in code_type.code_types:
+        print("暂时支持的编程语言[%s]", code_type.code_types)
         assert False
 
 
@@ -119,10 +142,8 @@ def get_dimension(obj):
     return __get_dimension(obj, 0)
 
 
-def is_enum(enums, t):
-    if t:
-        return t.name in [enum.name for enum in enums]
-    return False
+def is_enum(enum_names, t):
+    return t.name in enum_names
 
 
 def get_enum_note(enum):
@@ -169,7 +190,7 @@ def save_file(filename, txt):
     with open(filename, 'wb') as f:
         btxt = bytes(txt, encoding="utf8")
         f.write(btxt)
-        ext = os.path.basename(filename).splitext()
+        ext = os.path.splitext(filename)
         if len(ext) > 0 and 'go' == ext[-1]:
             go_fmt(filename)
 
@@ -215,6 +236,12 @@ def dict2json(req):
         json_str = json_str[:key_end_index] + json_str[rdquote_index:]
         rdquote_index = json_str.find('":', key_end_index + 2)
     return json_str
+
+
+def dict_key_clean(value_map):
+    json_str = dict2json(value_map)
+    print(json_str)
+    return json.loads(json_str)
 
 
 def gen_code(mako_file, **kwargs):
@@ -275,6 +302,7 @@ def append_unique_field(node, field):
     return False
 
 
+'''
 def append_member(members, member):
     assert isinstance(members, list)
     if member not in members:
@@ -285,6 +313,7 @@ def append_member(members, member):
 
 def is_req(reqs, node):
     return node.type.name in [req.type.name for req in reqs]
+'''
 
 
 def markdown_full_path(full_path):

@@ -7,19 +7,22 @@ from src.common import enum_type
 from src.common import code_type
 # from abc import abstractmethod
 import util.python.util as util
+from src.go.gin import gin as go_gin
 # from src.common.code_type import FieldType
 # import json5
-# import copy
+import copy
 
 
 class Protocol:
     def __init__(self, tree_map):
         self.__framework_type = None
         self.__apis = []
-        self.__configs = []
+        self.__config = None
         self.__default_map = None
         self.__enums = []
         self.__imports = []
+        self.__nodes = []
+        self.__node_map = {}
         # tree_map = parser.Json5(filename=filename).parser()
 
         self.__method = None
@@ -27,23 +30,57 @@ class Protocol:
         # parser
         self.__parser(tree_map)
 
-    def gen_code_file(self, mako_dir, errno_out_file, service_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
-        pass
+    @property
+    def framework_type(self):
+        return self.__framework_type
+
+    @property
+    def nodes(self):
+        return self.__nodes
+
+    @property
+    def has_file(self):
+        for api in self.__apis:
+            if api.has_file:
+                return True
+        return False
+
+    @property
+    def has_time(self):
+        for api in self.__apis:
+            if api.has_time:
+                return True
+        return False
+
+    def gen_code_file(self, **kwargs):  # mako_dir, errno_out_file, service_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
+        if self.__framework_type == code_type.go_gin:
+            gencode = go_gin.GoGin(self, **kwargs)
+            gencode.gen_code()
+        else:
+            print("暂不支持")
+            assert False
 
     def __parser(self, tree_map):
         self.__parser_protocol(tree_map['protocol'])
         # self.__parser_import(tree_map['import'])
         self.__parser_default(tree_map['default'])
         self.__parser_enum(tree_map['enum'])
+        self.__parser_config('config', tree_map)
         self.__parser_api(tree_map['api'])
-        self.__parser_config(tree_map['config'])
+        self.__parser_all_api_nodes()
+
+    def __parser_all_api_nodes(self):
+        nodes = []
+        for api in self.apis:
+            nodes += [api.req, api.resp, api.context, api.url_param, api.cookie]
+        self.__nodes = tool.get_all_nodes(nodes)
 
     def __parser_protocol(self, protocol_map):
         self.__framework_type = protocol_map['framework_type']
         tool.assert_framework_type(self.__framework_type)
-        if self.__framework_type == code_type.go_graphql:
+        if self.__framework_type == code_type.graphql:
             self.__parser_go_graphql(protocol_map)
-        elif self.__framework_type == code_type.go_grpc:
+        elif self.__framework_type == code_type.grpc:
             self.__parser_go_grpc(protocol_map)
         elif self.__framework_type == code_type.go_gin:
             self.__parser_go_gin(protocol_map)
@@ -52,9 +89,10 @@ class Protocol:
         for k, v in api_map.items():
             self.__apis.append(Api(k, v, self.__default_map))
 
-    def __parser_config(self, config_map):
-        for k, v in config_map.items():
-            self.__configs.append(Node(None, k, v))
+    def __parser_config(self, node_name, tree_map):
+        self.__config = Node(None, node_name, tree_map[node_name])
+        # for k, v in config_map.items():
+        #     self.__configs.append(Node(None, k, v))
 
     def __parser_default(self, default_map):
         self.__default_map = default_map
@@ -106,13 +144,15 @@ class Api:
     def __init__(self, name, value_map, default_map):
         self.__name = name
         self.__note = value_map['note']
-        self.__req = None
-        self.__resp = None
-        self.__url_param = None
-        self.__context = None
-        self.__cookie = None
+        upper_name = util.gen_upper_camel(self.name)
+        self.__req = Node(None, upper_name + "Req", None)
+        self.__resp = Node(None, upper_name + "Resp", None)
+        self.__url_param = Node(None, upper_name + "UrlParam", None)
+        self.__context = Node(None, upper_name + "Context", None)
+        self.__cookie = Node(None, upper_name + "Cookie", None)
 
         self.__url = None
+        self.__gw_url = None
         self.__url_gw_prefix = None
         self.__url_suffix = None
         self.__url_prefix = None
@@ -129,45 +169,65 @@ class Api:
         # parser
         self.__parser()
 
+    @property
+    def has_file(self):
+        return self.__req.has_file
+
+    @property
+    def has_time(self):
+        return self.__req.has_time or self.__resp.has_time
+
     def __merge_default(self, node, node_name):
         try:
-            print(node, node_name, self.__default_map[node_name])
+            # print(node, node_name, self.__default_map[node_name])
             default_node = Node(None, node_name, self.__default_map[node_name])
             tool.merge_node(node, default_node)
         except KeyError:
             print("[%s]不存在默认节点" % node_name)
 
+    # def __record_property(self, node):
+    #     if node.has_file:
+    #         self.__has_file = True
+    #     if node.has_time:
+    #         self.__has_time = True
+
     def __parser(self):
-        upper_name = util.gen_upper_camel(self.name)
         print(self.__value_map)
+        upper_name = util.gen_upper_camel(self.name)
         for k, v in self.__value_map.items():
             if 'req' in k:
                 self.__req = Node(None, k, v)
-                self.__req.type = upper_name + 'Req'
+                self.__req.type = upper_name + "Req"
                 self.__merge_default(self.__req, 'req')
+                # self.__record_property(self.__req)
             elif 'resp' in k:
                 self.__resp = Node(None, k, v)
-                self.__req.type = upper_name + 'Resp'
-                self.__merge_default(self.__req, 'resp')
+                self.__resp.type = upper_name + "Resp"
+                self.__merge_default(self.__resp, 'resp')
+                # self.__record_property(self.__resp)
             elif 'url_param' in k:
                 self.__url_param = Node(None, k, v)
-                self.__url_param.type = upper_name + 'UrlParam'
-                self.__merge_default(self.__req, 'url_param')
+                self.__url_param.type = upper_name + "UrlParam"
+                self.__merge_default(self.__url_param, 'url_param')
             elif 'context' in k:
                 self.__context = Node(None, k, v)
-                self.__context.type = upper_name + 'Context'
-                self.__merge_default(self.__req, 'context')
+                self.__context.type = upper_name + "Context"
+                self.__merge_default(self.__context, 'context')
             elif 'cookie' in k:
                 self.__cookie = Node(None, k, v)
-                self.__cookie.type = upper_name + 'Cookie'
-                self.__merge_default(self.__req, 'cookie')
+                self.__cookie.type = upper_name + "Cookie"
+                self.__merge_default(self.__cookie, 'cookie')
             elif 'url' == k:
                 self.__url = v
             elif 'method' == k:
                 self.__method = v
             elif 'api_tags' == k:
+                if not isinstance(v):
+                    v = [v]
                 self.__api_tags = v
             elif 'doc_tags' == k:
+                if not isinstance(v):
+                    v = [v]
                 self.__doc_tags = v
             elif 'url_gw_prefix' == k:
                 self.__url_gw_prefix = v
@@ -178,13 +238,23 @@ class Api:
             else:
                 print("不支持的节点类型[%s]" % k)
 
+        if not self.__method:
+            self.__method = tool.get_map_value(self.__default_map, 'method', 'POST')
+
+        if not self.__url_prefix:
+            self.__url_prefix = tool.get_map_value(self.__default_map, 'url_prefix', '')
+
+        if not self.__url_gw_prefix:
+            self.__url_gw_prefix = tool.get_map_value(self.__default_map, 'url_gw_prefix', '')
+
+        if not self.__url_suffix:
+            self.__url_suffix = self.__name
+
         if not self.__url:
-            url_prefix = self.__url_prefix if self.__url_prefix is not None else tool.get_map_value(self.__default_map, 'url_prefix', '')
-            url_suffix = self.__url_suffix if self.__url_suffix is not None else tool.get_map_value(self.__default_map, 'url_suffix', '')
-            if not url_suffix:
-                url_suffix = self.__name
-            url_gw_prefix = self.__url_gw_prefix if self.__url_gw_prefix is not None else tool.get_map_value(self.__default_map, 'url_gw_prefix', '')
-            self.__url = tool.url_concat((url_gw_prefix, url_prefix, url_suffix))
+            self.__url = tool.url_concat(self.__url_prefix, self.__url_suffix)
+
+        if not self.__gw_url:
+            self.__gw_url = tool.url_concat(self.url_gw_prefix, self.__url_prefix, self.__url_suffix)
 
     @property
     def cookie(self):
@@ -195,20 +265,24 @@ class Api:
         self.__cookie = value
 
     @property
-    def api_tag(self):
-        return self.__api_tag
+    def api_tags(self):
+        if self.__api_tags:
+            return self.__api_tags
+        return []
 
-    @api_tag.setter
-    def api_tag(self, value):
-        self.__api_tag = value
+    @api_tags.setter
+    def api_tags(self, value):
+        self.__api_tags = value
 
     @property
-    def doc_tag(self):
-        return self.__doc_tag
+    def doc_tags(self):
+        if self.__doc_tags:
+            return self.__doc_tags
+        return []
 
-    @doc_tag.setter
-    def doc_tag(self, value):
-        self.__doc_tag = value
+    # @doc_tag.setter
+    # def doc_tags(self, value):
+    #     self.__doc_tags = value
 
     @property
     def context(self):
@@ -231,6 +305,10 @@ class Api:
         self.__method = v
 
     @property
+    def gw_url(self):
+        return self.__gw_url
+
+    @property
     def url(self):
         return self.__url
 
@@ -239,12 +317,12 @@ class Api:
         self.__url = v
 
     @property
-    def gw_url(self):
-        return self.__gw_url
+    def url_gw_prefix(self):
+        return self.__url_gw_prefix
 
-    @gw_url.setter
-    def gw_url(self, v):
-        self.__gw_url = v
+    @url_gw_prefix.setter
+    def url_gw_prefix(self, v):
+        self.__url_gw_prefix = v
 
     @property
     def url_param(self):
@@ -288,6 +366,8 @@ class Member:
         # elif isinstance(attr, Attr):
         #     self.__attr = attr
         self.__dimension = tool.get_dimension(value_map)
+        if self.__type:
+            self.type = self.__type
 
         # self.__parse_values(value)
         if not self.__note:
@@ -350,6 +430,10 @@ class Field(Member):
     def __eq__(self, o):
         return self.name == o.name
 
+    @property
+    def value(self):
+        return self.value_map
+
     def __str__(self):
         s = "[%s] [%s] [%s] [%s] [%s] [dim:%s]\n" % (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
         return s
@@ -372,30 +456,9 @@ class Attr:
 
 
 class Node(Member):
-    # @staticmethod
-    # def merge_nodes(nodes, node):
-    #     try:
-    #         i = nodes.index(node)
-    #         for n in node.nodes:
-    #             nodes[i].add_node(n)
-    #         for f in node.fields:
-    #             nodes[i].add_field(f)
-    #     except ValueError:
-    #         nodes.append(node)
-
-    # @staticmethod
-    # def merge_all_nodes(node):
-    #     node = copy.copy(node)
-    #     if node.attr.is_req or node.attr.is_url_param:
-    #         Node.merge_nodes(Node.req_nodes(), node)
-    #         Node.merge_nodes(Node.req_resp_nodes(), node)
-    #     elif node.attr.is_resp:
-    #         Node.merge_nodes(Node.resp_nodes(), node)
-    #         Node.merge_nodes(Node.req_resp_nodes(), node)
-    #     elif node.attr.is_config:
-    #         Node.merge_nodes(Node.config_nodes(), node)
-
     def __init__(self, parent, name, value_map):
+        if not value_map:
+            value_map = {}
         Member.__init__(self, parent, name, value_map)
         assert tool.contain_dict(value_map)
         if not self.type:
@@ -404,8 +467,18 @@ class Node(Member):
         self.__curr_child_index = 1
         self.__nodes = []
         self.__fields = []
+        self.__has_time = False
+        self.__has_file = False
 
         self.parser_children()
+
+    @property
+    def has_time(self):
+        return self.__has_time
+
+    @property
+    def has_file(self):
+        return self.__has_file
 
     # @property
     # def md_fields(self):
@@ -416,6 +489,10 @@ class Node(Member):
     #     return self.__attr
 
     def add_member(self, member):
+        member = copy.deepcopy(member)
+        self.__add_member(member)
+
+    def __add_member(self, member):
         member.grpc_index = self.__curr_child_index
         if isinstance(member, Node):
             self.add_node(member)
@@ -425,6 +502,11 @@ class Node(Member):
             print("Unknown Type:", member)
             assert False
         self.__curr_child_index += 1
+        print(member.type, type(member.type), type(member))
+        if member.type.is_file:
+            self.__has_file = True
+        if member.type.is_time:
+            self.__has_time = True
 
     def add_node(self, node):
         if node.name not in [n.name for n in self.nodes]:
@@ -447,7 +529,7 @@ class Node(Member):
                 member = Node(self, k, v)
             else:
                 member = Field(self, k, v)
-            self.add_member(member)
+            self.__add_member(member)
 
     def __eq__(self, o):
         return self.type.name == o.type.name  # and self.__name == o.__name

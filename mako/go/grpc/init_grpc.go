@@ -7,7 +7,7 @@ import (
 	"net"
 	"fmt"
 	pb "${package_grpc_proto_dir}"
-	"${package_project_dir}/app/define"
+	"${package_service_dir}/app/define"
 
 	"google.golang.org/grpc"
 	// "google.golang.org/grpc/reflection"

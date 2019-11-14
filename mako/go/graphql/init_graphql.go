@@ -5,7 +5,7 @@ import (
     "net/http"
 
 	"${package_graphql_resolver_dir}"
-	"${package_project_dir}/app/define"
+	"${package_service_dir}/app/define"
 
 	graphql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"

@@ -1,27 +1,12 @@
-<%
-import os
-define = os.path.basename(restful_define_dir)
-%>
-package ${os.path.basename(restful_api_dir)}
+package ${package_name}
 // 不要修改此文件
 
 import "net/http"
 import "github.com/gin-gonic/gin"
-<%def name = "import_gin_file(apis)" >
-% for api in apis:
-    % for field in api.req.fields:
-        % if field.type.basename == 'GINFILE':
-            <% return '// import "mime/multipart"' %>
-        % endif
-    % endfor
-% endfor
-    <% return "" %>
-</%def>
-${import_gin_file(apis)}
 
 % for api in apis:
     % if len(api.req.fields) > 0:
-import "${package_restful_define_dir}"
+import "${package_define}"
         <% break %>
     % endif
 % endfor
@@ -36,6 +21,8 @@ func Run(addr string)(err error) {
         func_name = api.name
         interface_name = api.name
         url_param = api.url_param
+        import os
+        define = os.path.basename(package_define)
     %>
     router.${api.method}("${api.url}", func(c *gin.Context) {
 		var req ${define}.${req.type.name}
@@ -54,9 +41,8 @@ func Run(addr string)(err error) {
         }
     % endif
 
-	<% import os %>
         resp := ${gen_lower_camel(api.name)}(c, &param, &req)
-        c.JSON(http.StatusOK, resp) 
+        c.JSON(http.StatusOK, resp)
     })
 
 % endfor
