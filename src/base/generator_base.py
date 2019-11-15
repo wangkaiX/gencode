@@ -7,6 +7,7 @@
 from src.base.attr_base import AttrBase
 from src.go.gin.gin import GoGin
 from src.common import code_type
+# from src.common import errno
 # from util.python import util
 
 

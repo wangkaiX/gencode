@@ -144,12 +144,14 @@ class Api:
     def __init__(self, name, value_map, default_map):
         self.__name = name
         self.__note = value_map['note']
+        self.__value_map = value_map
+        self.__default_map = default_map
         upper_name = util.gen_upper_camel(self.name)
-        self.__req = Node(None, upper_name + "Req", None)
-        self.__resp = Node(None, upper_name + "Resp", None)
-        self.__url_param = Node(None, upper_name + "UrlParam", None)
-        self.__context = Node(None, upper_name + "Context", None)
-        self.__cookie = Node(None, upper_name + "Cookie", None)
+        self.__req = Node(None, upper_name + "Req", self.get_default('req'))
+        self.__resp = Node(None, upper_name + "Resp", self.get_default('resp'))
+        self.__url_param = Node(None, upper_name + "UrlParam", self.get_default('url_param'))
+        self.__context = Node(None, upper_name + "Context", self.get_default('context'))
+        self.__cookie = Node(None, upper_name + "Cookie", self.get_default('cookie'))
 
         self.__url = None
         self.__gw_url = None
@@ -163,11 +165,13 @@ class Api:
         # 文档类别(前端，后台)
         self.__doc_tags = None
 
-        self.__value_map = value_map
-        self.__default_map = default_map
-
         # parser
         self.__parser()
+
+    def get_default(self, name, default_value={}):
+        if name not in self.__default_map.keys():
+            return default_value
+        return self.__default_map[name]
 
     @property
     def has_file(self):
@@ -181,7 +185,7 @@ class Api:
         try:
             # print(node, node_name, self.__default_map[node_name])
             default_node = Node(None, node_name, self.__default_map[node_name])
-            tool.merge_node(node, default_node)
+            node = tool.merge_node(node, default_node)
         except KeyError:
             print("[%s]不存在默认节点" % node_name)
 
@@ -195,6 +199,10 @@ class Api:
         print(self.__value_map)
         upper_name = util.gen_upper_camel(self.name)
         for k, v in self.__value_map.items():
+            if isinstance(v, dict):
+                ori_name = k.split('|')[0]
+                v = tool.merge_map(v, self.get_default(ori_name))
+                print("v merge:ori_name[%s] v[%s] default[%s]" % (ori_name, v, self.get_default(ori_name)))
             if 'req' in k:
                 self.__req = Node(None, k, v)
                 self.__req.type = upper_name + "Req"
@@ -416,6 +424,10 @@ class Member:
     def value_map(self):
         return self.__value_map
 
+    @value_map.setter
+    def value_map(self, v):
+        self.__value_map = v
+
     @property
     def dimension(self):
         return self.__dimension
@@ -471,6 +483,10 @@ class Node(Member):
         self.__has_file = False
 
         self.parser_children()
+        self.value_map = tool.dict_key_clean(self.value_map)
+        for member in self.fields + self.nodes:
+            if member.type.is_file:
+                del self.value_map[member.name]
 
     @property
     def has_time(self):
@@ -502,7 +518,7 @@ class Node(Member):
             print("Unknown Type:", member)
             assert False
         self.__curr_child_index += 1
-        print(member.type, type(member.type), type(member))
+        # print(member.type, type(member.type), type(member))
         if member.type.is_file:
             self.__has_file = True
         if member.type.is_time:

@@ -4,7 +4,7 @@
 # import os
 # from src.go import errno
 # from src.common import tool
-# from src.common import doc
+from src.common import errno
 # from util.python import util
 
 
@@ -18,6 +18,15 @@ class AttrBase:
         # self.__protocol = protocol
         self.__mako_dir = kwargs['mako_dir']
         self.__kwargs = kwargs
+
+        errno_configs = kwargs['errno_configs']
+        errno_gen = errno.ErrnoGen(errno_configs)
+        errno_gen.parser()
+        self.__errnos = errno_gen.errnos
+
+    @property
+    def errnos(self):
+        return self.__errnos
 
     @property
     def kwargs(self):

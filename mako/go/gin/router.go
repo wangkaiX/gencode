@@ -3,6 +3,7 @@ package ${package_name}
 
 import "net/http"
 import "github.com/gin-gonic/gin"
+import "${package_service}/app/errno"
 
 % for api in apis:
     % if len(api.req.fields) > 0:
@@ -42,7 +43,13 @@ func Run(addr string)(err error) {
     % endif
 
         resp := ${gen_lower_camel(api.name)}(c, &param, &req)
+    % if api.resp.has_file:
+        if resp.Code != errno.Success {
+            c.JSON(http.StatusNotFound, resp)
+        }
+    % else:
         c.JSON(http.StatusOK, resp)
+    % endif
     })
 
 % endfor

@@ -26,6 +26,8 @@ type  ${node.type.go} struct {
         required = ' binding:"required"'
     else:
         required = ''
+    if field.type.is_file:
+        continue
     %>
     ${gen_upper_camel(field.name)} ${_type} `form:"${field.name}" json:"${field.name}"${required}`// ${field.note}
 

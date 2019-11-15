@@ -6,7 +6,7 @@ import util.python.util as util
 import json
 import copy
 
-from src.common import meta
+# from src.common import meta
 from src.common import code_type
 from mako.template import Template
 
@@ -66,23 +66,29 @@ def get_all_nodes(nodes):
 def __get_all_nodes(node_map, nodes):
     for node in nodes:
         if node.type.name in node_map.keys():
-            merge_node(node_map[node.type.name], node)
+            node_map[node.type.name] = merge_node(node_map[node.type.name], node)
         else:
             node_map[node.type.name] = node
         __get_all_nodes(node_map, node.nodes)
 
 
-def merge_node(node1, node2):
-    for field in node2.fields:
-        if field not in node1.fields:
-            node1.add_field(field)
-    node_names = [n.name for n in node1.nodes]
-    for node in node2.nodes:
+def merge_node(node_dst, node_from):
+    node = copy.deepcopy(node_dst)
+    __merge_node(node, node_from)
+    return node
+
+
+def __merge_node(node_dst, node_from):
+    for field in node_from.fields:
+        if field not in node_dst.fields:
+            node_dst.add_field(field)
+    node_names = [n.name for n in node_dst.nodes]
+    for node in node_from.nodes:
         if node.name not in node_names:
-            node1.add_node(node)
+            node_dst.add_node(node)
         else:
             index = node_names.index(node.name)
-            merge_node(node1.nodes[index], node)
+            __merge_node(node_dst.nodes[index], node)
 
 
 def assert_http_method(method):
@@ -142,18 +148,26 @@ def get_dimension(obj):
     return __get_dimension(obj, 0)
 
 
-def is_enum(enum_names, t):
-    return t.name in enum_names
+def is_enum(enums, t):
+    return t.name in [enum.name for enum in enums]
 
 
 def get_enum_note(enum):
-    note = enum.name + ":"
+    note = ""
     for pos, value in zip(range(len(enum.values)), enum.values):
         if value.note:
             note = note + "%s->%s(%s), " % (pos, value.value, value.note)
         else:
             note = note + "%s->%s, " % (pos, value.value)
     return note[:-2]
+
+
+def merge_map(map_dst, map_from):
+    if map_from is None:
+        map_from = {}
+    if map_dst is None:
+        return map_from
+    return {**map_from, **map_dst}
 
 
 # def make_enum(name, note, values):
@@ -223,7 +237,7 @@ def package_name(abspath, go_src):
     return ret
 
 
-def dict2json(req):
+def dict_key_clean2json(req):
     json_str = json.dumps(req, separators=(',', ':'), indent=4, ensure_ascii=False)
     beg = 0
     rdquote_index = json_str.find('":', beg)
@@ -239,9 +253,13 @@ def dict2json(req):
 
 
 def dict_key_clean(value_map):
-    json_str = dict2json(value_map)
+    json_str = dict_key_clean2json(value_map)
     print(json_str)
     return json.loads(json_str)
+
+
+def dict2json(value_map):
+    return json.dumps(value_map, separators=(',', ':'), indent=4, ensure_ascii=False)
 
 
 def gen_code(mako_file, **kwargs):
@@ -259,24 +277,34 @@ def gen_code_file(mako_file, output_file, **kwargs):
     return code
 
 
-def md_nodes2fields(nodes):
-    nodes = copy.copy(nodes)
+def markdown_type(enums, field):
+    if is_enum(enums, field.type):
+        t = "Enum"
+    elif contain_dict(field.value_map):
+        t = "Struct"
+    else:
+        t = field.type.name
+    t += "[]" * field.dimension
+    return t
+
+
+def markdown_note(enums, field):
+    if "Enum" == markdown_type(enums, field):
+        enum_names = [enum.name for enum in enums]
+        index = enum_names.index(field.type.name)
+        return get_enum_note(enums[index])
+    return field.note
+
+
+def nodes2fields(nodes):
+    nodes = copy.deepcopy(nodes)
     field_list = []
     while len(nodes) > 0:
-        children = []
         node = nodes[-1]
         nodes.pop()
-        _type = "struct"
-        if node.dimension > 0:
-            _type = "struct[]"
-        field = meta.Field(node.name, node.required, node.note, _type, node.value)
-        field.full_path = node.full_path
-        field_list.append(field)
-        for field in node.fields:
-            field_list.append(field)
-        for node in node.nodes:
-            children.append(node)
-        nodes = children + nodes
+        field_list.append(node)
+        field_list += node.fields
+        nodes += node.nodes
 
     return field_list
 
@@ -318,6 +346,8 @@ def is_req(reqs, node):
 
 def markdown_full_path(full_path):
     r = ""
-    for p in full_path[2:]:
+    print("before full_path:", full_path)
+    for p in full_path[1:]:
         r = r + p + "::"
+    print("after full_path:", r)
     return r[:-2]

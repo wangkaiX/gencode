@@ -13,6 +13,9 @@ class EnumValue:
     def __eq__(self, o):
         return self.value == o.value
 
+    def __str__(self):
+        return "[%s:%s]" % (self.value, self.note)
+
 
 class Enum:
     def __init__(self, name, value_map):
@@ -23,7 +26,7 @@ class Enum:
             if enum_value in self.__values:
                 print("有重复的枚举值[%s]", enum_value)
                 assert False
-            self.__values.append(EnumValue(value))
+            self.__values.append(enum_value)
         self.__note = value_map['note']
 
     @property
@@ -37,3 +40,16 @@ class Enum:
     @property
     def values(self):
         return self.__values
+
+    def __eq__(self, o):
+        return self.name == o.name
+
+    def __expr__(self):
+        return str(self)
+
+    def __str__(self):
+        values = ""
+        for value in self.values:
+            values += str(value)
+        # print(self.name, values)
+        return "%s %s" % (self.name, values)

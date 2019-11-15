@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from src.common import tool
-from src.go.base.generator_base import GeneratorGoBase
+from src.go.base.go_generator_base import GeneratorGoBase
 
 
 class Generator(GeneratorGoBase):

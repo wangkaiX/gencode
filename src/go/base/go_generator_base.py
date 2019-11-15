@@ -6,7 +6,7 @@ from src.base.generator_base import GeneratorBase
 import os
 import copy
 from util.python import util
-from src.go.errno import GoErrnoGen
+# from src.go.errno import GoErrnoGen
 import toml
 
 
@@ -37,7 +37,7 @@ class GeneratorGoBase(GeneratorBase):
         nodes = tool.get_all_nodes(config_nodes)
         config = copy.deepcopy(self.protocols[0].config)
         for protocol in self.protocols[1:]:
-            tool.merge_node(config, protocol.config)
+            config = tool.merge_node(config, protocol.config)
         mako_file = os.path.join(self.mako_dir, 'go', 'config.go')
         out_file = os.path.join(self.service_dir, 'app', 'define', 'config.go')
         tool.gen_code_file(mako_file, out_file, config=config, nodes=nodes, gen_upper_camel=util.gen_upper_camel)
@@ -45,16 +45,17 @@ class GeneratorGoBase(GeneratorBase):
         config_map = {}
         for config in configs:
             config_map = {**config_map, **(config.value_map)}
-        config_map = tool.dict_key_clean(config_map)
         config_text = toml.dumps(config_map)
         mako_file = os.path.join(self.mako_dir, 'go', 'config.toml')
         out_file = os.path.join(self.service_dir, 'configs', 'config.toml')
         tool.gen_code_file(mako_file, out_file, config_text=config_text)
 
     def gen_errno(self):
-        errno_mako = os.path.join(self.mako_dir, 'go', 'errno.go')
-        errno_gen = GoErrnoGen(errno_mako, self.errno_out_file, self.errno_configs)
-        errno_gen.gen_code()
+        mako_file = os.path.join(self.mako_dir, 'go', 'errno.go')
+        # errno_gen = GoErrnoGen(self.errno_configs)
+        # errnos = errno_gen.gen_code()
+        package_name = os.path.basename(os.path.dirname(self.errno_out_file))
+        tool.gen_code_file(mako_file, self.errno_out_file, errnos=self.errnos, package_name=package_name)
 
     def gen_init(self):
         out_file = os.path.join(self.service_dir, 'cmd', 'init.go')

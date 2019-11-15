@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-from src.go import errno
-from src.base.code_base import CodeBase
+# import os
+# from src.go import errno
+from src.base.common_generator_base import CommonGeneratorBase
 from src.common import tool
 # from src.common import doc
 # from util.python import util
 
 
-class GoCodeBase(CodeBase):
+class GoCommonGeneratorBase(CommonGeneratorBase):
     def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
-        CodeBase.__init__(self, protocol, **kwargs)
+        CommonGeneratorBase.__init__(self, protocol, **kwargs)
         self.__go_src_dir = kwargs['go_src_dir']
         self.__package_service = tool.package_name(self.service_dir, self.__go_src_dir)
         # self.__service_name = kwargs['service_name']
@@ -25,14 +25,14 @@ class GoCodeBase(CodeBase):
         return self.__go_src_dir
 
     def gen_code(self):
-        CodeBase.gen_code(self)
-        self.gen_errno()
+        CommonGeneratorBase.gen_code(self)
+        # self.gen_errno()
         self.gen_init()
 
-    def gen_errno(self):
-        errno_mako = os.path.join(self.mako_dir, 'go', 'errno.go')
-        errno_gen = errno.GoErrnoGen(errno_mako, self.errno_out_file, self.errno_configs)
-        errno_gen.gen_code()
+    # def gen_errno(self):
+    #     errno_mako = os.path.join(self.mako_dir, 'go', 'errno.go')
+    #     errno_gen = errno.GoErrnoGen(errno_mako, self.errno_out_file, self.errno_configs)
+    #     errno_gen.gen_code()
 
     '''
     def gen_config(self, configs=None):

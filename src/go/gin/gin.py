@@ -5,13 +5,13 @@ import os
 # from mako.template import Template
 import util.python.util as util
 from src.common import tool
-from src.go.base.go_code_base import GoCodeBase
+from src.go.base.go_common_generator_base import GoCommonGeneratorBase
 # import copy
 
 
-class GoGin(GoCodeBase):
+class GoGin(GoCommonGeneratorBase):
     def __init__(self, protocol, **kwargs):
-        GoCodeBase.__init__(self, protocol, **kwargs)
+        GoCommonGeneratorBase.__init__(self, protocol, **kwargs)
         self.__api_dir = kwargs['go_gin_api_dir']
         self.__test_dir = os.path.join(self.__api_dir, 'test_gin')
 
@@ -21,7 +21,7 @@ class GoGin(GoCodeBase):
         self.__package_api = tool.package_name(self.__api_dir, self.go_src_dir)
 
     def gen_code(self):
-        GoCodeBase.gen_code(self)
+        GoCommonGeneratorBase.gen_code(self)
         self.gen_api()
         self.gen_test()
         self.gen_define()
@@ -41,6 +41,7 @@ class GoGin(GoCodeBase):
                                    package_service=self.package_service,
                                    gen_lower_camel=util.gen_lower_camel,
                                    go_gin_define_dir=self.__define_dir,
+                                   json_output=tool.dict2json(api.resp.value_map),
                                    )
 
     def gen_test(self):
@@ -52,6 +53,9 @@ class GoGin(GoCodeBase):
             tool.gen_code_file(mako_file, filename,
                                api=api,
                                input_text=input_text,
+                               package_service=self.package_service,
+                               service_dir=self.service_dir,
+                               url_param2text=tool.url_param2text,
                                gen_upper_camel=util.gen_upper_camel,
                                )
 
@@ -75,6 +79,7 @@ class GoGin(GoCodeBase):
                            out_file,
                            package_name=self.__api_package_name,
                            package_define=self.__package_define,
+                           package_service=self.package_service,
                            apis=self.protocol.apis,
                            gen_lower_camel=util.gen_lower_camel,
                            # has_file=self.protocol.has_file,
