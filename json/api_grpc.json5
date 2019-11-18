@@ -63,11 +63,11 @@
     },
     api:{
         DataSourceInfoList:{
-            api_tag:[
+            api_tags:[
                 "tag1",
                 "tag2",
             ],
-            "doc_tag":[
+            "doc_tags":[
                 "doc1",
                 "doc2",
             ],

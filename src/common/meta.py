@@ -143,7 +143,7 @@ class Protocol:
 class Api:
     def __init__(self, name, value_map, default_map):
         self.__name = name
-        self.__note = value_map['note']
+        # self.__note = value_map['note']
         self.__value_map = value_map
         self.__default_map = default_map
         upper_name = util.gen_upper_camel(self.name)
@@ -187,7 +187,8 @@ class Api:
             default_node = Node(None, node_name, self.__default_map[node_name])
             node = tool.merge_node(node, default_node)
         except KeyError:
-            print("[%s]不存在默认节点" % node_name)
+            pass
+            # print("[%s]不存在默认节点" % node_name)
 
     # def __record_property(self, node):
     #     if node.has_file:
@@ -196,13 +197,13 @@ class Api:
     #         self.__has_time = True
 
     def __parser(self):
-        print(self.__value_map)
+        # print(self.__value_map)
         upper_name = util.gen_upper_camel(self.name)
         for k, v in self.__value_map.items():
             if isinstance(v, dict):
                 ori_name = k.split('|')[0]
                 v = tool.merge_map(v, self.get_default(ori_name))
-                print("v merge:ori_name[%s] v[%s] default[%s]" % (ori_name, v, self.get_default(ori_name)))
+                # print("v merge:ori_name[%s] v[%s] default[%s]" % (ori_name, v, self.get_default(ori_name)))
             if 'req' in k:
                 self.__req = Node(None, k, v)
                 self.__req.type = upper_name + "Req"
@@ -230,11 +231,11 @@ class Api:
             elif 'method' == k:
                 self.__method = v
             elif 'api_tags' == k:
-                if not isinstance(v):
+                if not isinstance(v, list):
                     v = [v]
                 self.__api_tags = v
             elif 'doc_tags' == k:
-                if not isinstance(v):
+                if not isinstance(v, list):
                     v = [v]
                 self.__doc_tags = v
             elif 'url_gw_prefix' == k:
@@ -243,6 +244,8 @@ class Api:
                 self.__url_prefix = v
             elif 'url_suffix' == k:
                 self.__url_suffix = v
+            elif 'note' == k:
+                self.__note = v
             else:
                 print("不支持的节点类型[%s]" % k)
 
