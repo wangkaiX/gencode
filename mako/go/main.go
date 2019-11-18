@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	// "log"
-    "${package_service}/app/define"
+    "${package_service_dir}/app/define"
 )
 
 var configFile string

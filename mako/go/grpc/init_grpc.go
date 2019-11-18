@@ -2,11 +2,11 @@ package main
 // 不要修改此文件
 
 import (
-	api "${package_grpc_api_dir}"
+	api "${package_api_dir}"
 	"log"
 	"net"
 	"fmt"
-	pb "${package_grpc_proto_dir}"
+	pb "${package_proto_dir}"
 	"${package_service_dir}/app/define"
 
 	"google.golang.org/grpc"

@@ -9,7 +9,8 @@ from src.base.attr_base import AttrBase
 # from util.python import util
 
 
-class CommonGeneratorBase(AttrBase):
+# 解析单个配置文件并生成相应代码，文档
+class ProtocolGeneratorBase(AttrBase):
     def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
         AttrBase.__init__(self, **kwargs)
         self.__protocol = protocol
@@ -30,8 +31,8 @@ class CommonGeneratorBase(AttrBase):
         doc_dir = os.path.join(self.service_dir, 'doc')
         # enum_names = [e.name for e in self.protocol.enums]
         # print(mako_file, self.service_name, doc_dir, self.protocol.apis, enum_names)
-        for enum in self.protocol.enums:
-            print("enum:", enum)
+        # for enum in self.protocol.enums:
+        #     print("enum:", enum)
         # assert False
         d = doc.Doc(mako_file=mako_file, doc_name=self.service_name,
                     doc_dir=doc_dir, apis=self.protocol.apis, enums=self.protocol.enums, errnos=self.errnos)

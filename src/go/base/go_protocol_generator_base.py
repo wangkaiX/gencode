@@ -3,31 +3,44 @@
 
 # import os
 # from src.go import errno
-from src.base.common_generator_base import CommonGeneratorBase
+from src.base.protocol_generator_base import ProtocolGeneratorBase
 from src.common import tool
 # from src.common import doc
 # from util.python import util
 
 
-class GoCommonGeneratorBase(CommonGeneratorBase):
+class GoProtocolGeneratorBase(ProtocolGeneratorBase):
     def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
-        CommonGeneratorBase.__init__(self, protocol, **kwargs)
+        ProtocolGeneratorBase.__init__(self, protocol, **kwargs)
         self.__go_src_dir = kwargs['go_src_dir']
-        self.__package_service = tool.package_name(self.service_dir, self.__go_src_dir)
+        self.__package_service_dir = tool.package_name(self.service_dir, self.__go_src_dir)
+        self.__package_errno_dir = tool.package_name(self.errno_dir, self.go_src_dir)
         # self.__service_name = kwargs['service_name']
 
     @property
-    def package_service(self):
-        return self.__package_service
+    def package_errno_dir(self):
+        return self.__package_errno_dir
+
+    @property
+    def package_service_dir(self):
+        return self.__package_service_dir
 
     @property
     def go_src_dir(self):
         return self.__go_src_dir
 
     def gen_code(self):
-        CommonGeneratorBase.gen_code(self)
+        ProtocolGeneratorBase.gen_code(self)
         # self.gen_errno()
         self.gen_init()
+        self.gen_api()
+        self.gen_test()
+
+    def init_test(self, test_dir):
+        pass
+        # mako_file = os.path.join(self.mako_dir, 'go', 'test_init.go')
+        # filename = os.path.join(test_dir, 'test_init.go')
+        # tool.gen_code_file(mako_file, filename, package_service_dir=self.__package_service_dir)
 
     # def gen_errno(self):
     #     errno_mako = os.path.join(self.mako_dir, 'go', 'errno.go')

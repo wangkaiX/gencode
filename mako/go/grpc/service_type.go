@@ -1,4 +1,4 @@
-package ${grpc_package}
+package ${package_name}
 // 不要修改此文件
 
 

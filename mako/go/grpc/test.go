@@ -4,7 +4,7 @@ package testgrpc
 // 不要修改此文件
 
 import (
-    pb "${package_grpc_proto_dir}"
+    pb "${package_proto_dir}"
     "fmt"
     "log"
     "testing"
@@ -14,10 +14,15 @@ import (
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/metadata"
+    "${package_service_dir}/app/define" 
 )
 
+
+
 func Test${gen_upper_camel(api.name)}(t *testing.T) {
-    conn, err := grpc.Dial("${config_map['grpc_addr']['ip']}:${config_map['grpc_addr']['port']}", grpc.WithInsecure())
+    define.InitConfig("../../../configs/config.toml")
+    grpc := &define.Cfg.GrpcAddr
+    conn, err := grpc.Dial(fmt.Sprintf("%v:%v", grpc.Addr, grpc.Port), grpc.WithInsecure())
     if err != nil {
         log.Fatal(err)
     }

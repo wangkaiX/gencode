@@ -37,6 +37,8 @@ class ErrnoGen:
 
     @property
     def errnos(self):
+        if not self.__errnos:
+            self.__parser()
         return self.__errnos
 
     def __check_repeat(self, errno):
@@ -69,6 +71,6 @@ class ErrnoGen:
                 self.__check_repeat(errno)
                 self.__errnos.append(errno)
 
-    def parser(self):
+    def __parser(self):
         for errno_config in self.__errno_configs:
             self.__parser_config(errno_config)

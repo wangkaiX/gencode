@@ -14,17 +14,22 @@ class GeneratorGoBase(GeneratorBase):
     def __init__(self, protocols, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
         GeneratorBase.__init__(self, protocols, **kwargs)
         go_src_dir = kwargs['go_src_dir']
-        self.__package_service = tool.package_name(self.service_dir, go_src_dir)
+        self.__package_service_dir = tool.package_name(self.service_dir, go_src_dir)
+        self.__package_errno_dir = tool.package_name(self.errno_dir, go_src_dir)
 
     def gen_code(self):
-        GeneratorBase.gen_code(self)
+        self.gen_main()
+        self.gen_config()
+        self.gen_errno()
         self.gen_init()
+        # GeneratorBase.gen_code(self)
+        # GeneratorGoBase.gen_init(self)
 
     def gen_main(self):
         out_file = os.path.join(self.service_dir, 'cmd', 'main.go')
         # if not os.path.exists(out_file):
         mako_file = os.path.join(self.mako_dir, 'go', 'main.go')
-        tool.gen_code_file(mako_file, out_file, protocols=self.protocols, package_service=self.__package_service)
+        tool.gen_code_file(mako_file, out_file, protocols=self.protocols, package_service_dir=self.__package_service_dir)
 
     def gen_config(self):
         # config.go
@@ -54,8 +59,9 @@ class GeneratorGoBase(GeneratorBase):
         mako_file = os.path.join(self.mako_dir, 'go', 'errno.go')
         # errno_gen = GoErrnoGen(self.errno_configs)
         # errnos = errno_gen.gen_code()
-        package_name = os.path.basename(os.path.dirname(self.errno_out_file))
-        tool.gen_code_file(mako_file, self.errno_out_file, errnos=self.errnos, package_name=package_name)
+        errno_file = os.path.join(self.errno_dir, 'errno.go')
+        package_name = os.path.basename(self.errno_dir)
+        tool.gen_code_file(mako_file, errno_file, errnos=self.errnos, package_name=package_name)
 
     def gen_init(self):
         out_file = os.path.join(self.service_dir, 'cmd', 'init.go')

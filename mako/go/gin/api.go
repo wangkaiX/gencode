@@ -2,7 +2,7 @@
 package ${package_name}
 
 import "${package_go_gin_define}"
-import "${package_service}/app/errno"
+import "${package_service_dir}/app/errno"
 import "github.com/gin-gonic/gin"
 import "encoding/json"
 % if api.resp.has_file:

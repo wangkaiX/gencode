@@ -5,15 +5,16 @@ import os
 # from mako.template import Template
 import util.python.util as util
 from src.common import tool
-from src.go.base.go_common_generator_base import GoCommonGeneratorBase
+from src.go.base.go_protocol_generator_base import GoProtocolGeneratorBase
 # import copy
 
 
-class GoGin(GoCommonGeneratorBase):
+class GoGin(GoProtocolGeneratorBase):
     def __init__(self, protocol, **kwargs):
-        GoCommonGeneratorBase.__init__(self, protocol, **kwargs)
+        GoProtocolGeneratorBase.__init__(self, protocol, **kwargs)
         self.__api_dir = kwargs['go_gin_api_dir']
         self.__test_dir = os.path.join(self.__api_dir, 'test_gin')
+        self.__gin_mako_dir = os.path.join(self.mako_dir, 'go', 'gin')
 
         self.__api_package_name = os.path.basename(self.__api_dir)
         self.__define_dir = kwargs['go_gin_define_dir']
@@ -21,15 +22,15 @@ class GoGin(GoCommonGeneratorBase):
         self.__package_api = tool.package_name(self.__api_dir, self.go_src_dir)
 
     def gen_code(self):
-        GoCommonGeneratorBase.gen_code(self)
         self.gen_api()
         self.gen_test()
         self.gen_define()
         self.gen_router()
         self.gen_init()
+        GoProtocolGeneratorBase.gen_code(self)
 
     def gen_api(self):
-        mako_file = os.path.join(self.mako_dir, 'go', 'gin', 'api.go')
+        mako_file = os.path.join(self.__gin_mako_dir, 'api.go')
         for api in self.protocol.apis:
             filename = "%s.go" % api.name
             filename = os.path.join(self.__api_dir, filename)
@@ -38,14 +39,15 @@ class GoGin(GoCommonGeneratorBase):
                                    api=api,
                                    package_name=self.__api_package_name,
                                    package_go_gin_define=self.__package_define,
-                                   package_service=self.package_service,
+                                   package_service_dir=self.package_service_dir,
                                    gen_lower_camel=util.gen_lower_camel,
                                    go_gin_define_dir=self.__define_dir,
                                    json_output=tool.dict2json(api.resp.value_map),
                                    )
 
     def gen_test(self):
-        mako_file = os.path.join(self.mako_dir, 'go', 'gin', 'test.go')
+        self.init_test(self.__test_dir)
+        mako_file = os.path.join(self.__gin_mako_dir, 'test.go')
         for api in self.protocol.apis:
             filename = "%s_test.go" % util.gen_upper_camel(api.name)
             filename = os.path.join(self.__test_dir, filename)
@@ -53,7 +55,7 @@ class GoGin(GoCommonGeneratorBase):
             tool.gen_code_file(mako_file, filename,
                                api=api,
                                input_text=input_text,
-                               package_service=self.package_service,
+                               package_service_dir=self.package_service_dir,
                                service_dir=self.service_dir,
                                url_param2text=tool.url_param2text,
                                gen_upper_camel=util.gen_upper_camel,
@@ -61,7 +63,7 @@ class GoGin(GoCommonGeneratorBase):
 
     def gen_define(self):
         out_file = os.path.join(self.__define_dir, 'define.go')
-        mako_file = os.path.join(self.mako_dir, 'go', 'gin', 'define.go')
+        mako_file = os.path.join(self.__gin_mako_dir, 'define.go')
         tool.gen_code_file(mako_file,
                            out_file,
                            package_name=os.path.basename(self.__define_dir),
@@ -74,12 +76,12 @@ class GoGin(GoCommonGeneratorBase):
 
     def gen_router(self):
         out_file = os.path.join(self.__api_dir, "router.go")
-        mako_file = os.path.join(self.mako_dir, 'go', 'gin', 'router.go')
+        mako_file = os.path.join(self.__gin_mako_dir, 'router.go')
         tool.gen_code_file(mako_file,
                            out_file,
                            package_name=self.__api_package_name,
                            package_define=self.__package_define,
-                           package_service=self.package_service,
+                           package_service_dir=self.package_service_dir,
                            apis=self.protocol.apis,
                            gen_lower_camel=util.gen_lower_camel,
                            # has_file=self.protocol.has_file,
@@ -88,10 +90,10 @@ class GoGin(GoCommonGeneratorBase):
 
     def gen_init(self):
         out_file = os.path.join(self.service_dir, 'cmd', 'init_gin.go')
-        mako_file = os.path.join(self.mako_dir, 'go', 'gin', 'init.go')
+        mako_file = os.path.join(self.__gin_mako_dir, 'init.go')
         # if not os.path.exists(out_file):
         tool.gen_code_file(mako_file,
                            out_file,
                            package_api=self.__package_api,
-                           package_service=self.package_service,
+                           package_service_dir=self.package_service_dir,
                            )

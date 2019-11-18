@@ -6,6 +6,7 @@
 # import util.python.util as util
 # from abc import abstractmethod
 import json5
+import toml
 
 
 class Parser:
@@ -49,3 +50,12 @@ class Json5(Parser):
     # @abstractmethod
     def parser_text(self):
         return json5.loads(self.text)
+
+
+class Toml(Parser):
+    def __init__(self, filename=None, fp=None, text=None):
+        Parser.__init__(self, filename, fp, text)
+
+    # @abstractmethod
+    def parser_text(self):
+        return toml.loads(self.text)

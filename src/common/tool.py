@@ -28,7 +28,6 @@ def distinct_str(s, character):
 def url_concat(*paths):
     url = ''
     for p in paths:
-        print('before p:', p)
         if isinstance(p, list) or isinstance(p, tuple):
             p = url_concat(*p)
         else:
@@ -40,14 +39,13 @@ def url_concat(*paths):
                     p = '/' + p
                 if p[-1] == '/':
                     p = p[:-1]
-        print('after p:', p)
         url += p
     return url
 
 
 def get_map_value(m, paths, default_value):
     paths = paths.split(".")
-    print(paths)
+    # print(paths)
     for p in paths:
         if not isinstance(m, dict) or p not in m.keys():
             return default_value
@@ -254,7 +252,7 @@ def dict_key_clean2json(req):
 
 def dict_key_clean(value_map):
     json_str = dict_key_clean2json(value_map)
-    print(json_str)
+    # print(json_str)
     return json.loads(json_str)
 
 
@@ -346,8 +344,6 @@ def is_req(reqs, node):
 
 def markdown_full_path(full_path):
     r = ""
-    print("before full_path:", full_path)
     for p in full_path[1:]:
         r = r + p + "::"
-    print("after full_path:", r)
     return r[:-2]

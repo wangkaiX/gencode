@@ -13,13 +13,14 @@ convert[str] = 'string'
 go = 'go'
 cpp = 'cpp'
 graphql = 'graphql'
+proto = 'proto'
 grpc = 'grpc'
 go_gin = 'go_gin'
 common = 'common'
 
 code_types = [go, cpp]
 
-framework_types = [graphql, grpc, go_gin]
+framework_types = [graphql, grpc, go_gin, proto]
 
 http_methods = ['POST', 'GET']
 graphql_methods = ['mutation', 'query']
@@ -29,15 +30,17 @@ code_framework_types[common] =  ['string',      'int32',   'float32', 'bool',   
 code_framework_types[go] =      ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
 code_framework_types[cpp] =     ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
 code_framework_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', '']
-code_framework_types[grpc] =    ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
+code_framework_types[proto] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
 
 code_framework_types[go_gin] = code_framework_types[go]
+code_framework_types[grpc] = code_framework_types[proto]
 
 
 class FieldType:
     def __init__(self, t):
         if t in convert:
             t = convert[t]
+        assert isinstance(t, str)
         self.__type = t
         self.__lower = t.lower()
         if self.__lower == 'time':
@@ -74,8 +77,8 @@ class FieldType:
         return self.get_type(graphql)
 
     @property
-    def grpc(self):
-        return self.get_type(grpc)
+    def proto(self):
+        return self.get_type(proto)
 
     @property
     def name(self):

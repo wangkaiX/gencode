@@ -3,7 +3,7 @@ package main
 
 import (
 	"${package_api}"
-	"${package_service}/app/define"
+	"${package_service_dir}/app/define"
 	"fmt"
 )
 

@@ -3,7 +3,7 @@ package ${package_name}
 
 import "net/http"
 import "github.com/gin-gonic/gin"
-import "${package_service}/app/errno"
+import "${package_service_dir}/app/errno"
 
 % for api in apis:
     % if len(api.req.fields) > 0:

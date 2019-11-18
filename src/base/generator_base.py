@@ -5,8 +5,8 @@
 # from src.common import tool
 # from src.common import doc
 from src.base.attr_base import AttrBase
-from src.go.gin.gin import GoGin
-from src.common import code_type
+# from src.go.gin.gin import GoGin
+# from src.common import code_type
 # from src.common import errno
 # from util.python import util
 
@@ -21,16 +21,7 @@ class GeneratorBase(AttrBase):
         return self.__protocols
 
     def gen_code(self):
-        for protocol in self.__protocols:
-            if code_type.go_gin == protocol.framework_type:
-                generator = GoGin(protocol, **self.kwargs)
-                generator.gen_code()
-            else:
-                print("go语言暂不支持框架[%s]", protocol.framework_type)
-                assert False
-        self.gen_main()
-        self.gen_config()
-        self.gen_errno()
+        assert False
 
     def gen_main(self):
         assert False

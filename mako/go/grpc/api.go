@@ -1,13 +1,13 @@
-package ${grpc_package}
+package ${package_name}
 
 import "golang.org/x/net/context"
-import "${error_package}"
-import protopb "${package_grpc_proto_dir}"
+import "${package_errno_dir}"
+import pb "${package_proto_dir}"
 import "encoding/json"
 
 // ${api.note}
-func ${gen_upper_camel(api.name)}(ctx context.Context, req *protopb.${api.req.type.name}) (resp *protopb.${api.resp.type.name}, err error) {
-	resp = &protopb.${api.resp.type.name}{}
+func ${gen_upper_camel(api.name)}(ctx context.Context, req *pb.${api.req.type.go}) (resp *pb.${api.resp.type.go}, err error) {
+	resp = &pb.${api.resp.type.go}{}
     var ec *errno.Error
 	defer func() {
         if ec == nil {

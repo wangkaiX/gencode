@@ -1,24 +1,24 @@
 syntax = "proto3";
 
-package ${proto_package};
+package ${package_name};
 // 不要修改此文件
 
 service ${grpc_service_name} {
 % for api in apis:
     // ${api.note}
-    rpc ${gen_upper_camel(api.name)}(${api.req.type.name}) returns (${api.resp.type.name}){}
+    rpc ${gen_upper_camel(api.name)}(${api.req.type.proto}) returns (${api.resp.type.proto}){}
 
 % endfor
 }
 
 % for node in nodes:
 // ${node.note}
-message ${node.type.name} {
+message ${node.type.proto} {
     <% 
        members = []
        for member in node.fields + node.nodes:
            members.append(member)
-       members.sort(key=lambda member:member.index)
+       members.sort(key=lambda member:member.grpc_index)
     %>
     % for member in members:
 <%
@@ -28,7 +28,7 @@ message ${node.type.name} {
         repeated = ''
 %>
     // ${member.note}
-    ${repeated}${member.type.name} ${member.name}  = ${member.index};
+    ${repeated}${member.type.proto} ${member.name}  = ${member.grpc_index};
     % endfor
 }
 
@@ -37,7 +37,6 @@ message ${node.type.name} {
 % for enum in enums:
 // ${enum.note}
 enum ${enum.name} {
-    ${enum.option}
     % for i, value in zip(range(0, len(enum.values)), enum.values):
     // ${value.note}
     ${value.value} = ${i};

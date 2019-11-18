@@ -14,7 +14,8 @@ if __name__ == '__main__':
             code_type="go",
             # 接口配置文件路径
             filenames=[
-                "json/api.json5",
+                "json/api_gin.json5",
+                "json/api_grpc.json5",
                 # "json/api_url.json",
                 ],
             service_name='example',
@@ -24,7 +25,7 @@ if __name__ == '__main__':
                 ],
             # error_config_file="json/errno.config",
             # 错误码输出目录
-            errno_out_file=os.path.join(dst_dir, "app", "errno", "errno.go"),
+            errno_dir=os.path.join(dst_dir, "app", "errno"),
             # 项目生成路径
             service_dir=dst_dir,
             # project_start_dir=dst_dir,
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 
             # grpc
             # proto 生成路径
-            grpc_proto_dir=os.path.join(dst_dir, "grpc_pb"),
+            proto_dir=os.path.join(dst_dir, "grpc_pb"),
             # 一些对内的接口目录
             # private_grpc_proto_dir=os.path.join(dst_dir, "private_grpc_pb"),
             # 业务接口生成目录
