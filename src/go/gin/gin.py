@@ -5,16 +5,15 @@ import os
 # from mako.template import Template
 import util.python.util as util
 from src.common import tool
-from src.go.base.go_protocol_generator_base import GoProtocolGeneratorBase
+from src.go.generator import GoGenerator
 # import copy
 
 
-class GoGin(GoProtocolGeneratorBase):
-    def __init__(self, protocol, **kwargs):
-        GoProtocolGeneratorBase.__init__(self, protocol, **kwargs)
-        self.__api_dir = kwargs['go_gin_api_dir']
-        self.__test_dir = os.path.join(self.__api_dir, 'test_gin')
-        self.__gin_mako_dir = os.path.join(self.mako_dir, 'go', 'gin')
+class GoGinGenerator(GoGenerator):
+    def __init__(self, **kwargs):
+        GoGenerator.__init__(self, **kwargs)
+        self.__test_dir = os.path.join(self._test_dir, 'test_gin')
+        self.__gin_mako_dir = os.path.join(self._mako_dir, 'go', 'gin')
 
         self.__api_package_name = os.path.basename(self.__api_dir)
         self.__define_dir = kwargs['go_gin_define_dir']
@@ -27,7 +26,6 @@ class GoGin(GoProtocolGeneratorBase):
         self.gen_define()
         self.gen_router()
         self.gen_init()
-        GoProtocolGeneratorBase.gen_code(self)
 
     def gen_api(self):
         mako_file = os.path.join(self.__gin_mako_dir, 'api.go')

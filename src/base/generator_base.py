@@ -1,33 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# from src.go import errno
-# from src.common import tool
-# from src.common import doc
-from src.base.attr_base import AttrBase
-# from src.go.gin.gin import GoGin
-# from src.common import code_type
-# from src.common import errno
-# from util.python import util
+from src.common.parser import Parser
 
 
-class GeneratorBase(AttrBase):
-    def __init__(self, protocols, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
-        AttrBase.__init__(self, **kwargs)
-        self.__protocols = protocols
-
-    @property
-    def protocols(self):
-        return self.__protocols
-
-    def gen_code(self):
-        assert False
-
-    def gen_main(self):
-        assert False
-
-    def gen_config(self):
-        assert False
-
-    def gen_errno(self):
-        assert False
+class GeneratorBase:
+    def __init__(self, framwork_type, config_files, service_name, errno_configs,
+                 service_dir, mako_dir, gen_server, gen_client, gen_test,
+                 gen_doc, gen_mock):
+        # private
+        self.__config_files = config_files
+        # protected
+        self._framework_type = framwork_type
+        self._service_name = service_name
+        self._errno_configs = errno_configs
+        self._service_dir = service_dir
+        self._mako_dir = mako_dir
+        self._gen_server = gen_server
+        self._gen_client = gen_client
+        self._gen_test = gen_test
+        self._gen_doc = gen_doc
+        self._gen_mock = gen_mock
+        # protocol
+        self._protocols = []
+        for config_file in config_files:
+            self._protocols.append(Parser(config_file).parser())

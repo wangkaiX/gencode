@@ -27,6 +27,7 @@ class Enum:
                 print("有重复的枚举值[%s]", enum_value)
                 assert False
             self.__values.append(enum_value)
+        # 必须要有注释
         self.__note = value_map['note']
 
     @property
@@ -51,5 +52,4 @@ class Enum:
         values = ""
         for value in self.values:
             values += str(value)
-        # print(self.name, values)
-        return "%s %s" % (self.name, values)
+        return "%s:%s" % (self.name, values)

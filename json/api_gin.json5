@@ -1,9 +1,5 @@
 {
-    protocol:{
-        framework_type:"go_gin",
-        gw_url_prefix:"/app/v1/grpc",
-    },
-    "default":{
+    default:{
         resp:{
             code:0,
             msg:"SUCCESS",
@@ -67,7 +63,7 @@
                 "tag1",
                 "tag2",
             ],
-            "doc_tags":[
+            doc_tags:[
                 "doc1",
                 "doc2",
             ],
@@ -323,20 +319,5 @@
                 encoding:"utf8",
             },
         },
-    },
-    errno:{
-        Success:"成功|0",
-        errno_list:[
-            {
-                begin_no:1000,
-                end_no:2000,
-                filename:"errno.config",
-            },
-            {
-                begin_no:2001,
-                end_no:3000,
-                filename:"errno2.config",
-            },
-        ],
-    },
+    }
 }

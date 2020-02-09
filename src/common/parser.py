@@ -25,7 +25,7 @@ class Parser:
             self.__parser_file()
         elif self.fp:
             self.__parser_fp()
-        return self.parser_text()
+        return self._parser_text()
 
     def __parser_file(self):
         self.fp = open(self.filename, "rb")
@@ -33,13 +33,13 @@ class Parser:
 
     def __parser_fp(self):
         self.text = self.fp.read()
-        self.parser_text()
+        self._parser_text()
 
     # @abstractmethod
-    def parser_text(self):
+    def _parser_text(self):
         assert False
 
-    def parser_dict(self):
+    def _parser_dict(self):
         assert False
 
 
@@ -48,7 +48,7 @@ class Json5(Parser):
         Parser.__init__(self, filename, fp, text)
 
     # @abstractmethod
-    def parser_text(self):
+    def _parser_text(self):
         return json5.loads(self.text)
 
 
@@ -57,5 +57,5 @@ class Toml(Parser):
         Parser.__init__(self, filename, fp, text)
 
     # @abstractmethod
-    def parser_text(self):
+    def _parser_text(self):
         return toml.loads(self.text)

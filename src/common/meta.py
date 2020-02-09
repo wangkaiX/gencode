@@ -2,14 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from src.common import tool
-# from src.common import parser
 from src.common import enum_type
-from src.common import code_type
-# from abc import abstractmethod
+from src.common import field_type
 import util.python.util as util
 from src.go.gin import gin as go_gin
-# from src.common.code_type import FieldType
-# import json5
 import copy
 
 
@@ -52,8 +48,10 @@ class Protocol:
                 return True
         return False
 
-    def gen_code_file(self, **kwargs):  # mako_dir, errno_out_file, service_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
-        if self.__framework_type == code_type.go_gin:
+    def gen_code_file(self, **kwargs):
+        # mako_dir, errno_out_file, service_dir,
+        # gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
+        if self.__framework_type == field_type.go_gin:
             gencode = go_gin.GoGin(self, **kwargs)
             gencode.gen_code()
         else:
@@ -78,11 +76,11 @@ class Protocol:
     def __parser_protocol(self, protocol_map):
         self.__framework_type = protocol_map['framework_type']
         tool.assert_framework_type(self.__framework_type)
-        if self.__framework_type == code_type.graphql:
+        if self.__framework_type == field_type.graphql:
             self.__parser_go_graphql(protocol_map)
-        elif self.__framework_type == code_type.grpc:
+        elif self.__framework_type == field_type.grpc:
             self.__parser_go_grpc(protocol_map)
-        elif self.__framework_type == code_type.go_gin:
+        elif self.__framework_type == field_type.go_gin:
             self.__parser_go_gin(protocol_map)
 
     def __parser_api(self, api_map):
@@ -189,12 +187,6 @@ class Api:
         except KeyError:
             pass
             # print("[%s]不存在默认节点" % node_name)
-
-    # def __record_property(self, node):
-    #     if node.has_file:
-    #         self.__has_file = True
-    #     if node.has_time:
-    #         self.__has_time = True
 
     def __parser(self):
         # print(self.__value_map)
@@ -361,26 +353,19 @@ class Api:
 
 
 class Member:
-    # def __init__(self, parent, name, required, note, t, value):
     def __init__(self, parent, name, value_map):
         self.__name, self.__required, self.__note, self.__type = tool.split_ori_name(name)
         if parent:
             self.__full_path = parent.full_path + [self.__name]
-            # parent.__curr_child_index = parent.__curr_child_index + 1
         else:
             self.__full_path = [self.__name]
         self.__grpc_index = None
         self.__parent = parent
         self.__value_map = value_map
-        # if isinstance(attr, str):
-        #     self.__attr = Attr(attr)
-        # elif isinstance(attr, Attr):
-        #     self.__attr = attr
         self.__dimension = tool.get_dimension(value_map)
         if self.__type:
             self.type = self.__type
 
-        # self.__parse_values(value)
         if not self.__note:
             self.__note = self.__name
 
@@ -420,8 +405,8 @@ class Member:
 
     @type.setter
     def type(self, t):
-        assert not isinstance(t, code_type.FieldType)
-        self.__type = code_type.FieldType(t)
+        assert not isinstance(t, field_type.FieldType)
+        self.__type = field_type.FieldType(t)
 
     @property
     def value_map(self):
@@ -450,7 +435,8 @@ class Field(Member):
         return self.value_map
 
     def __str__(self):
-        s = "[%s] [%s] [%s] [%s] [%s] [dim:%s]\n" % (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
+        s = "[%s] [%s] [%s] [%s] [%s] [dim:%s]\n" % \
+                (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
         return s
 
 
@@ -499,14 +485,6 @@ class Node(Member):
     def has_file(self):
         return self.__has_file
 
-    # @property
-    # def md_fields(self):
-    #     return tool.md_nodes2fields(self.nodes) + self.fields
-
-    # @property
-    # def attr(self):
-    #     return self.__attr
-
     def add_member(self, member):
         member = copy.deepcopy(member)
         self.__add_member(member)
@@ -522,9 +500,9 @@ class Node(Member):
             assert False
         self.__curr_child_index += 1
         # print(member.type, type(member.type), type(member))
-        if member.type.is_file:
+        if not self.__has_file and member.type.is_file:
             self.__has_file = True
-        if member.type.is_time:
+        if not self.__has_time and member.type.is_time:
             self.__has_time = True
 
     def add_node(self, node):
@@ -554,7 +532,8 @@ class Node(Member):
         return self.type.name == o.type.name  # and self.__name == o.__name
 
     def __str__(self):
-        s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
+        s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % \
+            (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
         for node in self.nodes:
             s += str(node)
         for field in self.fields:

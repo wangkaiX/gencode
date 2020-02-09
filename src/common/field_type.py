@@ -29,7 +29,7 @@ code_framework_types = {}
 code_framework_types[common] =  ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
 code_framework_types[go] =      ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
 code_framework_types[cpp] =     ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
-code_framework_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', '']
+code_framework_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', None]
 code_framework_types[proto] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
 
 code_framework_types[go_gin] = code_framework_types[go]
@@ -52,8 +52,13 @@ class FieldType:
             assert False
         try:
             index = code_framework_types[common].index(self.__lower)
-            return code_framework_types[code_type][index]
+            t = code_framework_types[code_type][index]
+            if not t:
+                print("[%s]不支持类型[%s]" % (code_type, code_framework_types[common][index]))
+                assert False
+            return t
         except ValueError:
+            # 自定义类型
             return self.__type
 
     @property

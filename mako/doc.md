@@ -15,36 +15,23 @@ ${api.gw_url}
 ${api.method}
 ```
 
-% if api.cookie and len(api.cookie.fields) > 0:
-cookie:
+<%def name="field_list(block, block_name)">
+% if block and len(block.fields) > 0:
+${block_name}:
 |名称|类型|描述|
 |----|----|----|
-% for field in api.cookie.fields:
+% for field in block.fields:
 |${field.name}${"*" if field.required else ""}|${markdown_type(enums, field)}|${markdown_note(enums, field)}|
 % endfor
 % endif
 
-% if api.url_param and len(api.url_param.fields) > 0:
-URL参数:(*为必填项)
-|名称|类型|描述|
-|----|----|----|
-% for field in api.url_param.fields:
-|${field.name}${"*" if field.required else ""}|${markdown_type(enums, field)}|${markdown_note(enums, field)}|
-% endfor
-% endif
+</%def>
 
-% if api.context and len(api.context.fields) > 0:
-HEAD参数:
-|名称|类型|描述|
-|----|----|----|
-% for field in api.context.fields:
-% if field.name in ('x-uid', 'X-UID'):
-<% continue %>
-% endif
-|${field.name}${"*" if field.required else ""}|${markdown_type(enums, field)}|${markdown_note(enums, field)}|
-% endfor
-% endif
+${field_list(api.cookie, "cookie:(*为必填项)")}
 
+${field_list(api.url_param, "URL参数:(*为必填项)")}
+
+${field_list(api.context, "HEAD参数:(*为必填项)")}
 
 % if req and (len(req.fields) + len(req.nodes)) > 0:
 请求参数:(*为必填项)
