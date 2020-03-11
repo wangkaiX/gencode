@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common import tool
-from src.common import enum_type
-from src.common import field_type
+from code_framework.common import tool
+from code_framework.common import enum_type
+from code_framework.common import field_type
 import util.python.util as util
-from src.go.gin import gin as go_gin
+from code_framework.go.gin import gin as go_gin
 import copy
 
 
@@ -52,11 +52,11 @@ class Protocol:
         # mako_dir, errno_out_file, service_dir,
         # gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
         if self.__framework_type == field_type.go_gin:
-            gencode = go_gin.GoGin(self, **kwargs)
-            gencode.gen_code()
+            generator = go_gin.generator(self, **kwargs)
         else:
             print("暂不支持")
             assert False
+        generator.gen_code()
 
     def __parser(self, tree_map):
         self.__parser_protocol(tree_map['protocol'])
@@ -144,24 +144,27 @@ class Api:
         # self.__note = value_map['note']
         self.__value_map = value_map
         self.__default_map = default_map
-        upper_name = util.gen_upper_camel(self.name)
+        upper_name = util.gen_upper_camel(name)
         self.__req = Node(None, upper_name + "Req", self.get_default('req'))
         self.__resp = Node(None, upper_name + "Resp", self.get_default('resp'))
         self.__url_param = Node(None, upper_name + "UrlParam", self.get_default('url_param'))
         self.__context = Node(None, upper_name + "Context", self.get_default('context'))
         self.__cookie = Node(None, upper_name + "Cookie", self.get_default('cookie'))
 
-        self.__url = None
-        self.__gw_url = None
-        self.__url_gw_prefix = None
+        # 本地path
+        self.__url_path = None
+        self.__gw_url_path = None
+        self.__gw_url_prefix = None
         self.__url_suffix = None
         self.__url_prefix = None
+
+        # 如果是http, graphql
         self.__method = None
 
         # 接口对内对外
-        self.__api_tags = None
+        self.__api_tags = []
         # 文档类别(前端，后台)
-        self.__doc_tags = None
+        self.__doc_tags = []
 
         # parser
         self.__parser()
@@ -171,10 +174,12 @@ class Api:
             return default_value
         return self.__default_map[name]
 
+    # go gin 可以传文件
     @property
     def has_file(self):
         return self.__req.has_file
 
+    # 是否要用特殊的时间类型，还是统一时间戳
     @property
     def has_time(self):
         return self.__req.has_time or self.__resp.has_time
@@ -253,11 +258,11 @@ class Api:
         if not self.__url_suffix:
             self.__url_suffix = self.__name
 
-        if not self.__url:
-            self.__url = tool.url_concat(self.__url_prefix, self.__url_suffix)
+        if not self.__url_path:
+            self.__url_path = tool.url_concat(self.__url_prefix, self.__url_suffix)
 
-        if not self.__gw_url:
-            self.__gw_url = tool.url_concat(self.url_gw_prefix, self.__url_prefix, self.__url_suffix)
+        if not self.__gw_url_path:
+            self.__gw_url_path = tool.url_concat(self.url_gw_prefix, self.__url_prefix, self.__url_suffix)
 
     @property
     def cookie(self):

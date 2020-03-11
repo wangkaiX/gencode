@@ -53,11 +53,12 @@ def get_map_value(m, paths, default_value):
     return m
 
 
-def get_all_nodes(nodes):
-    if not isinstance(nodes, list):
-        nodes = [nodes]
+# 将树结构的节点转换成链表形式，合并同类型节点
+def to_nodes(root):
+    assert not isinstance(root, list)
+    # if not isinstance(root, list):
     node_map = {}
-    __get_all_nodes(node_map, nodes)
+    __get_all_nodes(node_map, [root])
     return list(node_map.values())
 
 
@@ -70,7 +71,9 @@ def __get_all_nodes(node_map, nodes):
         __get_all_nodes(node_map, node.nodes)
 
 
+# 合并两个同类型结点
 def merge_node(node_dst, node_from):
+    assert node_dst.type.name == node_from.type.name
     node = copy.deepcopy(node_dst)
     __merge_node(node, node_from)
     return node

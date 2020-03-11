@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from src.common import gen
-from src.common import errno
+from code_framework.common import gen
+from code_framework.common import errno
 
 if __name__ == '__main__':
     go_path = os.environ['GOPATH']
@@ -12,6 +12,7 @@ if __name__ == '__main__':
     # dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             code_type="go",
+            framework="gin",
             # 接口配置文件路径
             filenames=[
                 "json/api_gin.json5",
@@ -59,8 +60,9 @@ if __name__ == '__main__':
             # proto文件中的包名
             proto_package_name="protopb",
 
-            gen_server=True,
             gen_client=None,
+            gen_server=True,
+            # 当生成服务端的时候，才会生成test
             gen_test=True,
             gen_doc=True,
             gen_mock=False,
