@@ -3,7 +3,7 @@
 
 from code_framework.common import tool
 from code_framework.common import enum_type
-from code_framework.common import field_type
+from code_framework.common import type_set
 from code_framework.common import protocol_parser
 # from code_framework.common import generator
 import util.python.util as util
@@ -373,8 +373,8 @@ class Member:
 
         # 未完善
         # if self._type:
-        #    assert not isinstance(self._type, field_type.FieldType)
-        # self._type = field_type.FieldType(self._type)
+        #    assert not isinstance(self._type, type_set.FieldType)
+        # self._type = type_set.FieldType(self._type)
 
         if not self._note:
             self._note = self._name
@@ -402,8 +402,8 @@ class Member:
 
     @type.setter
     def type(self, t):
-        assert not isinstance(t, field_type.FieldType)
-        self._type = field_type.FieldType(t)
+        assert not isinstance(t, type_set.FieldType)
+        self._type = type_set.FieldType(t)
 
     @property
     def value_map(self):
@@ -419,7 +419,7 @@ class Field(Member):
         Member.__init__(self, father, name, value_map)
         if not self._type:
             self._type = util.get_base_type(value_map)
-        self._type = field_type.FieldType(self._type)
+        self._type = type_set.FieldType(self._type)
 
     def __eq__(self, o):
         return self._name == o._name
@@ -442,7 +442,7 @@ class Node(Member):
         assert tool.contain_dict(value_map)
         if not self._type:
             self._type = util.gen_upper_camel(self._name)
-        self._type = field_type.FieldType(self._type)
+        self._type = type_set.FieldType(self._type)
 
         self.__curr_child_index = 1
         self.__nodes = []

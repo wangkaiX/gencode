@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from code_framework.common import tool
-from code_framework.common import field_type
+from code_framework.common import type_set
 from code_framework.cpp.generator import GeneratorManager as cppGM
 
 
@@ -31,9 +31,9 @@ class GeneratorManager:
 
     def gen(self):
         for protocol in self.__protocols:
-            if field_type.cpp == self.__code_type:
+            if type_set.cpp == self.__code_type:
                 self.__gen_cpp(protocol)
 
     def __gen_cpp(self, protocol):
-        gm = cppGM(protocol)
+        gm = cppGM(self.__mako_dir, protocol)
         gm.gen()

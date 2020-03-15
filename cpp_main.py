@@ -5,7 +5,7 @@ import os
 from code_framework.common import generator
 from code_framework.common import errno
 from code_framework.common import meta
-from code_framework.common import field_type
+from code_framework.common import type_set
 
 if __name__ == '__main__':
     dst_dir = os.path.join("example", "cpp", "src")
@@ -27,7 +27,8 @@ if __name__ == '__main__':
 
     protocol_websocket = meta.CodeFramework(
             service_name='example',
-            framework=field_type.Cpp.beast_websocket_async,
+            framework=type_set.Cpp.beast_websocket_async,
+            adapt_type=type_set.CppAdapt.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
             gen_client=True,

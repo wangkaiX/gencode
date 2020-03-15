@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # import os
-from code_framework.common import field_type
+from code_framework.common import type_set
 from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
@@ -11,12 +11,13 @@ from code_framework.cpp.beast_websocket_async import generator as beast_websocke
 
 
 class GeneratorManager:
-    def __init__(self, protocol):
+    def __init__(self, protocol, mako_dir):
+        self.__mako_dir = mako_dir
         self.__protocol = protocol
 
     def gen(self):
-        if field_type.Cpp.beast_websocket_async == self.__protocol.framework:
-            gen = beast_websocket_async_generator.Generator(self.__protocol)
+        if type_set.Cpp.beast_websocket_async == self.__protocol.framework:
+            gen = beast_websocket_async_generator.Generator(self.__mako_dir, self.__protocol)
             gen.gen()
 
 
