@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-from data_type import err_code, err_msg, gen_title_name
-from mako.template import Template
-import util.python.util as util
-from read_config import gen_request_response
+# import os
+from code_framework.common import field_type
+from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
+# from data_type import err_code, err_msg, gen_title_name
+# from mako.template import Template
+# import util.python.util as util
+# from read_config import gen_request_response
 
 
+class GeneratorManager:
+    def __init__(self, protocol):
+        self.__protocol = protocol
+
+    def gen(self):
+        if field_type.Cpp.beast_websocket_async == self.__protocol.framework:
+            gen = beast_websocket_async_generator.Generator(self.__protocol)
+            gen.gen()
+
+
+'''
 def gen_header(struct_info, mako_dir, defines_out_dir):
     include_files = []
     for field in struct_info.fields():
@@ -140,3 +153,4 @@ def gen_code(api_dir, filenames, mako_dir, defines_out_dir, server_out_dir, clie
         gen_servers(req_resp_list, reqs, resps, mako_dir, server_out_dir)
     if client is not None:
         gen_client(client_out_file, req_resp_list, mako_dir)
+'''

@@ -4,31 +4,50 @@
 from code_framework.common import tool
 from code_framework.common import enum_type
 from code_framework.common import field_type
+from code_framework.common import protocol_parser
+# from code_framework.common import generator
 import util.python.util as util
-from code_framework.go.gin import gin as go_gin
+# from code_framework.go.gin import gin as go_gin
 import copy
 
 
-class Protocol:
-    def __init__(self, tree_map):
-        self.__framework_type = None
+class CodeFramework:
+    def __init__(self, service_name, framework, adapt_type, protocol_filename,
+                 gen_client, gen_server, gen_doc, gen_test,
+                 gen_mock,
+                 ):
+        self.__service_name = service_name
+        self.__framework = framework
+        self.__adapt_type = adapt_type
+        self.__protocol_filename = protocol_filename
+        self.__gen_client = gen_client
+        self.__gen_server = gen_server
+        self.__gen_doc = gen_doc
+        self.__gen_test = gen_test
+
+        parser = protocol_parser.Parser(protocol_filename)
+        self.__tree_map = parser.parse()
         self.__apis = []
         self.__config = None
         self.__default_map = None
         self.__enums = []
-        self.__imports = []
+        # self.__imports = []
+        # 所以的结构类型
         self.__nodes = []
-        self.__node_map = {}
-        # tree_map = parser.Json5(filename=filename).parser()
+        # self.__node_map = {}
 
-        self.__method = None
+        # self.__method = None
 
         # parser
-        self.__parser(tree_map)
+        self.__parser(self.__tree_map)
 
     @property
-    def framework_type(self):
-        return self.__framework_type
+    def framework(self):
+        return self.__framework
+
+    @property
+    def adapt_type(self):
+        return self.__adapt_type
 
     @property
     def nodes(self):
@@ -51,37 +70,23 @@ class Protocol:
     def gen_code_file(self, **kwargs):
         # mako_dir, errno_out_file, service_dir,
         # gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
-        if self.__framework_type == field_type.go_gin:
-            generator = go_gin.generator(self, **kwargs)
-        else:
-            print("暂不支持")
-            assert False
-        generator.gen_code()
+        # generatorManager = generator.GeneratorManager(self.__code_type, self.__framework_type, **kwargs)
+        # generatorManager.gen()
+        pass
 
     def __parser(self, tree_map):
-        self.__parser_protocol(tree_map['protocol'])
         # self.__parser_import(tree_map['import'])
         self.__parser_default(tree_map['default'])
         self.__parser_enum(tree_map['enum'])
         self.__parser_config('config', tree_map)
         self.__parser_api(tree_map['api'])
-        self.__parser_all_api_nodes()
+        self.__parser_nodes()
 
-    def __parser_all_api_nodes(self):
+    def __parser_nodes(self):
         nodes = []
         for api in self.apis:
             nodes += [api.req, api.resp, api.context, api.url_param, api.cookie]
-        self.__nodes = tool.get_all_nodes(nodes)
-
-    def __parser_protocol(self, protocol_map):
-        self.__framework_type = protocol_map['framework_type']
-        tool.assert_framework_type(self.__framework_type)
-        if self.__framework_type == field_type.graphql:
-            self.__parser_go_graphql(protocol_map)
-        elif self.__framework_type == field_type.grpc:
-            self.__parser_go_grpc(protocol_map)
-        elif self.__framework_type == field_type.go_gin:
-            self.__parser_go_gin(protocol_map)
+        self.__nodes = tool.to_nodes(nodes)
 
     def __parser_api(self, api_map):
         for k, v in api_map.items():
@@ -174,7 +179,7 @@ class Api:
             return default_value
         return self.__default_map[name]
 
-    # go gin 可以传文件
+    # 有些通信方式可以传文件，如go gin [http] 可以传文件
     @property
     def has_file(self):
         return self.__req.has_file
@@ -252,8 +257,8 @@ class Api:
         if not self.__url_prefix:
             self.__url_prefix = tool.get_map_value(self.__default_map, 'url_prefix', '')
 
-        if not self.__url_gw_prefix:
-            self.__url_gw_prefix = tool.get_map_value(self.__default_map, 'url_gw_prefix', '')
+        if not self.__gw_url_prefix:
+            self.__gw_url_prefix = tool.get_map_value(self.__default_map, 'url_gw_prefix', '')
 
         if not self.__url_suffix:
             self.__url_suffix = self.__name
@@ -262,7 +267,7 @@ class Api:
             self.__url_path = tool.url_concat(self.__url_prefix, self.__url_suffix)
 
         if not self.__gw_url_path:
-            self.__gw_url_path = tool.url_concat(self.url_gw_prefix, self.__url_prefix, self.__url_suffix)
+            self.__gw_url_path = tool.url_concat(self.__gw_url_prefix, self.__url_prefix, self.__url_suffix)
 
     @property
     def cookie(self):
@@ -274,19 +279,15 @@ class Api:
 
     @property
     def api_tags(self):
-        if self.__api_tags:
-            return self.__api_tags
-        return []
+        return self.__api_tags
 
-    @api_tags.setter
-    def api_tags(self, value):
-        self.__api_tags = value
+    # @api_tags.setter
+    # def api_tags(self, value):
+    #     self.__api_tags = value
 
     @property
     def doc_tags(self):
-        if self.__doc_tags:
-            return self.__doc_tags
-        return []
+        return self.__doc_tags
 
     # @doc_tag.setter
     # def doc_tags(self, value):
@@ -325,12 +326,12 @@ class Api:
         self.__url = v
 
     @property
-    def url_gw_prefix(self):
-        return self.__url_gw_prefix
+    def gw_url_prefix(self):
+        return self.__gw_url_prefix
 
-    @url_gw_prefix.setter
-    def url_gw_prefix(self, v):
-        self.__url_gw_prefix = v
+    @gw_url_prefix.setter
+    def gw_url_prefix(self, v):
+        self.__gw_url_prefix = v
 
     @property
     def url_param(self):
@@ -359,106 +360,78 @@ class Api:
 
 class Member:
     def __init__(self, parent, name, value_map):
-        self.__name, self.__required, self.__note, self.__type = tool.split_ori_name(name)
+        self._name, self._required, self._note, self._type = tool.split_ori_name(name)
         if parent:
-            self.__full_path = parent.full_path + [self.__name]
+            self._full_path = parent._full_path + [self._name]
         else:
-            self.__full_path = [self.__name]
-        self.__grpc_index = None
-        self.__parent = parent
-        self.__value_map = value_map
-        self.__dimension = tool.get_dimension(value_map)
-        if self.__type:
-            self.type = self.__type
+            self._full_path = [self._name]
+        print("name[%s], path:%s" % (self._name, self._full_path))
+        self._grpc_index = None
+        self._parent = parent
+        self._value_map = value_map
+        self._dimension = tool.get_dimension(value_map)
 
-        if not self.__note:
-            self.__note = self.__name
+        # 未完善
+        # if self._type:
+        #    assert not isinstance(self._type, field_type.FieldType)
+        # self._type = field_type.FieldType(self._type)
 
-    @property
-    def full_path(self):
-        return self.__full_path
+        if not self._note:
+            self._note = self._name
 
     @property
     def grpc_index(self):
-        assert self.__grpc_index is not None
-        return self.__grpc_index
-
-    @grpc_index.setter
-    def grpc_index(self, value):
-        assert isinstance(value, int)
-        self.__grpc_index = value
+        assert self._grpc_index is not None
+        return self._grpc_index
 
     @property
     def name(self):
-        return self.__name
-
-    @name.setter
-    def name(self, name):
-        self.__name = name
+        return self._name
 
     @property
     def required(self):
-        return self.__required
+        return self._required
 
     @property
     def note(self):
-        return self.__note
+        return self._note
 
     @property
     def type(self):
-        return self.__type
+        return self._type
 
     @type.setter
     def type(self, t):
         assert not isinstance(t, field_type.FieldType)
-        self.__type = field_type.FieldType(t)
+        self._type = field_type.FieldType(t)
 
     @property
     def value_map(self):
-        return self.__value_map
-
-    @value_map.setter
-    def value_map(self, v):
-        self.__value_map = v
+        return self._value_map
 
     @property
     def dimension(self):
-        return self.__dimension
+        return self._dimension
 
 
 class Field(Member):
     def __init__(self, father, name, value_map):
         Member.__init__(self, father, name, value_map)
-        if not self.type:
-            self.type = util.get_base_type(value_map)
+        if not self._type:
+            self._type = util.get_base_type(value_map)
+        self._type = field_type.FieldType(self._type)
 
     def __eq__(self, o):
-        return self.name == o.name
+        return self._name == o._name
 
     @property
     def value(self):
-        return self.value_map
+        return self._value_map
 
     def __str__(self):
         s = "[%s] [%s] [%s] [%s] [%s] [dim:%s]\n" % \
-                (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
+                (self._name, self._required, self._note, self._type, self._value_map, self._dimension)
         return s
-
-
-'''
-class Attr:
-    __type_list = ('req', 'resp', 'enum', 'api', 'config', 'url_param', 'context', 'cookie')
-
-    def __init__(self, _type):
-        if _type not in Attr.__type_list:
-            print(_type)
-            assert False
-        self.__type = _type
-
-    def __getattr__(self, name):
-        assert 'is_' == name[:3] and name[3:] in Attr.__type_list
-        return name == ('is_' + self.__type)
-'''
 
 
 class Node(Member):
@@ -467,18 +440,20 @@ class Node(Member):
             value_map = {}
         Member.__init__(self, parent, name, value_map)
         assert tool.contain_dict(value_map)
-        if not self.type:
-            self.type = util.gen_upper_camel(self.name)
+        if not self._type:
+            self._type = util.gen_upper_camel(self._name)
+        self._type = field_type.FieldType(self._type)
 
         self.__curr_child_index = 1
         self.__nodes = []
         self.__fields = []
         self.__has_time = False
         self.__has_file = False
+        self.__member_names = set()
 
         self.parser_children()
-        self.value_map = tool.dict_key_clean(self.value_map)
-        for member in self.fields + self.nodes:
+        self._value_map = tool.dict_key_clean(self._value_map)
+        for member in self.__fields + self.__nodes:
             if member.type.is_file:
                 del self.value_map[member.name]
 
@@ -495,7 +470,7 @@ class Node(Member):
         self.__add_member(member)
 
     def __add_member(self, member):
-        member.grpc_index = self.__curr_child_index
+        member._grpc_index = self.__curr_child_index
         if isinstance(member, Node):
             self.add_node(member)
         elif isinstance(member, Field):
@@ -504,6 +479,11 @@ class Node(Member):
             print("Unknown Type:", member)
             assert False
         self.__curr_child_index += 1
+        if member.name in self.__member_names:
+            print("类型[%s]有重复的字段名[%s]" % (self.__type.name, member.name))
+            assert False
+        else:
+            self.__member_names.add(member.name)
         # print(member.type, type(member.type), type(member))
         if not self.__has_file and member.type.is_file:
             self.__has_file = True
@@ -511,21 +491,21 @@ class Node(Member):
             self.__has_time = True
 
     def add_node(self, node):
-        if node.name not in [n.name for n in self.nodes]:
+        if node._name not in [n.name for n in self.nodes]:
             self.nodes.append(node)
         else:
-            print("重复的字段名:", node.name)
+            print("重复的字段名:", node._name)
             assert False
 
     def add_field(self, field):
         if field not in self.fields:
             self.fields.append(field)
         else:
-            print("重复的字段名:", field.name)
+            print("重复的字段名:", field._name)
             assert False
 
     def parser_children(self):
-        value = tool.get_value(self.value_map)
+        value = tool.get_value(self._value_map)
         for k, v in value.items():
             if tool.contain_dict(v):
                 member = Node(self, k, v)
@@ -538,7 +518,7 @@ class Node(Member):
 
     def __str__(self):
         s = "[%s] [%s] [%s] [%s] [%s] [%s]\n" % \
-            (self.name, self.required, self.note, self.type, self.value_map, self.dimension)
+            (self._name, self._required, self._note, self._type, self._value_map, self._dimension)
         for node in self.nodes:
             s += str(node)
         for field in self.fields:

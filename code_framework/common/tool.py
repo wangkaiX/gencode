@@ -7,7 +7,7 @@ import json
 import copy
 
 # from src.common import meta
-from src.common import code_type
+from code_framework.common import type_set
 from mako.template import Template
 
 
@@ -55,10 +55,13 @@ def get_map_value(m, paths, default_value):
 
 # 将树结构的节点转换成链表形式，合并同类型节点
 def to_nodes(root):
-    assert not isinstance(root, list)
-    # if not isinstance(root, list):
+    # assert not isinstance(root, list)
+    if not isinstance(root, list):
+        nodes = [root]
+    else:
+        nodes = root
     node_map = {}
-    __get_all_nodes(node_map, [root])
+    __get_all_nodes(node_map, nodes)
     return list(node_map.values())
 
 
@@ -73,7 +76,9 @@ def __get_all_nodes(node_map, nodes):
 
 # 合并两个同类型结点
 def merge_node(node_dst, node_from):
-    assert node_dst.type.name == node_from.type.name
+    if node_dst.type.name != node_from.type.name and node_from.type.name not in ["Req", "Resp"]:
+        print(node_dst.type.name, node_from.type.name)
+        assert False
     node = copy.deepcopy(node_dst)
     __merge_node(node, node_from)
     return node
@@ -93,26 +98,33 @@ def __merge_node(node_dst, node_from):
 
 
 def assert_http_method(method):
-    if method not in code_type.http_methods:
-        print("http 只支持[%s]", code_type.http_methods)
+    if method not in type_set.http_methods:
+        print("http 只支持[%s]", type_set.http_methods)
         assert False
 
 
 def assert_graphql_method(method):
-    if method not in code_type.graphql_methods:
-        print("graphql 只支持[%s]", code_type.graphql_methods)
+    if method not in type_set.graphql_methods:
+        print("graphql 只支持[%s]", type_set.graphql_methods)
         assert False
 
 
-def assert_code_type(t):
-    if t not in code_type.code_types:
-        print("暂时支持的编程语言[%s]", code_type.code_types)
+def assert_field_type(t):
+    if t not in type_set.field_types:
+        print("暂时支持的编程语言[%s]", type_set.field_types)
         assert False
 
 
-def assert_framework_type(t):
-    if t not in code_type.framework_types:
-        print("暂时支持的框架类型[%s]", code_type.framework_types)
+def assert_adapt_type(code_type, adapt_type):
+    if code_type not in type_set.code_adapt_types and adapt_type not in type_set.code_adapt_types[code_type]:
+        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_adapt_types, code_type, adapt_type))
+        assert False
+
+
+def assert_framework_type(code_type, framework):
+    # print(code_type, framework, type_set.code_framework_types)
+    if code_type not in type_set.code_framework_types and framework not in type_set.code_framework_types[code_type]:
+        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_framework_types, code_type, framework))
         assert False
 
 

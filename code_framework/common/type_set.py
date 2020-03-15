@@ -18,22 +18,36 @@ grpc = 'grpc'
 go_gin = 'go_gin'
 common = 'common'
 
-code_types = [go, cpp]
 
-framework_types = [graphql, grpc, go_gin, proto]
+class Cpp:
+    beast_websocket_async = 'beast_websocket_async'
+    asio_tcp_async = 'asio_tcp_async'
+
+
+class CppAdapt:
+    nlohmann_json = 'nlohmann_json'
+    rapid_json = 'rapid_json'
+    binary = 'binary'
+
+
+code_framework_types = {}
+code_framework_types[cpp] = [Cpp.beast_websocket_async, Cpp.asio_tcp_async]
+
+code_adapt_types = {}
+code_adapt_types[cpp] = [CppAdapt.binary, CppAdapt.rapid_json, CppAdapt.binary]
 
 http_methods = ['POST', 'GET']
 graphql_methods = ['mutation', 'query']
 
-code_framework_types = {}
-code_framework_types[common] =  ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
-code_framework_types[go] =      ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
-code_framework_types[cpp] =     ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
-code_framework_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', None]
-code_framework_types[proto] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
+code_types = {}
+code_types[common] =  ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
+code_types[go] =      ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
+code_types[cpp] =     ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
+code_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', None]
+code_types[proto] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
 
-code_framework_types[go_gin] = code_framework_types[go]
-code_framework_types[grpc] = code_framework_types[proto]
+code_types[go_gin] = code_types[go]
+code_types[grpc] = code_types[proto]
 
 
 class FieldType:
@@ -47,14 +61,14 @@ class FieldType:
             print("warning!!! time类型, 最好使用int64")
 
     def get_type(self, code_type):
-        if code_type not in code_framework_types.keys():
+        if code_type not in code_types.keys():
             print("不支持的编程语言[%s]" % code_type)
             assert False
         try:
-            index = code_framework_types[common].index(self.__lower)
-            t = code_framework_types[code_type][index]
+            index = code_types[common].index(self.__lower)
+            t = code_types[code_type][index]
             if not t:
-                print("[%s]不支持类型[%s]" % (code_type, code_framework_types[common][index]))
+                print("[%s]不支持类型[%s]" % (code_type, code_types[common][index]))
                 assert False
             return t
         except ValueError:

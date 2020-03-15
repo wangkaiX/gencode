@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common import tool
+from code_framework.common import tool
 from util.python import util
 
 
@@ -35,6 +35,7 @@ class ErrnoGen:
         self.__errnos = []
         # self.__unique_errno_set = set()
 
+    # 返回错误码列表[code msg no]
     @property
     def errnos(self):
         if not self.__errnos:

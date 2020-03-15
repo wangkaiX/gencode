@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common import tool
+from code_framework.common import tool
 
 
 class EnumValue:
