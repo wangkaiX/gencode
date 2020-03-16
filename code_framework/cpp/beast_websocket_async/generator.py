@@ -8,20 +8,5 @@ class Generator:
         self.__mako_dir = os.path.join(mako_dir, 'cpp', 'websocket')
         self.__protocol = protocol
 
-    def gen(self):
-        pass
-
-    def __gen_init(self):
-        pass
-
-    def __gen_network_adapt(self):
-        pass
-
-    def __gen_network(self):
-        pass
-
-    def __gen_api(self):
-        pass
-
-    def __gen_types(self):
+    def _gen_network_adapt(self):
         pass

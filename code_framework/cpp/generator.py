@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# import os
+import os
 from code_framework.common import type_set
-from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
+from code_framework.common import tool
+# from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
 # import util.python.util as util
@@ -11,14 +12,29 @@ from code_framework.cpp.beast_websocket_async import generator as beast_websocke
 
 
 class GeneratorManager:
-    def __init__(self, mako_dir, protocol):
-        self.__mako_dir = mako_dir
+    def __init__(self, mako_dir, service_dir, protocol):
+        # xxx/mako/cpp
+        self.__mako_dir = os.path.join(mako_dir, 'cpp')
+        self.__service_dir = service_dir
         self.__protocol = protocol
 
     def gen(self):
         if type_set.Cpp.beast_websocket_async == self.__protocol.framework:
-            gen = beast_websocket_async_generator.Generator(self.__mako_dir, self.__protocol)
-            gen.gen()
+            pass
+            # gen = beast_websocket_async_generator.Generator(self.__mako_dir, self.__protocol)
+            # gen.gen()
+
+        # types
+        self.__gen_types()
+
+    def __gen_types(self):
+        mako_file = os.path.join(self.__mako_dir, 'types.h')
+        out_file = os.path.join(self.__service_dir, 'include', 'types.h')
+        std_includes = ['vector']
+        tool.gen_code_file(mako_file, out_file,
+                           nodes=self.__protocol.nodes,
+                           std_includes=std_includes,
+                           )
 
 
 '''

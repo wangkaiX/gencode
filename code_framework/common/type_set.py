@@ -84,6 +84,10 @@ class FieldType:
         return self.__lower == 'file'
 
     @property
+    def is_string(self):
+        return self.__lower == 'string'
+
+    @property
     def go(self):
         return self.get_type(go)
 
