@@ -11,7 +11,7 @@ from code_framework.cpp.beast_websocket_async import generator as beast_websocke
 
 
 class GeneratorManager:
-    def __init__(self, protocol, mako_dir):
+    def __init__(self, mako_dir, protocol):
         self.__mako_dir = mako_dir
         self.__protocol = protocol
 

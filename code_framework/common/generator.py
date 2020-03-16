@@ -35,5 +35,5 @@ class GeneratorManager:
                 self.__gen_cpp(protocol)
 
     def __gen_cpp(self, protocol):
-        gm = cppGM(self.__mako_dir, protocol)
+        gm = cppGM(mako_dir=self.__mako_dir, protocol=protocol)
         gm.gen()
