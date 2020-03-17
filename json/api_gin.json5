@@ -1,4 +1,5 @@
 {
+    command_name:"type",
     default:{
         resp:{
             code:0,
@@ -59,6 +60,7 @@
     },
     api:{
         DataSourceInfoList:{
+            command_code:0x1000,
             api_tags:[
                 "tag1",
                 "tag2",
@@ -85,6 +87,7 @@
         },
         DataSourceTableList:{
             note:"单个数据源的数据列表",
+            command_code:0x1001,
             req:{
                 user_id:"uid123213",
                 data_source_id:"testds001",
@@ -113,6 +116,7 @@
         },
         AccreditTableList:{
             note:"用户已授权数据列表",
+            command_code:0x1002,
             req:{
                 user_id:"uid02npf2f",
             },
@@ -142,6 +146,7 @@
             },
         },
         ApplyTable:{
+            command_code:0x1003,
             note:"申请数据源数据",
             req:{
                 "user_id|Y":"test001",
@@ -157,6 +162,7 @@
             },
         },
         UpdateApplyTable:{
+            command_code:0x1004,
             note:"更新数据表审核结果",
             req:{
                 apply_id:"ap12903-12j",
@@ -165,6 +171,7 @@
             },
         },
         QueryApplyTableList:{
+            command_code:0x1005,
             note:"查询数据审核结果",
             req:{
                 user_id:"uid01dfpjf",
@@ -188,6 +195,7 @@
             },
         },
         ApplyResultData:{
+            command_code:0x1006,
             note:"申请结果审核",
             req:{
                 data_source_id:"tmp_resource_id",
@@ -203,6 +211,7 @@
             },
         },
         UpdateApplyResultData:{
+            command_code:0x1007,
             note:"结果审核结果通知",
             req:{
                 apply_id:"apr5jtexcbaors01",
@@ -213,6 +222,7 @@
         },
         QueryApplyResultList:{
             note:"查询结果审核结果",
+            command_code:0x1008,
             req:{
                 user_id:"test001",
                 apply_id:"",
@@ -236,6 +246,7 @@
         },
         SyncDataSourceTable:{
             note:"同步数据源表信息到主控区",
+            command_code:0x1009,
             req:{
                 "table|||TableInfo":{
                     table_id:"testtb001",
@@ -262,6 +273,7 @@
             },
         },
         SyncDataSourceTableStrategy:{
+            command_code:0x10010,
             note:"同步数据源表策略",
             req:{
                 "data_source_id|Y":"ds21313",
@@ -273,6 +285,7 @@
             },
         },
         SyncDataSourceTableSample:{
+            command_code:0x10011,
             note:"同步数据源样例数据",
             req:{
                 data_source_id:"tmp_resource_id",
@@ -281,6 +294,7 @@
             },
         },
         SyncUserSandboxInfo:{
+            command_code:0x10012,
             note:"同步用户沙箱映射关系",
             req:{
                 "user|Y||UserInfo":{
@@ -297,6 +311,7 @@
             },
         },
         ResultFileList:{
+            command_code:0x10013,
             note:"结果文件列表",
             req:{
                 user_id:"test001",

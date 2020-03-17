@@ -10,6 +10,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+/*
 
 class AdaptBase
 {
@@ -19,6 +20,7 @@ public:
         return std::string((const char*)buffer.data().data(), buffer.size());
     }
 };
+*/
 
 void
 fail(boost::beast::error_code ec, char const* what)
@@ -236,6 +238,7 @@ private:
 };
 
 //------------------------------------------------------------------------------
+/*
 
 int main(int argc, char* argv[])
 {
@@ -272,3 +275,4 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+*/

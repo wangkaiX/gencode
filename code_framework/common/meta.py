@@ -42,6 +42,10 @@ class CodeFramework:
         self.__parser(self.__tree_map)
 
     @property
+    def command_name(self):
+        return self.__tree_map["command_name"]
+
+    @property
     def framework(self):
         return self.__framework
 
@@ -173,6 +177,11 @@ class Api:
 
         # parser
         self.__parser()
+
+    @property
+    def command_code(self):
+        # print(self.__value_map)
+        return self.__value_map["command_code"]
 
     def get_default(self, name, default_value={}):
         if name not in self.__default_map.keys():

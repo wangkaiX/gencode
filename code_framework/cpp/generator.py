@@ -4,7 +4,7 @@
 import os
 from code_framework.common import type_set
 from code_framework.common import tool
-# from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
+from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
 # import util.python.util as util
@@ -20,16 +20,20 @@ class GeneratorManager:
 
     def gen(self):
         if type_set.Cpp.beast_websocket_async == self.__protocol.framework:
-            pass
-            # gen = beast_websocket_async_generator.Generator(self.__mako_dir, self.__protocol)
-            # gen.gen()
+            mako_dir = os.path.join(self.__mako_dir, 'beast_websocket_async')
+            generator = beast_websocket_async_generator.Generator(mako_dir=mako_dir,
+                                                                  service_dir=self.__service_dir,
+                                                                  protocol=self.__protocol,
+                                                                  )
+            generator.gen()
 
         # types
         self.__gen_types()
+        self.__gen_apis()
 
     def __gen_types(self):
         mako_file = os.path.join(self.__mako_dir, 'types.h')
-        out_file = os.path.join(self.__service_dir, 'include', 'types.h')
+        out_file = os.path.join(self.__service_dir, 'service_api', 'types.h')
         std_includes = ['vector']
         for enum in self.__protocol.enums:
             print(enum)
@@ -40,6 +44,22 @@ class GeneratorManager:
                            std_includes=std_includes,
                            enums=self.__protocol.enums,
                            )
+
+    def __gen_apis(self):
+        # header
+        mako_file = os.path.join(self.__mako_dir, 'apis.h')
+        out_file = os.path.join(self.__service_dir, 'service_api', 'service_api.h')
+        tool.gen_code_file(mako_file, out_file,
+                           apis=self.__protocol.apis,
+                           )
+
+        mako_file = os.path.join(self.__mako_dir, 'api.cpp')
+        for api in self.__protocol.apis:
+            out_file = os.path.join(self.__service_dir, 'service_api', api.name + '.cpp')
+            if not os.path.exists(out_file):
+                tool.gen_code_file(mako_file, out_file,
+                                   api=api,
+                                   )
 
 
 '''
