@@ -258,14 +258,14 @@
                 filename:"path",
             },
             resp:{
-                "result_file|||file":"",
+                "result_file|||":"",
             },
         },
         SyncDataSourceTableStrategy:{
             note:"同步数据源表策略",
             req:{
-                data_source_id:"ds21313",
-                table_id:"tb213123",
+                "data_source_id|Y":"ds21313",
+                "table_id|Y":"tb213123",
                 user_id_list:[
                     "uid12321",
                     "usd23213",
@@ -283,7 +283,7 @@
         SyncUserSandboxInfo:{
             note:"同步用户沙箱映射关系",
             req:{
-                "user|||UserInfo":{
+                "user|Y||UserInfo":{
                     user_id:"uid12321",
                     user_name:"沙箱用户",
                     sftp_ip:"0.0.0.0",

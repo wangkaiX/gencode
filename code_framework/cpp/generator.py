@@ -31,9 +31,14 @@ class GeneratorManager:
         mako_file = os.path.join(self.__mako_dir, 'types.h')
         out_file = os.path.join(self.__service_dir, 'include', 'types.h')
         std_includes = ['vector']
+        for enum in self.__protocol.enums:
+            print(enum)
+            for value in enum.values:
+                print(value)
         tool.gen_code_file(mako_file, out_file,
                            nodes=self.__protocol.nodes,
                            std_includes=std_includes,
+                           enums=self.__protocol.enums,
                            )
 
 

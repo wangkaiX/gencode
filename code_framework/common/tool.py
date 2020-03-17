@@ -61,17 +61,34 @@ def to_nodes(root):
     else:
         nodes = root
     node_map = {}
-    __get_all_nodes(node_map, nodes)
-    return list(node_map.values())
+    node_list = []
+    __get_all_nodes(node_map, node_list, nodes)
+
+    rl = []
+    index = 0
+    while len(node_map) > 0:
+        print(len(node_map))
+        node = node_list[index]
+        index = index + 1
+        if node.type.name in node_map:
+            rl.append(node)
+            del node_map[node.type.name]
+
+    return rl
 
 
-def __get_all_nodes(node_map, nodes):
+def __get_all_nodes(node_map, node_list, nodes):
     for node in nodes:
         if node.type.name in node_map.keys():
+            # 说明之前之后都有相应的结构体引用，要尽量声明在前
             node_map[node.type.name] = merge_node(node_map[node.type.name], node)
+            # node = node_map[node.type.name]
+            # del node_map[node.type.name]
+            # node_map[node_type.name] = node
         else:
             node_map[node.type.name] = node
-        __get_all_nodes(node_map, node.nodes)
+        node_list.insert(0, node_map[node.type.name])
+        __get_all_nodes(node_map, node_list, node.nodes)
 
 
 # 合并两个同类型结点
