@@ -17,8 +17,8 @@ if __name__ == '__main__':
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
             # 项目生成路径
             service_dir=dst_dir,
-            # 错误码配置文件
             errno_configs=[
+                # 错误码配置文件
                 errno.ErrnoConfig("json/errno.config", 1000, 2000),
                 ],
             # 错误码输出目录
@@ -31,6 +31,8 @@ if __name__ == '__main__':
             adapt_type=type_set.CppAdapt.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
+            heartbeat_interval_second=5,
+            heartbeat_loss_max=3,
             gen_client=True,
             gen_server=True,
             gen_test=True,
