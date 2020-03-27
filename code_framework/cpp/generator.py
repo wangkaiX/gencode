@@ -30,6 +30,18 @@ class GeneratorManager:
         # types
         self.__gen_types()
         self.__gen_apis()
+        self.__gen_init()
+        self.__gen_main()
+
+    def __gen_main(self):
+        mako_file = os.path.join(self.__mako_dir, 'main.cpp')
+        out_file = os.path.join(self.__service_dir, 'main', 'main.cpp')
+        tool.gen_code_file(mako_file, out_file,
+                           apis=self.__protocol.apis,
+                           )
+
+    def __gen_init(self):
+        pass
 
     def __gen_types(self):
         mako_file = os.path.join(self.__mako_dir, 'types.h')
