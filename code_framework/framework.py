@@ -11,15 +11,19 @@ import util.python.util as util
 import copy
 
 
-class CodeFramework:
-    def __init__(self, service_name, framework, adapt_type, protocol_filename,
+class Framework:
+    def __init__(self, service_name, framework, adapt, protocol_filename,
+                 heartbeat_interval_second,
+                 heartbeat_miss_max,
                  gen_client, gen_server, gen_doc, gen_test,
                  gen_mock,
                  ):
         self.__service_name = service_name
         self.__framework = framework
-        self.__adapt_type = adapt_type
+        self.__adapt = adapt
         self.__protocol_filename = protocol_filename
+        self.__heartbeat_interval_second = heartbeat_interval_second
+        self.__heartbeat_miss_max = heartbeat_miss_max
         self.__gen_client = gen_client
         self.__gen_server = gen_server
         self.__gen_doc = gen_doc
@@ -50,8 +54,8 @@ class CodeFramework:
         return self.__framework
 
     @property
-    def adapt_type(self):
-        return self.__adapt_type
+    def adapt(self):
+        return self.__adapt
 
     @property
     def nodes(self):

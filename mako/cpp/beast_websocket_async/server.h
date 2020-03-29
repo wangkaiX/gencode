@@ -22,12 +22,6 @@ public:
 };
 */
 
-void
-fail(boost::beast::error_code ec, char const* what)
-{
-    std::cerr << what << ": " << ec.message() << "\n";
-}
-
 template <typename Adapt>
 class session : public std::enable_shared_from_this<session<Adapt>>
 {
@@ -149,14 +143,14 @@ public:
 
 // Accepts incoming connections and launches the sessions
 template <typename Adapt>
-class WebSocketServer: public std::enable_shared_from_this<WebSocketServer<Adapt>>
+class ${gen_upper_camel(framework.framework)}Server: public std::enable_shared_from_this<SocketServer<Adapt>>
 {
     boost::asio::io_context& ioc_;
     boost::asio::ip::tcp::acceptor acceptor_;
     std::shared_ptr<Adapt> adapt_ptr_;
 
 public:
-    WebSocketServer(
+    ${gen_upper_camel(framework.framework)}Server(
         boost::asio::io_context& ioc,
         boost::asio::ip::tcp::endpoint endpoint,
         std::shared_ptr<Adapt> adapt_ptr)
@@ -215,7 +209,7 @@ private:
         acceptor_.async_accept(
             boost::asio::make_strand(ioc_),
             boost::beast::bind_front_handler(
-                &WebSocketServer::on_accept,
+                &SocketServer::on_accept,
                 this->shared_from_this()));
     }
 
@@ -260,7 +254,7 @@ int main(int argc, char* argv[])
 
     // Create and launch a listening port
     auto adapt = std::make_shared<AdaptBase>();
-    std::make_shared<WebSocketServer<AdaptBase>>(ioc, boost::asio::ip::tcp::endpoint{address, port}, adapt)->run();
+    std::make_shared<SocketServer<AdaptBase>>(ioc, boost::asio::ip::tcp::endpoint{address, port}, adapt)->run();
 
     // Run the I/O service on the requested number of threads
     std::vector<std::thread> v;

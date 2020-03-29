@@ -13,7 +13,7 @@ public:
     {
         std::string msg(static_cast<const char*>(buffer.data().data()), buffer.size());
         auto json = nlohmann::json::parse(msg);
-        int command = json["${protocol.command_name}"];
+        int command = json["${framework.command_name}"];
         return _callbacks[command](json); 
     }
 private:

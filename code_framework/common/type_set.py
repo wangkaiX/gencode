@@ -13,41 +13,41 @@ convert[str] = 'string'
 go = 'go'
 cpp = 'cpp'
 graphql = 'graphql'
-proto = 'proto'
+protobuf = 'protobuf'
 grpc = 'grpc'
 go_gin = 'go_gin'
 common = 'common'
 
 
-class Cpp:
-    beast_websocket_async = 'beast_websocket_async'
-    asio_tcp_async = 'asio_tcp_async'
+# class Cpp:
+beast_websocket_async = 'beast_websocket_async'
+asio_tcp_async = 'asio_tcp_async'
 
 
-class CppAdapt:
-    nlohmann_json = 'nlohmann_json'
-    rapid_json = 'rapid_json'
-    binary = 'binary'
+# class CppAdapt:
+nlohmann_json = 'nlohmann_json'
+rapid_json = 'rapid_json'
+binary = 'binary'
 
 
 code_framework_types = {}
-code_framework_types[cpp] = [Cpp.beast_websocket_async, Cpp.asio_tcp_async]
+code_framework_types[cpp] = [beast_websocket_async, asio_tcp_async]
 
 code_adapt_types = {}
-code_adapt_types[cpp] = [CppAdapt.binary, CppAdapt.rapid_json, CppAdapt.binary]
+code_adapt_types[cpp] = [binary, rapid_json, binary]
 
 http_methods = ['POST', 'GET']
 graphql_methods = ['mutation', 'query']
 
 code_types = {}
-code_types[common] =  ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
-code_types[go] =      ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
-code_types[cpp] =     ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
-code_types[graphql] = ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', None]
-code_types[proto] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
+code_types[common] =     ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'time',    'file', 'bytes']
+code_types[go] =         ['string',      'int32',   'float32', 'bool',    'int64',   'float64', 'int64',   'file', '[]byte']
+code_types[cpp] =        ['std::string', 'int32_t', 'float',   'bool',    'int64_t', 'double',  'int64_t', 'file', 'std::vector<int8_t>']
+code_types[graphql] =    ['String',      'Int',     'Float',   'Boolean', 'Int',     'Float',   'Time',    'file', None]
+code_types[protobuf] =   ['string',      'int32',   'float',   'bool',    'int64',   'double',  'int64',   'file', 'bytes']
 
 code_types[go_gin] = code_types[go]
-code_types[grpc] = code_types[proto]
+code_types[grpc] = code_types[protobuf]
 
 
 class FieldType:
@@ -100,8 +100,8 @@ class FieldType:
         return self.get_type(graphql)
 
     @property
-    def proto(self):
-        return self.get_type(proto)
+    def protobuf(self):
+        return self.get_type(protobuf)
 
     @property
     def name(self):

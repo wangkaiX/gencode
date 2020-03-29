@@ -5,7 +5,7 @@ from code_framework.common import tool
 from util.python import util
 
 
-class ErrnoConfig:
+class ErrorConfig:
     def __init__(self, filename, begin_no, end_no):
         self.filename = filename
         self.begin_no = begin_no
@@ -29,9 +29,9 @@ class Errno:
         return self.code == o.code or self.msg == o.msg or self.no == o.no
 
 
-class ErrnoGen:
-    def __init__(self, errno_config):
-        self.__errno_config = errno_config
+class ErrerCode:
+    def __init__(self, filename, begin_no, end_no):
+        self.__errno_config = ErrorConfig(filename, begin_no, end_no)
         self.__errnos = []
         # self.__unique_errno_set = set()
 

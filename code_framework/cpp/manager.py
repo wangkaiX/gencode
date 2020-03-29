@@ -4,6 +4,7 @@
 import os
 from code_framework.common import type_set
 from code_framework.common import tool
+from code_framework.base.manager import Manager as ManagerBase
 from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
@@ -11,63 +12,93 @@ from code_framework.cpp.beast_websocket_async import generator as beast_websocke
 # from read_config import gen_request_response
 
 
-class GeneratorManager:
-    def __init__(self, mako_dir, service_dir, protocol):
+class Manager(ManagerBase):
+    def __init__(self,
+                 project_name,
+                 # 代码格式模板目录
+                 mako_dir,
+                 # 项目生成路径
+                 service_dir,
+                 # 错误码配置文件
+                 error_code,
+                 # 错误码输出目录
+                 error_outdir,
+                 doc_outdir,
+                 ):
         # xxx/mako/cpp
-        self.__mako_dir = os.path.join(mako_dir, 'cpp')
-        self.__service_dir = service_dir
-        self.__protocol = protocol
+        ManagerBase.__init__(self, project_name=project_name, code_type=type_set.cpp,
+                             mako_dir=mako_dir, service_dir=service_dir, error_code=error_code,
+                             error_outdir=error_outdir, doc_outdir=doc_outdir)
+        self._mako_dir = os.path.join(self._mako_dir, 'cpp')
+        # self._service_dir = service_dir
+        self._frameworks = []
 
     def gen(self):
-        if type_set.Cpp.beast_websocket_async == self.__protocol.framework:
-            mako_dir = os.path.join(self.__mako_dir, 'beast_websocket_async')
-            generator = beast_websocket_async_generator.Generator(mako_dir=mako_dir,
-                                                                  service_dir=self.__service_dir,
-                                                                  protocol=self.__protocol,
-                                                                  )
-            generator.gen()
+        for framework in self._frameworks:
+            if type_set.beast_websocket_async == framework.framework:
+                mako_dir = os.path.join(self._mako_dir, 'beast_websocket_async')
+                generator = beast_websocket_async_generator.Generator(mako_dir=mako_dir,
+                                                                      service_dir=self._service_dir,
+                                                                      framework=framework,
+                                                                      )
+                generator.gen()
 
         # types
-        self.__gen_types()
-        self.__gen_apis()
-        self.__gen_init()
-        self.__gen_main()
+        self._gen_types()
+        self._gen_apis()
+        self._gen_init()
+        self._gen_main()
 
-    def __gen_main(self):
-        mako_file = os.path.join(self.__mako_dir, 'main.cpp')
-        out_file = os.path.join(self.__service_dir, 'main', 'main.cpp')
+    def _gen_main(self):
+        mako_file = os.path.join(self._mako_dir, 'main.cpp')
+        out_file = os.path.join(self._service_dir, 'main', 'main.cpp')
         tool.gen_code_file(mako_file, out_file,
-                           apis=self.__protocol.apis,
+                           frameworks=self._frameworks,
                            )
 
-    def __gen_init(self):
+    def _gen_init(self):
         pass
 
-    def __gen_types(self):
-        mako_file = os.path.join(self.__mako_dir, 'types.h')
-        out_file = os.path.join(self.__service_dir, 'service_api', 'types.h')
-        std_includes = ['vector']
-        for enum in self.__protocol.enums:
+    def _gen_types(self):
+        mako_file = os.path.join(self._mako_dir, 'types.h')
+        out_file = os.path.join(self._service_dir, 'service_api', 'types.h')
+        std_includes = ['vector', 'string']
+        enums = []
+        nodes = []
+        for framework in self._frameworks:
+            nodes += framework.nodes
+
+        for framework in self._frameworks:
+            enums += framework.enums
+
+        for enum in enums:
             print(enum)
             for value in enum.values:
                 print(value)
         tool.gen_code_file(mako_file, out_file,
-                           nodes=self.__protocol.nodes,
+                           nodes=nodes,
                            std_includes=std_includes,
-                           enums=self.__protocol.enums,
+                           enums=enums,
                            )
 
-    def __gen_apis(self):
+    def _gen_apis(self):
         # header
-        mako_file = os.path.join(self.__mako_dir, 'apis.h')
-        out_file = os.path.join(self.__service_dir, 'service_api', 'service_api.h')
+        mako_file = os.path.join(self._mako_dir, 'apis.h')
+        out_file = os.path.join(self._service_dir, 'service_api', 'service_api.h')
+        apis = []
+        for framework in self._frameworks:
+            apis += framework.apis
+
         tool.gen_code_file(mako_file, out_file,
-                           apis=self.__protocol.apis,
+                           apis=apis,
                            )
 
-        mako_file = os.path.join(self.__mako_dir, 'api.cpp')
-        for api in self.__protocol.apis:
-            out_file = os.path.join(self.__service_dir, 'service_api', api.name + '.cpp')
+        mako_file = os.path.join(self._mako_dir, 'api.cpp')
+        apis = []
+        for framework in self._frameworks:
+            apis += framework.apis
+        for api in apis:
+            out_file = os.path.join(self._service_dir, 'service_api', api.name + '.cpp')
             if not os.path.exists(out_file):
                 tool.gen_code_file(mako_file, out_file,
                                    api=api,
