@@ -10,18 +10,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-/*
-
-class AdaptBase
-{
-public:
-    std::string request(const boost::beast::flat_buffer &buffer)
-    {
-        return std::string((const char*)buffer.data().data(), buffer.size());
-    }
-};
-*/
-
 template <typename Adapt>
 class session : public std::enable_shared_from_this<session<Adapt>>
 {

@@ -6,7 +6,7 @@
 #include "types.h"
 #include "service_api.h"
 
-class AdaptWebosocketNlohmannJson
+class AdaptServerWebosocketNlohmannJson
 {
 public:
     std::string request(const boost::beast::flat_buffer &buffer)
