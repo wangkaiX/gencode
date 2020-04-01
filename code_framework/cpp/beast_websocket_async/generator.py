@@ -17,7 +17,7 @@ class Generator:
         self.__gen_network()
 
     def __gen_network_adapt(self):
-        mako_file = os.path.join(self.__mako_dir, 'adapt_nlohmann_json.h')
+        mako_file = os.path.join(self.__mako_dir, 'adapt_server_nlohmann_json.h')
         out_file = os.path.join(self.__service_dir, 'service_api', 'adapt_websocket_nlohmann_json.h')
         tool.gen_code_file(mako_file, out_file,
                            framework=self.__framework,
