@@ -33,3 +33,5 @@ common:
 生成的接口文件中有mock数据，已经生成的接口文件，如果有更新并且未修改过，则可以覆盖
 支持指定json中的key_name， 如无指定，则按默认规则生成(json key_name为配置文件中的key值)
 支持http url中path arg
+
+有时需要配置开发环境比较耗时，可以根据需要生成编译环境构建脚本及dockerfile构建脚本
