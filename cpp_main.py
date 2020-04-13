@@ -10,7 +10,7 @@ from code_framework import manager
 from code_framework import framework
 
 if __name__ == '__main__':
-    dst_dir = os.path.join("example", "cpp", "src")
+    dst_dir = os.path.join("example", "cppexample_service")
     manager = manager.get_manager(
             code_type="cpp",
             project_name="project_example",
@@ -29,7 +29,7 @@ if __name__ == '__main__':
             )
 
     websocket = framework.Framework(
-            service_name='example',
+            service_name='webexample',
             framework=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -42,6 +42,23 @@ if __name__ == '__main__':
             gen_doc=True,
             gen_mock=True,
             )
+
+    '''
+    http = framework.Framework(
+            service_name='httpexample',
+            framework=type_set.beast_http_async,
+            adapt=type_set.nlohmann_json,
+            # 接口配置文件路径
+            protocol_filename="json/api_gin.json5",
+            # heartbeat_interval_second=5,
+            # heartbeat_miss_max=3,
+            gen_client=True,
+            gen_server=True,
+            gen_test=True,
+            gen_doc=True,
+            gen_mock=True,
+            )
+    '''
 
     manager.add(websocket)
     manager.gen()

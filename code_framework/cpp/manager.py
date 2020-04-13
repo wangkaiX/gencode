@@ -61,7 +61,7 @@ class Manager(ManagerBase):
 
     def _gen_types(self):
         mako_file = os.path.join(self._mako_dir, 'types.h')
-        out_file = os.path.join(self._service_dir, 'service_api', 'types.h')
+        out_file = os.path.join(self._service_dir, 'api', 'types.h')
         std_includes = ['vector', 'string']
         enums = []
         nodes = []
@@ -84,7 +84,7 @@ class Manager(ManagerBase):
     def _gen_apis(self):
         # header
         mako_file = os.path.join(self._mako_dir, 'apis.h')
-        out_file = os.path.join(self._service_dir, 'service_api', 'service_api.h')
+        out_file = os.path.join(self._service_dir, 'api', 'api.h')
         apis = []
         for framework in self._frameworks:
             apis += framework.apis
@@ -98,7 +98,7 @@ class Manager(ManagerBase):
         for framework in self._frameworks:
             apis += framework.apis
         for api in apis:
-            out_file = os.path.join(self._service_dir, 'service_api', api.name + '.cpp')
+            out_file = os.path.join(self._service_dir, 'api', api.name + '.cpp')
             if not os.path.exists(out_file):
                 tool.gen_code_file(mako_file, out_file,
                                    api=api,

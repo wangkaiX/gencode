@@ -6,7 +6,7 @@
 #include "types.h"
 #include "service_api.h"
 
-class AdaptServerWebosocketNlohmannJson
+class AdaptServerNlohmannJson
 {
 public:
     std::string request(const boost::beast::flat_buffer &buffer)
@@ -20,7 +20,7 @@ private:
     void init()
     {
         % for api in apis:
-        _callbacks[${api.command_code}] = std::bind(&AdaptWebosocketNlohmannJson::${api.name}, this, std::placeholders::_1);
+        _callbacks[${api.command_code}] = std::bind(&AdaptServerNlohmannJson::${api.name}, this, std::placeholders::_1);
         % endfor
     }
 

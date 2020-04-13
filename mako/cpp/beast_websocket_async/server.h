@@ -131,14 +131,14 @@ public:
 
 // Accepts incoming connections and launches the sessions
 template <typename Adapt>
-class ${gen_upper_camel(framework.framework)}Server: public std::enable_shared_from_this<SocketServer<Adapt>>
+class ${gen_upper_camel(framework.service_name)}Server: public std::enable_shared_from_this<SocketServer<Adapt>>
 {
     boost::asio::io_context& ioc_;
     boost::asio::ip::tcp::acceptor acceptor_;
     std::shared_ptr<Adapt> adapt_ptr_;
 
 public:
-    ${gen_upper_camel(framework.framework)}Server(
+    ${gen_upper_camel(framework.service_name)}Server(
         boost::asio::io_context& ioc,
         boost::asio::ip::tcp::endpoint endpoint,
         std::shared_ptr<Adapt> adapt_ptr)

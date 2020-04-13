@@ -46,6 +46,10 @@ class Framework:
         self.__parser(self.__tree_map)
 
     @property
+    def service_name(self):
+        return self.__service_name
+
+    @property
     def command_name(self):
         return self.__tree_map["command_name"]
 
