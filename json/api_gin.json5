@@ -90,13 +90,13 @@
             command_code:0x1001,
             req:{
                 user_id:"uid123213",
-                data_source_id:"testds001",
+                "data_source_id|Y":"testds001",
                 table_id:"",
             },
             resp:{
                 "table_list|||TableInfo":[
                     {
-                        table_id:"tb2131105",
+                        "table_id|Y":"tb2131105",
                         data_source_id:"ds3094318",
                         table_name:"t_test1",
                         alias_name:"测试表",

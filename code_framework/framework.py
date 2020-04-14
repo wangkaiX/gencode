@@ -2,32 +2,55 @@
 # -*- coding: utf-8 -*-
 
 from code_framework.common import tool
+from code_framework.common.meta import Node
 from code_framework.common import enum_type
-from code_framework.common import type_set
+# from code_framework.common import type_set
 from code_framework.common import protocol_parser
 # from code_framework.common import generator
 import util.python.util as util
 # from code_framework.go.gin import gin as go_gin
-import copy
+# import copy
 
 
 class Framework:
     def __init__(self, service_name, framework, adapt, protocol_filename,
                  heartbeat_interval_second,
                  heartbeat_miss_max,
-                 gen_client, gen_server, gen_doc, gen_test,
+                 server_ip, server_port,
+                 is_server, gen_doc, gen_test,
                  gen_mock,
                  ):
-        self.__service_name = service_name
         self.__framework = framework
         self.__adapt = adapt
         self.__protocol_filename = protocol_filename
-        self.__heartbeat_interval_second = heartbeat_interval_second
-        self.__heartbeat_miss_max = heartbeat_miss_max
-        self.__gen_client = gen_client
-        self.__gen_server = gen_server
-        self.__gen_doc = gen_doc
-        self.__gen_test = gen_test
+
+        self.service_name = service_name
+        if is_server:
+            self.service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'server'))
+        else:
+            self.service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'client'))
+        # config ######
+        cfg = {}
+        cfg["heartbeat_interval_second"] = heartbeat_interval_second
+        cfg["heartbeat_miss_max"] = heartbeat_miss_max
+        if server_ip:
+            cfg["ip"] = server_ip
+        cfg["port"] = server_port
+        '''
+        self.heartbeat_interval_second = heartbeat_interval_second
+        self.heartbeat_miss_max = heartbeat_miss_max
+        self.server_ip = server_ip
+        self.server_port = server_port
+        '''
+        self.config = None
+        self.config = {}
+        self.config[service_name] = cfg
+        ###############
+        self.is_server = is_server
+        # self.__gen_client = gen_client
+        # self.__gen_server = gen_server
+        self.gen_doc = gen_doc
+        self.gen_test = gen_test
 
         parser = protocol_parser.Parser(protocol_filename)
         self.__tree_map = parser.parse()
@@ -45,9 +68,9 @@ class Framework:
         # parser
         self.__parser(self.__tree_map)
 
-    @property
-    def service_name(self):
-        return self.__service_name
+    # @property
+    # def service_name(self):
+    #     return self.__service_name
 
     @property
     def command_name(self):
@@ -139,9 +162,9 @@ class Framework:
     def apis(self):
         return self.__apis
 
-    @property
-    def config(self):
-        return self.__config
+    # @property
+    # def config(self):
+    #     return self.__config
 
     @property
     def enums(self):
@@ -375,9 +398,11 @@ class Api:
         return s
 
 
+'''
 class Member:
     def __init__(self, parent, name, value_map):
         self._name, self._required, self._note, self._type = tool.split_ori_name(name)
+        print("member:", self._name, self._required, self._note, self._type)
         if parent:
             self._full_path = parent._full_path + [self._name]
         else:
@@ -549,3 +574,4 @@ class Node(Member):
     @property
     def fields(self):
         return self.__fields
+'''

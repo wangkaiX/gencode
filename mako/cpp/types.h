@@ -70,6 +70,7 @@ inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
             less_fields += e;
         }
         % elif member.type.is_string:
+        j.at("${member.name}").get_to(obj.${member.name});
         if (obj.${member.name} == "") {
             less_fields += "[${member.name}]";
         }

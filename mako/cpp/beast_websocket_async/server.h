@@ -10,6 +10,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+void fail(const boost::system::error_code &ec, const std::string &msg)
+{
+    std::cout << ec << ' ' << msg << std::endl;
+}
+
 template <typename Adapt>
 class session : public std::enable_shared_from_this<session<Adapt>>
 {
@@ -128,10 +133,13 @@ public:
 };
 
 //------------------------------------------------------------------------------
+<%
+    service_class_name = framework.service_class_name
+%>
 
 // Accepts incoming connections and launches the sessions
 template <typename Adapt>
-class ${gen_upper_camel(framework.service_name)}Server: public std::enable_shared_from_this<SocketServer<Adapt>>
+class ${service_class_name}: public std::enable_shared_from_this<${service_class_name}<Adapt>>
 {
     boost::asio::io_context& ioc_;
     boost::asio::ip::tcp::acceptor acceptor_;
@@ -140,11 +148,10 @@ class ${gen_upper_camel(framework.service_name)}Server: public std::enable_share
 public:
     ${gen_upper_camel(framework.service_name)}Server(
         boost::asio::io_context& ioc,
-        boost::asio::ip::tcp::endpoint endpoint,
-        std::shared_ptr<Adapt> adapt_ptr)
+        boost::asio::ip::tcp::endpoint endpoint)
         : ioc_(ioc)
         , acceptor_(ioc)
-        , adapt_ptr_(adapt_ptr)
+        , adapt_ptr_(std::make_shared<Adapt>())
     {
         boost::beast::error_code ec;
 
@@ -197,7 +204,7 @@ private:
         acceptor_.async_accept(
             boost::asio::make_strand(ioc_),
             boost::beast::bind_front_handler(
-                &SocketServer::on_accept,
+                &${service_class_name}::on_accept,
                 this->shared_from_this()));
     }
 

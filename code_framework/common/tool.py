@@ -220,6 +220,7 @@ def merge_map(map_dst, map_from):
 
 def split_ori_name(ori_name):
     attrs = split(ori_name, '|', 4)
+    # print("attrs:", attrs)
     if attrs[1] in ('Y', 'y'):
         attrs[1] = True
     else:

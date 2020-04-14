@@ -54,7 +54,9 @@ class FieldType:
     def __init__(self, t):
         if t in convert:
             t = convert[t]
-        assert isinstance(t, str)
+        if not isinstance(t, str):
+            print("不合法的类型:", t)
+            assert False
         self.__type = t
         self.__lower = t.lower()
         if self.__lower == 'time':

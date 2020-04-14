@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from code_framework.common import type_set
 from code_framework.common import tool
+from code_framework.common.meta import Node
 from code_framework.base.manager import Manager as ManagerBase
 from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
@@ -41,6 +43,8 @@ class Manager(ManagerBase):
                                                                       service_dir=self._service_dir,
                                                                       framework=framework,
                                                                       )
+                framework.adapt_name = generator.adapt_name
+                framework.adapt_class_name = generator.adapt_class_name
                 generator.gen()
 
         # types
@@ -48,6 +52,7 @@ class Manager(ManagerBase):
         self._gen_apis()
         self._gen_init()
         self._gen_main()
+        self._gen_config()
 
     def _gen_main(self):
         mako_file = os.path.join(self._mako_dir, 'main.cpp')
@@ -58,6 +63,25 @@ class Manager(ManagerBase):
 
     def _gen_init(self):
         pass
+
+    def _gen_config(self):
+        mako_file = os.path.join(self._mako_dir, 'config.h')
+        out_file = os.path.join(self._service_dir, 'config', 'config.h')
+        std_includes = ['vector', 'string']
+        config = {}
+        for framework in self._frameworks:
+            config = dict(config, **(framework.config))
+        print("config:", config)
+        node = Node(None, "config", config)
+        nodes = tool.to_nodes(node)
+
+        tool.gen_code_file(mako_file, out_file,
+                           nodes=nodes,
+                           std_includes=std_includes,
+                           )
+        out_file = os.path.join(self._service_dir, "config.json")
+        with open(out_file, "w") as f:
+            json.dump(config, f, ensure_ascii=False, indent=4)
 
     def _gen_types(self):
         mako_file = os.path.join(self._mako_dir, 'types.h')

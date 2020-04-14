@@ -1,6 +1,4 @@
-#pragma once
-
-#include "service_api.h"
+#include "api/api.h"
 
 ${api.resp.type.name} ApiServer::${api.name}(const ${api.req.type.name} &req)
 {
