@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common.parser import Parser
+from util.python import util
 
 
 class GeneratorBase:
-    def __init__(self, framwork_type, config_files, service_name, errno_configs,
-                 service_dir, mako_dir, gen_server, gen_client, gen_test,
-                 gen_doc, gen_mock):
-        # private
-        self.__config_files = config_files
+    def __init__(self, framwork, service_dir, mako_dir, log):
         # protected
-        self._framework_type = framwork_type
-        self._service_name = service_name
-        self._errno_configs = errno_configs
+        self._framework = framwork
         self._service_dir = service_dir
+        self._log = log
         self._mako_dir = mako_dir
-        self._gen_server = gen_server
-        self._gen_client = gen_client
-        self._gen_test = gen_test
-        self._gen_doc = gen_doc
-        self._gen_mock = gen_mock
-        # protocol
-        self._protocols = []
-        for config_file in config_files:
-            self._protocols.append(Parser(config_file).parser())
+
+    @property
+    def adapt_name(self):
+        fw = self._framework
+        return "adapt_%s_%s" % (fw.service_name, fw.adapt)
+
+    @property
+    def adapt_class_name(self):
+        return util.gen_upper_camel(self.adapt_name)

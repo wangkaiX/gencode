@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common import tool
+import sys
+sys.path.append('../..')
+from code_framework.common import tool
 
 print(tool.get_map_value({'a': 'b', 'b': 100, 'c': {'d': 300}}, 'a.b', '200'))
 print(tool.get_map_value({'a': 'b', 'b': 100, 'c': {'d': 300}}, 'c.d', '200'))

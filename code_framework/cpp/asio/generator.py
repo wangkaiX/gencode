@@ -2,24 +2,13 @@
 # -*- coding: utf-8 -*-
 import os
 from code_framework.common import tool
+from code_framework.base.generator_base import GeneratorBase
 from util.python import util
 
 
-class Generator:
-    def __init__(self, mako_dir, service_dir, framework):
-        self.__mako_dir = mako_dir  # os.path.join(mako_dir, 'cpp', 'websocket')
-        self.__framework = framework
-        self.__service_dir = service_dir
-        # self.__adapt = adapt
-
-    @property
-    def adapt_name(self):
-        fw = self.__framework
-        return "adapt_%s_%s" % (fw.service_name, fw.adapt)
-
-    @property
-    def adapt_class_name(self):
-        return util.gen_upper_camel(self.adapt_name)
+class Generator(GeneratorBase):
+    def __init__(self, mako_dir, service_dir, framework, log):
+        GeneratorBase.__init__(self, mako_dir=mako_dir, service_dir=service_dir, framework=framework, log=log)
 
     def gen(self):
         self.__gen_network_adapt()
@@ -31,6 +20,7 @@ class Generator:
         tool.gen_code_file(mako_file, out_file,
                            framework=self.__framework,
                            apis=self.__framework.apis,
+                           log=self.__log,
                            )
 
     def __gen_network(self):
@@ -39,5 +29,6 @@ class Generator:
         tool.gen_code_file(mako_file, out_file,
                            framework=self.__framework,
                            gen_upper_camel=util.gen_upper_camel,
+                           log=self.__log,
                            # apis=self.__framework.apis,
                            )

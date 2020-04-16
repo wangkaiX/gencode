@@ -10,10 +10,9 @@
 #include <string>
 #include <thread>
 #include <vector>
-void fail(const boost::system::error_code &ec, const std::string &msg)
-{
-    std::cout << ec << ' ' << msg << std::endl;
-}
+% if log == "spdlog":
+#include <spdlog/spdlog.h>
+% endif
 
 template <typename Adapt>
 class session : public std::enable_shared_from_this<session<Adapt>>
@@ -72,8 +71,10 @@ public:
     void
     on_accept(boost::beast::error_code ec)
     {
-        if(ec)
-            return fail(ec, "accept");
+        if(ec) {
+            SPDLOG_ERROR("accept:[{}]", ec.message());
+            return;
+        }
 
         // Read a message
         do_read();
@@ -101,10 +102,10 @@ public:
         if(ec == boost::beast::websocket::error::closed)
             return;
 
-        if(ec)
-            fail(ec, "read");
+        if(ec) {
+            SPDLOG_ERROR("read:[{}]", ec.message());
+        }
 
-        // Echo the message
         auto resp = adapt_ptr_->request(buffer_);
         ws_.text(ws_.got_text());
         ws_.async_write(
@@ -121,8 +122,10 @@ public:
     {
         boost::ignore_unused(bytes_transferred);
 
-        if(ec)
-            return fail(ec, "write");
+        if(ec) {
+            SPDLOG_ERROR("write:[{}]", ec.message());
+            return;
+        }
 
         // Clear the buffer
         buffer_.consume(buffer_.size());
@@ -159,7 +162,7 @@ public:
         acceptor_.open(endpoint.protocol(), ec);
         if(ec)
         {
-            fail(ec, "open");
+            SPDLOG_ERROR("acceptor open:[{}]", ec.message());
             return;
         }
 
@@ -167,7 +170,7 @@ public:
         acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
         if(ec)
         {
-            fail(ec, "set_option");
+            SPDLOG_ERROR("set_option:[{}]", ec.message());
             return;
         }
 
@@ -175,7 +178,7 @@ public:
         acceptor_.bind(endpoint, ec);
         if(ec)
         {
-            fail(ec, "bind");
+            SPDLOG_ERROR("bind:[{}]", ec.message());
             return;
         }
 
@@ -184,7 +187,7 @@ public:
             boost::asio::socket_base::max_listen_connections, ec);
         if(ec)
         {
-            fail(ec, "listen");
+            SPDLOG_ERROR("listen:[{}]", ec.message());
             return;
         }
     }
@@ -213,7 +216,7 @@ private:
     {
         if(ec)
         {
-            fail(ec, "accept");
+            SPDLOG_ERROR("accept:[{}]", ec.message());
         }
         else
         {
@@ -225,43 +228,3 @@ private:
         do_accept();
     }
 };
-
-//------------------------------------------------------------------------------
-/*
-
-int main(int argc, char* argv[])
-{
-    // Check command line arguments.
-    if (argc != 4)
-    {
-        std::cerr <<
-            "Usage: boost::beast::websocket-server-async <address> <port> <threads>\n" <<
-            "Example:\n" <<
-            "    boost::beast::websocket-server-async 0.0.0.0 8080 1\n";
-        return EXIT_FAILURE;
-    }
-    auto const address = boost::asio::ip::make_address(argv[1]);
-    auto const port = static_cast<unsigned short>(std::atoi(argv[2]));
-    auto const threads = std::max<int>(1, std::atoi(argv[3]));
-
-    // The io_context is required for all I/O
-    boost::asio::io_context ioc{threads};
-
-    // Create and launch a listening port
-    auto adapt = std::make_shared<AdaptBase>();
-    std::make_shared<SocketServer<AdaptBase>>(ioc, boost::asio::ip::tcp::endpoint{address, port}, adapt)->run();
-
-    // Run the I/O service on the requested number of threads
-    std::vector<std::thread> v;
-    v.reserve(threads - 1);
-    for(auto i = threads - 1; i > 0; --i)
-        v.emplace_back(
-        [&ioc]
-        {
-            ioc.run();
-        });
-    ioc.run();
-
-    return EXIT_SUCCESS;
-}
-*/

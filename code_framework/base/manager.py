@@ -11,6 +11,8 @@ class Manager:
                  code_type,
                  # 代码格式模板目录
                  mako_dir,
+                 # log
+                 log,
                  # 项目生成路径
                  service_dir,
                  # 错误码配置文件
@@ -22,6 +24,7 @@ class Manager:
         self._project_name = project_name
         self._code_type = code_type
         self._mako_dir = mako_dir
+        self._log = log
         self._service_dir = service_dir
         self._error_code = error_code
         self._error_outdir = error_outdir

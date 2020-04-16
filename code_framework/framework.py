@@ -31,9 +31,13 @@ class Framework:
             self.service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'client'))
         # config ######
         cfg = {}
-        cfg["heartbeat_interval_second"] = heartbeat_interval_second
-        cfg["heartbeat_miss_max"] = heartbeat_miss_max
-        if server_ip:
+        if heartbeat_interval_second:
+            cfg["heartbeat_interval_second"] = heartbeat_interval_second
+        if heartbeat_miss_max:
+            cfg["heartbeat_miss_max"] = heartbeat_miss_max
+        if is_server and server_ip:
+            cfg["ip"] = server_ip
+        elif not is_server:
             cfg["ip"] = server_ip
         cfg["port"] = server_port
         '''
@@ -42,7 +46,6 @@ class Framework:
         self.server_ip = server_ip
         self.server_port = server_port
         '''
-        self.config = None
         self.config = {}
         self.config[service_name] = cfg
         ###############

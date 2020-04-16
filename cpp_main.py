@@ -18,6 +18,8 @@ if __name__ == '__main__':
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
             # 项目生成路径
             service_dir=dst_dir,
+            # 日志选取
+            log=type_set.spdlog,
             # 错误码配置文件
             error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
             # 错误码输出目录

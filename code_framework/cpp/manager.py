@@ -7,7 +7,7 @@ from code_framework.common import type_set
 from code_framework.common import tool
 from code_framework.common.meta import Node
 from code_framework.base.manager import Manager as ManagerBase
-from code_framework.cpp.beast_websocket_async import generator as beast_websocket_async_generator
+from code_framework.cpp.beast import generator as beast_websocket_async_generator
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
 # import util.python.util as util
@@ -19,6 +19,8 @@ class Manager(ManagerBase):
                  project_name,
                  # 代码格式模板目录
                  mako_dir,
+                 # log
+                 log,
                  # 项目生成路径
                  service_dir,
                  # 错误码配置文件
@@ -30,7 +32,7 @@ class Manager(ManagerBase):
         # xxx/mako/cpp
         ManagerBase.__init__(self, project_name=project_name, code_type=type_set.cpp,
                              mako_dir=mako_dir, service_dir=service_dir, error_code=error_code,
-                             error_outdir=error_outdir, doc_outdir=doc_outdir)
+                             error_outdir=error_outdir, doc_outdir=doc_outdir, log=log)
         self._mako_dir = os.path.join(self._mako_dir, 'cpp')
         # self._service_dir = service_dir
         self._frameworks = []
@@ -42,6 +44,7 @@ class Manager(ManagerBase):
                 generator = beast_websocket_async_generator.Generator(mako_dir=mako_dir,
                                                                       service_dir=self._service_dir,
                                                                       framework=framework,
+                                                                      log=self._log,
                                                                       )
                 framework.adapt_name = generator.adapt_name
                 framework.adapt_class_name = generator.adapt_class_name
@@ -126,6 +129,7 @@ class Manager(ManagerBase):
             if not os.path.exists(out_file):
                 tool.gen_code_file(mako_file, out_file,
                                    api=api,
+                                   log=self._log,
                                    )
 
 

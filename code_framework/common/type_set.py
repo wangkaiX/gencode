@@ -29,6 +29,9 @@ nlohmann_json = 'nlohmann_json'
 rapid_json = 'rapid_json'
 binary = 'binary'
 
+# log
+spdlog = 'spdlog'
+
 
 code_framework_types = {}
 code_framework_types[cpp] = [beast_websocket_async, asio_tcp_async]
