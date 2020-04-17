@@ -15,20 +15,20 @@ class Generator(GeneratorBase):
         self.__gen_network()
 
     def __gen_network_adapt(self):
-        mako_file = os.path.join(self._mako_dir, 'adapt_server_nlohmann_json.h')
-        out_file = os.path.join(self._service_dir, 'service', '%s.h' % self.adapt_name)
+        mako_file = os.path.join(self.__mako_dir, 'adapt',  'nlohmann_json_client.h')
+        out_file = os.path.join(self.__service_dir, self._framework.service_name, '%s.h' % self.adapt_name)
         tool.gen_code_file(mako_file, out_file,
-                           framework=self._framework,
-                           apis=self._framework.apis,
-                           log=self._log,
+                           framework=self.__framework,
+                           apis=self.__framework.apis,
+                           log=self.__log,
                            )
 
     def __gen_network(self):
-        mako_file = os.path.join(self._mako_dir, 'server.h')
-        out_file = os.path.join(self._service_dir, 'service', '%s.h' % self._framework.service_name)
+        mako_file = os.path.join(self.__mako_dir, 'asio', 'tcp_async_client.h')
+        out_file = os.path.join(self.__service_dir, 'network', 'tcp_async_client.h')
         tool.gen_code_file(mako_file, out_file,
-                           framework=self._framework,
+                           framework=self.__framework,
                            gen_upper_camel=util.gen_upper_camel,
-                           log=self._log,
-                           # apis=self._framework.apis,
+                           log=self.__log,
+                           # apis=self.__framework.apis,
                            )

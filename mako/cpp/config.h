@@ -77,6 +77,6 @@ public:
 
 inline Config &getCfg()
 {
-    static LoadConfig load("config.json");
+    static LoadConfig load("config/config.json");
     return load.config;
 }

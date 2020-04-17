@@ -1,3 +1,4 @@
+#include <chrono>
 #include <boost/asio.hpp>
 
 class TcpClientAsync
@@ -41,11 +42,27 @@ public:
         socket_.async_wait(ip::tcp::socket::wait_write, cb);
     }
 
+    ErrorCode write(const char *data, size_t length)
+    {
+        using namespace boost::asio;
+        ErrorCode ec;
+        boost::asio::write(socket_, buffer(data, length), ec);
+        return ec;
+    }
+
     void async_write(const char *data, size_t length, WriteCallback cb)
     {
         assert(false && "callback can not be null");
         using namespace boost::asio;
         boost::asio::async_write(socket_, buffer(data, length), cb);
+    }
+
+    ErrorCode read(char *data, size_t length)
+    {
+        using namespace boost::asio;
+        ErrorCode ec;
+        boost::asio::read(socket_, buffer(data, length), ec);
+        return ec;
     }
 
     void async_read(char *data, size_t length, WriteCallback cb)

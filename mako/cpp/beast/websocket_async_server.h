@@ -106,7 +106,7 @@ public:
             SPDLOG_ERROR("read:[{}]", ec.message());
         }
 
-        auto resp = adapt_ptr_->request(buffer_);
+        auto resp = adapt_ptr_->request(static_cast<const char*>(buffer_.data().data()), buffer_.data().size());
         ws_.text(ws_.got_text());
         ws_.async_write(
             boost::asio::buffer(resp),

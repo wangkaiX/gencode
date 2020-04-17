@@ -30,7 +30,7 @@ if __name__ == '__main__':
             doc_outdir=os.path.join(dst_dir, "doc", "docname.md"),
             )
 
-    websocket = framework.Framework(
+    websocket_server = framework.Framework(
             service_name='webexample',
             framework=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
@@ -46,22 +46,24 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    '''
-    http = framework.Framework(
-            service_name='httpexample',
-            framework=type_set.beast_http_async,
+    tcp_client = framework.Framework(
+            service_name='tcpclient_example',
+            framework=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
-            # heartbeat_interval_second=5,
-            # heartbeat_miss_max=3,
-            gen_client=True,
-            gen_server=True,
+            heartbeat_interval_second=5,
+            heartbeat_miss_max=3,
+            server_ip="127.0.0.1",
+            server_port=12345,
+            # gen_client=True,
+            is_server=False,
+            # gen_server=True,
             gen_test=True,
             gen_doc=True,
             gen_mock=True,
             )
-    '''
 
-    manager.add(websocket)
+    manager.add(websocket_server)
+    manager.add(tcp_client)
     manager.gen()

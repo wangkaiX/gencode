@@ -29,6 +29,11 @@ nlohmann_json = 'nlohmann_json'
 rapid_json = 'rapid_json'
 binary = 'binary'
 
+adapt_name = {}
+adapt_name[nlohmann_json] = 'adapt_json'
+adapt_name[rapid_json] = 'adapt_json'
+adapt_name[binary] = 'adapt_binary'
+
 # log
 spdlog = 'spdlog'
 

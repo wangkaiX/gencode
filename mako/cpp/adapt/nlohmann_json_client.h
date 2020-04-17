@@ -1,0 +1,80 @@
+#include <functional>
+#include <map>
+#include <boost/beast.hpp>
+#include <nlohmann/json.hpp>
+#include <iostream>
+
+#include "api/types.h"
+#include "api/api.h"
+#include "network/tcp_client_async.h"
+
+class ${adapt_class_name}
+{
+public:
+    ${adapt_class_name}()
+    {   
+        init();
+    }
+    std::string request(const char *data, size_t length)
+    {
+        try {
+            std::string msg(data, length);
+            auto json = nlohmann::json::parse(msg);
+            int command = json["${framework.command_name}"];
+            return _callbacks[command](json).dump();
+        }
+        catch (std::exception &e) {
+            nlohmann::json j;
+            j["code"] = -1; 
+            j["msg"] = "解析接口类型失败";
+            std::cout << j.dump(4) << std::endl;
+            return j.dump();
+        }
+    }
+public:
+    // client requests
+    % for api in client_apis:
+    ErrorCode ${api.name}(const ${api.req.type.name} &req)
+    {
+        nlohmann::json j = req;
+        auto msg(j.dmup());
+        return _client.write(j.c_stsr(), j.length());
+    }
+    % endfor
+private:
+    void init()
+    {
+        % for api in apis:
+        _callbacks[${api.command_code}] = std::bind(&${framework.adapt_class_name}::${api.name}, this, std::placeholders::_1);
+        % endfor
+    }
+
+    % for api in apis:
+    nlohmann::json ${api.name}(const nlohmann::json &json)
+    {
+        try {
+            return _api_server.${api.name}(json);
+        }
+        catch (std::exception &e) {
+            ${api.resp.type.name} resp{};
+            resp.code = -1;
+            resp.msg = e.what();
+            std::cout << e.what() << std::endl;
+            return resp;
+        }
+    }
+
+    % endfor
+private:
+    % if isinstance(api.command_code, int):
+    std::map<int, std::function<nlohmann::json (nlohmann::json)>> _callbacks;
+    % elif isinstance(api.command_code, str):
+    std::map<std::string, std::function<nlohmann::json (nlohmann::json)>> _callbacks;
+    % else:
+        <%
+        print("不支持的类型" % type(api.command_code))
+        assert False
+        %>
+    % endif
+    TcpClientAsync _client;
+};

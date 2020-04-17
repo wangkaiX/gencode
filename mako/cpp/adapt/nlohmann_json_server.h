@@ -7,17 +7,17 @@
 #include "api/types.h"
 #include "api/api.h"
 
-class ${framework.adapt_class_name}
+class ${adapt_class_name}
 {
 public:
-    ${framework.adapt_class_name}()
+    ${adapt_class_name}()
     {   
         init();
     }
-    std::string request(const boost::beast::flat_buffer &buffer)
+    std::string request(const char *data, size_t length)
     {
         try {
-            std::string msg(static_cast<const char*>(buffer.data().data()), buffer.size());
+            std::string msg(data, length);
             auto json = nlohmann::json::parse(msg);
             int command = json["${framework.command_name}"];
             return _callbacks[command](json).dump();
@@ -49,8 +49,10 @@ private:
             resp.code = -1;
             resp.msg = e.what();
             std::cout << e.what() << std::endl;
+            return resp;
         }
     }
+
     % endfor
 private:
     ApiServer _api_server;
@@ -64,6 +66,4 @@ private:
         assert False
         %>
     % endif
-
 };
-

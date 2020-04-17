@@ -7,7 +7,8 @@ from code_framework.common import type_set
 from code_framework.common import tool
 from code_framework.common.meta import Node
 from code_framework.base.manager import Manager as ManagerBase
-from code_framework.cpp.beast import generator as beast_websocket_async_generator
+from code_framework.cpp.beast import websocket_async_server
+from code_framework.cpp.asio import tcp_async_client
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
 # import util.python.util as util
@@ -40,12 +41,21 @@ class Manager(ManagerBase):
     def gen(self):
         for framework in self._frameworks:
             if type_set.beast_websocket_async == framework.framework:
-                mako_dir = os.path.join(self._mako_dir, 'beast_websocket_async')
-                generator = beast_websocket_async_generator.Generator(mako_dir=mako_dir,
-                                                                      service_dir=self._service_dir,
-                                                                      framework=framework,
-                                                                      log=self._log,
-                                                                      )
+                # mako_dir = os.path.join(self._mako_dir, 'beast_websocket_async')
+                generator = websocket_async_server.Generator(mako_dir=self._mako_dir,
+                                                             service_dir=self._service_dir,
+                                                             framework=framework,
+                                                             log=self._log,
+                                                             )
+                framework.adapt_name = generator.adapt_name
+                framework.adapt_class_name = generator.adapt_class_name
+                generator.gen()
+            elif type_set.asio_tcp_async == framework.framework:
+                generator = tcp_async_client.Generator(mako_dir=self._mako_dir,
+                                                       service_dir=self._service_dir,
+                                                       framework=framework,
+                                                       log=self._log,
+                                                       )
                 framework.adapt_name = generator.adapt_name
                 framework.adapt_class_name = generator.adapt_class_name
                 generator.gen()
