@@ -32,12 +32,13 @@ if __name__ == '__main__':
 
     websocket_server = framework.Framework(
             service_name='webexample',
-            framework=type_set.beast_websocket_async,
+            network=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
+            no_resp=False,
             server_ip=None,
             server_port=12345,
             is_server=True,
@@ -48,12 +49,14 @@ if __name__ == '__main__':
 
     tcp_client = framework.Framework(
             service_name='tcpclient_example',
-            framework=type_set.asio_tcp_async,
+            network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
+            length_length=8,
+            no_resp=False,
             server_ip="127.0.0.1",
             server_port=12345,
             # gen_client=True,

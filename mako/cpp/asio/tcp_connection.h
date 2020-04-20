@@ -1,7 +1,7 @@
 #include <chrono>
 #include <boost/asio.hpp>
 
-class TcpClientAsync
+class TcpConnection
 {
 public:
     using ErrorCode = boost::system::error_code;
@@ -10,12 +10,20 @@ public:
     using WaitCallback = std::function<void(const ErrorCode&)>;
     using TimerCallback = std::function<void(const ErrorCode&)>;
 public:
-    TcpClientAsync(boost::asio::io_context& io_context)
-        : io_context_(io_context),
-        socket_(io_context)
+    TcpConnection(boost::asio::io_context& io_context, const boost::asio::ip::tcp::endpoint &ep)
+        : io_context_(io_context)
+        , socket_(io_context)
+    {
+        connect(ep);
+    }
+
+    TcpConnection(boost::asio::io_context& io_context, boost::asio::ip::tcp::socket &&socket)
+        : io_context_(io_context)
+        , socket_(std::move(socket))
     {
     }
-    ~TcpClientAsync()
+
+    ~TcpConnection()
     {
         this->close();
     }
@@ -76,14 +84,14 @@ public:
         boost::asio::post(io_context_, [this]() { socket_.close(); });
     }
 
+private:
+    boost::asio::io_context& io_context_;
+    boost::asio::ip::tcp::socket socket_;
+private:
     ErrorCode connect(const boost::asio::ip::tcp::endpoint &ep)
     {
         ErrorCode ec;
         boost::asio::connect(socket_, ep, ec);
         return ec;
     }
-
-private:
-    boost::asio::io_context& io_context_;
-    boost::asio::ip::tcp::socket socket_;
 };

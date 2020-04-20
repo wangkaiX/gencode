@@ -40,7 +40,7 @@ class Manager(ManagerBase):
 
     def gen(self):
         for framework in self._frameworks:
-            if type_set.beast_websocket_async == framework.framework:
+            if type_set.beast_websocket_async == framework.network:
                 # mako_dir = os.path.join(self._mako_dir, 'beast_websocket_async')
                 generator = websocket_async_server.Generator(mako_dir=self._mako_dir,
                                                              service_dir=self._service_dir,
@@ -50,7 +50,7 @@ class Manager(ManagerBase):
                 framework.adapt_name = generator.adapt_name
                 framework.adapt_class_name = generator.adapt_class_name
                 generator.gen()
-            elif type_set.asio_tcp_async == framework.framework:
+            elif type_set.asio_tcp_async == framework.network:
                 generator = tcp_async_client.Generator(mako_dir=self._mako_dir,
                                                        service_dir=self._service_dir,
                                                        framework=framework,

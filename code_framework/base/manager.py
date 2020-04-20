@@ -32,7 +32,7 @@ class Manager:
         self._frameworks = []
 
     def add(self, framework):
-        tool.assert_framework_type(self._code_type, framework.framework)
+        tool.assert_framework_type(self._code_type, framework.network)
         self._frameworks.append(framework)
 
     #  def gen(self):

@@ -160,24 +160,21 @@ public:
 
         // Open the acceptor
         acceptor_.open(endpoint.protocol(), ec);
-        if(ec)
-        {
+        if(ec) {
             SPDLOG_ERROR("acceptor open:[{}]", ec.message());
             return;
         }
 
         // Allow address reuse
         acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
-        if(ec)
-        {
+        if(ec) {
             SPDLOG_ERROR("set_option:[{}]", ec.message());
             return;
         }
 
         // Bind to the server address
         acceptor_.bind(endpoint, ec);
-        if(ec)
-        {
+        if(ec) {
             SPDLOG_ERROR("bind:[{}]", ec.message());
             return;
         }
@@ -185,8 +182,7 @@ public:
         // Start listening for connections
         acceptor_.listen(
             boost::asio::socket_base::max_listen_connections, ec);
-        if(ec)
-        {
+        if(ec) {
             SPDLOG_ERROR("listen:[{}]", ec.message());
             return;
         }
@@ -214,12 +210,10 @@ private:
     void
     on_accept(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket)
     {
-        if(ec)
-        {
+        if(ec) {
             SPDLOG_ERROR("accept:[{}]", ec.message());
         }
-        else
-        {
+        else {
             // Create the session and run it
             std::make_shared<session<Adapt>>(std::move(socket), adapt_ptr_)->run();
         }

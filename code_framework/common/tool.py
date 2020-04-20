@@ -138,10 +138,10 @@ def assert_adapt_type(code_type, adapt_type):
         assert False
 
 
-def assert_framework_type(code_type, framework):
+def assert_framework_type(code_type, network):
     # print(code_type, framework, type_set.code_framework_types)
-    if code_type not in type_set.code_framework_types and framework not in type_set.code_framework_types[code_type]:
-        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_framework_types, code_type, framework))
+    if code_type not in type_set.code_framework_types and network not in type_set.code_framework_types[code_type]:
+        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_framework_types, code_type, network))
         assert False
 
 

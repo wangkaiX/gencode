@@ -1,17 +1,45 @@
 #include <functional>
 #include <map>
 #include <boost/beast.hpp>
+// #include <boost/container/small_vector.hpp>
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <memory>
+#include <spdlog/spdlog.h>
 
 #include "api/types.h"
 #include "api/api.h"
 
-class ${adapt_class_name}
+constexpr size_t buffer_length = 4096;
+thread_local std::vector<char> write_buffer(buffer_length);
+thread_local std::vector<char> read_buffer(buffer_length);
+
+void write_cb(std::shared_ptr<${connection_class_name}> connection_ptr, size_t size, const ${connection_class_name}::ErrorCode &ec)
+{
+    if (ec) {
+        SPDLOG_ERROR("已发送[{}]字节, 失败原因[{}]", size, ec.message());
+        SPDLOG_ERROR("断开与[{}:{}]的连接", connection_ptr->peer_ip(), connection_ptr->peer_port());
+        connection_ptr->close();
+        return;
+    }
+}
+
+void read_cb(std::shared_ptr<${connection_class_name}> connection_ptr, size_t size, const ${connection_class_name}::ErrorCode &ec)
+{
+    if (ec) {
+        SPDLOG_ERROR("已收到[{}]字节, 失败原因[{}]", size, ec.message());
+        SPDLOG_ERROR("断开与[{}:{}]的连接", connection_ptr->peer_ip(), connection_ptr->peer_port());
+        connection_ptr->close();
+        return;
+    }
+}
+
+
+class ${framework.adapt_class_name}
 {
 public:
-    ${adapt_class_name}()
-    {   
+    ${framework.adapt_class_name}()
+    {
         init();
     }
     std::string request(const char *data, size_t length)
@@ -26,36 +54,95 @@ public:
             nlohmann::json j;
             j["code"] = -1; 
             j["msg"] = "解析接口类型失败";
-            std::cout << j.dump(4) << std::endl;
+            SPDLOG_ERROR("解析接口类型失败[{}]", j.dump(4));
             return j.dump();
         }
     }
 private:
     void init()
     {
-        % for api in apis:
+        _write_cb = std::bind(write_cb, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+        _read_cb = std::bind(read_cb, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+
+        % for api in server_apis:
         _callbacks[${api.command_code}] = std::bind(&${framework.adapt_class_name}::${api.name}, this, std::placeholders::_1);
         % endfor
     }
 
-    % for api in apis:
+    // 发送请求
+    % for api in client_apis:
+    % if framework.no_resp:
+    void ${api.name}(const ${api.req.type.name} &req)
+    % else:
+    ${api.resp.type.name} ${api.name}(const ${api.req.type.name} &req)
+    % endif
+    {
+        nlohmann::json j = req;
+        auto msg = j.dump();
+        % if framework.length_length:
+        auto len = getCfg().${service_name}.length_length + msg.size();
+        if (len > write_buffer.size()) {
+            write_buffer.resize(len);
+        }
+        snprintf(write_buffer.data(), getCfg().${service_name}.length_length+1, "%d", len);
+        memcpy(write_buffer.data() + getCfg().${service_name}.length_length, msg.c_str(), msg.size());
+            % if framework.no_resp:
+        _network_ptr->async_write(write_buffer.data(), write_buffer.size(), this->_write_cb)
+                // [_network_ptr](size_t wb, const ErrorCode &ec)
+                // {
+                // if (ec) {
+                //     SPDLOG_ERROR("write data error[{}]", ec.message);
+                //     _network_ptr->close();
+                //     return;
+                // }
+                // });
+            % else:
+        _network_ptr->write(write_buffer.data(), write_buffer.size());
+        // 接收长度
+        _network_ptr->read(read_buffer.data(), getCfg().${service_name}.length_length);
+        len = stoi(std::string(read_buffer.data(), getCfg().${service_name}.length_length));
+        _network_ptr->read(read_buffer.data(), len);
+        j = nlohmann::json::parse(std::string(read_buffer.data(), len));
+        return j;
+            % endif
+        % else:
+            print("未完善的逻辑")
+            assert False
+        % endif
+    }
+
+    % endfor
+
+    // 处理请求
+    % for api in server_apis:
+    % if framework.no_resp:
+    void ${api.name}(const nlohmann::json &json)
+    % else:
     nlohmann::json ${api.name}(const nlohmann::json &json)
+    % endif
     {
         try {
-            return _api_server.${api.name}(json);
+            return _server_ptr->${api.name}(json);
         }
         catch (std::exception &e) {
+            % if framework.no_resp:
+            SPDLOG_ERROR("[{}]", e.what());
+            % else:
             ${api.resp.type.name} resp{};
             resp.code = -1;
             resp.msg = e.what();
-            std::cout << e.what() << std::endl;
+            SPDLOG_ERROR("[{}]", e.what());
             return resp;
+            % endif
         }
     }
 
     % endfor
 private:
-    ApiServer _api_server;
+    std::shared_ptr<${service_class_name}> _server_api_ptr;
+    std::shared_ptr<${network_class_name}> _network_ptr;
+    ${network_class_name}::WriteCallback _write_cb;
+    ${network_class_name}::ReadCallback _read_cb;
     % if isinstance(api.command_code, int):
     std::map<int, std::function<nlohmann::json (nlohmann::json)>> _callbacks;
     % elif isinstance(api.command_code, str):

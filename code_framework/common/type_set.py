@@ -21,7 +21,25 @@ common = 'common'
 
 # class Cpp:
 beast_websocket_async = 'beast_websocket_async'
+beast_websocket_sync = 'beast_websocket_sync'
+
+beast_http_sync = 'beast_http_sync'
+
 asio_tcp_async = 'asio_tcp_async'
+asio_tcp_sync = 'asio_tcp_sync'
+
+asio_udp_async = 'asio_udp_async'
+asio_udp_sync = 'asio_udp_sync'
+
+asio_serialport_async = 'asio_serialport_async'
+asio_serialport_sync = 'asio_serialport_sync'
+
+
+def is_tcp(t):
+    return t in [asio_tcp_async, asio_tcp_sync]
+
+def is_udp(t):
+    return t in [asio_udp_async, asio_udp_sync]
 
 
 # class CppAdapt:

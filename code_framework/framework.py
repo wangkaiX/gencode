@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from code_framework.common import tool
+from code_framework.common import type_set
 from code_framework.common.meta import Node
 from code_framework.common import enum_type
 # from code_framework.common import type_set
@@ -13,16 +14,17 @@ import util.python.util as util
 
 
 class Framework:
-    def __init__(self, service_name, framework, adapt, protocol_filename,
+    def __init__(self, service_name, network, adapt, protocol_filename,
                  heartbeat_interval_second,
                  heartbeat_miss_max,
                  server_ip, server_port,
                  is_server, gen_doc, gen_test,
-                 gen_mock,
+                 gen_mock, length_length=None,
                  ):
-        self.__framework = framework
+        self.__network = network
         self.__adapt = adapt
         self.__protocol_filename = protocol_filename
+        self.__length_length = length_length
 
         self.service_name = service_name
         if is_server:
@@ -39,7 +41,10 @@ class Framework:
             cfg["ip"] = server_ip
         elif not is_server:
             cfg["ip"] = server_ip
+
         cfg["port"] = server_port
+        if type_set.is_tcp(self.__network):
+            cfg["length_length"] = self.__length_length
         '''
         self.heartbeat_interval_second = heartbeat_interval_second
         self.heartbeat_miss_max = heartbeat_miss_max
@@ -76,12 +81,16 @@ class Framework:
     #     return self.__service_name
 
     @property
+    def length_length(self):
+        return self.__length_length
+
+    @property
     def command_name(self):
         return self.__tree_map["command_name"]
 
     @property
-    def framework(self):
-        return self.__framework
+    def network(self):
+        return self.__network
 
     @property
     def adapt(self):
