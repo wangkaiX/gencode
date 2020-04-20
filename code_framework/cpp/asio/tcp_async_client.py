@@ -21,6 +21,7 @@ class Generator(GeneratorBase):
                            framework=self.__framework,
                            apis=self.__framework.apis,
                            log=self.__log,
+                           connection_class_name="TcpConnection",
                            )
 
     def __gen_network(self):

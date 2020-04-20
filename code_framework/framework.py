@@ -16,7 +16,7 @@ import util.python.util as util
 class Framework:
     def __init__(self, service_name, network, adapt, protocol_filename,
                  heartbeat_interval_second,
-                 heartbeat_miss_max,
+                 heartbeat_miss_max, no_resp,
                  server_ip, server_port,
                  is_server, gen_doc, gen_test,
                  gen_mock, length_length=None,
@@ -25,6 +25,7 @@ class Framework:
         self.__adapt = adapt
         self.__protocol_filename = protocol_filename
         self.__length_length = length_length
+        self.__no_resp = no_resp
 
         self.service_name = service_name
         if is_server:
@@ -62,7 +63,11 @@ class Framework:
 
         parser = protocol_parser.Parser(protocol_filename)
         self.__tree_map = parser.parse()
+
         self.__apis = []
+        self.__client_apis = []
+        self.__server_apis = []
+
         self.__config = None
         self.__default_map = None
         self.__enums = []
@@ -79,6 +84,10 @@ class Framework:
     # @property
     # def service_name(self):
     #     return self.__service_name
+
+    @property
+    def no_resp(self):
+        return self.__no_resp
 
     @property
     def length_length(self):
@@ -173,6 +182,18 @@ class Framework:
     @property
     def apis(self):
         return self.__apis
+
+    @property
+    def server_apis(self):
+        if not self.__server_apis:
+            self.__server_apis = [api for api in self.apis if api.is_server]
+        return self.__server_apis
+
+    @property
+    def client_apis(self):
+        if not self.__client_apis:
+            self.__client_apis = [api for api in self.apis if not api.is_server]
+        return self.__client_apis
 
     # @property
     # def config(self):
