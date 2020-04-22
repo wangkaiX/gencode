@@ -31,7 +31,7 @@ if __name__ == '__main__':
             )
 
     websocket_server = framework.Framework(
-            service_name='webexample',
+            service_name='websocket_example',
             network=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径

@@ -30,15 +30,6 @@ class Generator(GeneratorBase):
                            )
 
     def __gen_network(self):
-        mako_file = os.path.join(self._mako_dir, 'beast', 'websocket_async_server.h')
-        out_file = os.path.join(self._service_dir, 'network', 'websocket_async_server.h')
-        tool.gen_code_file(mako_file, out_file,
-                           framework=self._framework,
-                           gen_upper_camel=util.gen_upper_camel,
-                           log=self._log,
-                           # apis=self._framework.apis,
-                           )
-
         mako_file = os.path.join(self._mako_dir, 'beast', 'websocket_connection.h')
         out_file = os.path.join(self._service_dir, 'network', 'websocket_connection.h')
         tool.gen_code_file(mako_file, out_file,

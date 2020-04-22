@@ -10,137 +10,16 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include "websocket_connection.h"
 % if log == "spdlog":
 #include <spdlog/spdlog.h>
 % endif
 
-template <typename Adapt>
-class session : public std::enable_shared_from_this<session<Adapt>>
-{
-    boost::beast::websocket::stream<boost::beast::tcp_stream> ws_;
-    boost::beast::flat_buffer buffer_;
-    std::shared_ptr<Adapt> adapt_ptr_;
-
-public:
-    // Take ownership of the socket
-    explicit
-    session(boost::asio::ip::tcp::socket&& socket, std::shared_ptr<Adapt> adapt_ptr)
-        : ws_(std::move(socket))
-        , adapt_ptr_(adapt_ptr)
-    {
-    }
-
-    // Get on the correct executor
-    void
-    run()
-    {
-        // We need to be executing within a strand to perform async operations
-        // on the I/O objects in this session. Although not strictly necessary
-        // for single-threaded contexts, this example code is written to be
-        // thread-safe by default.
-        boost::asio::dispatch(ws_.get_executor(),
-            boost::beast::bind_front_handler(
-                &session::on_run,
-                this->shared_from_this()));
-    }
-
-    // Start the asynchronous operation
-    void
-    on_run()
-    {
-        // Set suggested timeout settings for the boost::beast::websocket
-        ws_.set_option(
-            boost::beast::websocket::stream_base::timeout::suggested(
-                boost::beast::role_type::server));
-
-        // Set a decorator to change the Server of the handshake
-        ws_.set_option(boost::beast::websocket::stream_base::decorator(
-            [](boost::beast::websocket::response_type& res)
-            {
-                res.set(boost::beast::http::field::server,
-                    std::string(BOOST_BEAST_VERSION_STRING) +
-                        " boost::beast::websocket-server-async");
-            }));
-        // Accept the boost::beast::websocket handshake
-        ws_.async_accept(
-            boost::beast::bind_front_handler(
-                &session::on_accept,
-                this->shared_from_this()));
-    }
-
-    void
-    on_accept(boost::beast::error_code ec)
-    {
-        if(ec) {
-            SPDLOG_ERROR("accept:[{}]", ec.message());
-            return;
-        }
-
-        // Read a message
-        do_read();
-    }
-
-    void
-    do_read()
-    {
-        // Read a message into our buffer
-        ws_.async_read(
-            buffer_,
-            boost::beast::bind_front_handler(
-                &session::on_read,
-                this->shared_from_this()));
-    }
-
-    void
-    on_read(
-        boost::beast::error_code ec,
-        std::size_t bytes_transferred)
-    {
-        boost::ignore_unused(bytes_transferred);
-
-        // This indicates that the session was closed
-        if(ec == boost::beast::websocket::error::closed)
-            return;
-
-        if(ec) {
-            SPDLOG_ERROR("read:[{}]", ec.message());
-        }
-
-        auto resp = adapt_ptr_->request(static_cast<const char*>(buffer_.data().data()), buffer_.data().size());
-        ws_.text(ws_.got_text());
-        ws_.async_write(
-            boost::asio::buffer(resp),
-            boost::beast::bind_front_handler(
-                &session::on_write,
-                this->shared_from_this()));
-    }
-
-    void
-    on_write(
-        boost::beast::error_code ec,
-        std::size_t bytes_transferred)
-    {
-        boost::ignore_unused(bytes_transferred);
-
-        if(ec) {
-            SPDLOG_ERROR("write:[{}]", ec.message());
-            return;
-        }
-
-        // Clear the buffer
-        buffer_.consume(buffer_.size());
-
-        // Do another read
-        do_read();
-    }
-};
-
-//------------------------------------------------------------------------------
 <%
     service_class_name = framework.service_class_name
 %>
 
-// Accepts incoming connections and launches the sessions
+// Accepts incoming connections and launches the WebsocketConnections
 template <typename Adapt>
 class ${service_class_name}: public std::enable_shared_from_this<${service_class_name}<Adapt>>
 {
@@ -214,8 +93,8 @@ private:
             SPDLOG_ERROR("accept:[{}]", ec.message());
         }
         else {
-            // Create the session and run it
-            std::make_shared<session<Adapt>>(std::move(socket), adapt_ptr_)->run();
+            // Create the WebsocketConnection and run it
+            std::make_shared<WebsocketConnection<Adapt>>(std::move(socket), adapt_ptr_)->run();
         }
 
         // Accept another connection
