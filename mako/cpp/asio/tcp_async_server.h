@@ -20,7 +20,7 @@
 #include "tcp_connection.h"
 
 //----------------------------------------------------------------------
-template <typename Adapt>
+// template <typename Adapt>
 class TcpServer
 {
 public:
@@ -49,7 +49,7 @@ private:
             [this](boost::system::error_code ec, boost::asio::ip::tcp::socket socket)
             {
                 if (!ec) {
-                  auto connection_ptr = std::make_shared<TcpConnection<Adapt>>(_io_context, std::move(socket));
+                  auto connection_ptr = std::make_shared<TcpConnection>(_io_context, std::move(socket));
                 }
 
                 do_accept();

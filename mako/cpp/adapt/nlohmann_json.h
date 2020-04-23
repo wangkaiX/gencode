@@ -6,24 +6,25 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-#include "network/tcp_connection.h"
-#include "common/types.h"
-#include "common/common_api.h"
+#include "${framework.service_name}/types.h"
+#include "${framework.service_name}/api.h"
+#include "config/config.h"
 
 % for include in include_list:
 #include "${include}"
 % endfor
 
 constexpr size_t buffer_length = 4096;
+constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 // thread_local std::vector<char> write_buffer(buffer_length);
 thread_local std::vector<char> write_buffer;
 thread_local std::vector<char> read_buffer;
 
 
 template <typename Connection>
-class ${adapt_class_name}
+class ${framework.adapt_class_name}
 {
-    void write_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const Connection::ErrorCode &ec)
+    void write_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const typename Connection::ErrorCode &ec)
     {
         if (ec) {
             SPDLOG_ERROR("已发送[{}]字节, 失败原因[{}]", size, ec.message());
@@ -32,7 +33,7 @@ class ${adapt_class_name}
         }
     }
     
-    void read_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const Connection::ErrorCode &ec)
+    void read_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const typename Connection::ErrorCode &ec)
     {
         if (ec) {
             SPDLOG_ERROR("已收到[{}]字节, 失败原因[{}]", size, ec.message());
@@ -42,14 +43,52 @@ class ${adapt_class_name}
     }
 
 public:
-    ${adapt_class_name}()
+    ${framework.adapt_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
+        % if framework.is_server:
+        : _server_ptr(std::make_shared<Server>(io_context, ep))
+        % else:
+        : _connection_ptr(std::make_shared<Connection>(io_context, ep))
+        % endif
     {
         init();
     }
-    std::string request(const char *data, size_t length)
+    int receive_length(std::shared_ptr<char[]> buffer, size_t length, const typename Connection::ErrorCode &ec)
     {
+        if (ec) {
+            SPDLOG_ERROR("receive length error[{}]", ec.message());
+            return -1;
+        }
+        auto len = stoi(std::string(buffer.get(), getCfg().${framework.service_name}.length_length));
+        size_t new_buffer_length = _buffer_length;
+        // TODO 接收完body后是否需要缩小空间, 是否需要设置一个接收上限，防止过大长度
+        if (len > max_buffer_length) {
+            SPDLOG_ERROR("长度过大[{}]", len);
+            // TODO 丢弃并返回失败原因
+            // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
+            _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                    std::bind(&${framework.adapt_class_name}::receive_length, this, buffer, std::placeholders::_1, std::placeholders::_2));
+            return -1;
+        }
+        while (len >= new_buffer_length) {
+            new_buffer_length += buffer_length;
+        }
+        if (new_buffer_length != _buffer_length) {
+            buffer.reset(new char[new_buffer_length]);
+            _buffer_length = new_buffer_length;
+        }
+        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                std::bind(&${framework.adapt_class_name}::receive_body, this, buffer, std::placeholders::_1, std::placeholders::_2));
+    }
+    std::string receive_body(std::shared_ptr<char[]> buffer, size_t length, const typename Connection::ErrorCode &ec)
+    {
+        if (ec) {
+            SPDLOG_ERROR("receive body error[{}]", ec.message());
+            return "";
+        }
+        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                std::bind(&${framework.adapt_class_name}::receive_length, this, buffer, std::placeholders::_1, std::placeholders::_2));
         try {
-            std::string msg(data, length);
+            std::string msg(buffer.get(), length);
             auto json = nlohmann::json::parse(msg);
             int command = json["${framework.command_name}"];
             return _callbacks[command](json).dump();
@@ -65,23 +104,26 @@ public:
 private:
     void init()
     {
-        _write_cb = std::bind(&${adapt_class_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
-        _read_cb = std::bind(&${adapt_class_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+        _write_cb = std::bind(&${framework.adapt_class_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+        _read_cb = std::bind(&${framework.adapt_class_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
 
         % for api in framework.server_apis:
-        _callbacks[${api.command_code}] = std::bind(&${adapt_class_name}::${api.name}, this, std::placeholders::_1);
+        _callbacks[${api.command_code}] = std::bind(&${framework.adapt_class_name}::${api.name}, this, std::placeholders::_1);
         % endfor
+        % if len(framework.server_apis) > 0:
+        std::shared_ptr<char[]> buffer(new char[buffer_length]);
+        _buffer_length = buffer_length;
+        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                std::bind(&${framework.adapt_class_name}::receive_length, this, buffer, std::placeholders::_1, std::placeholders::_2));
+        % endif 
     }
 
-    // 发送请求
-    % for api in framework.client_apis:
-    % if api.no_resp:
-    void ${api.name}(const ${api.req.type.name} &req)
+    % if framework.no_resp:
+    void request(const nlohmann::json &j)
     % else:
-    ${api.resp.type.name} ${api.name}(const ${api.req.type.name} &req)
+    nlohmann::json request(const nlohmann::json &j)
     % endif
     {
-        nlohmann::json j = req;
         auto msg = j.dump();
         % if framework.length_length:
         auto len = getCfg().${framework.service_name}.length_length + msg.size();
@@ -95,16 +137,32 @@ private:
             % else:
         _connection_ptr->write(write_buffer.data(), write_buffer.size());
         // 接收长度
+        if (getCfg().${framework.service_name}.length_length > read_buffer.size()) {
+            read_buffer.resize(getCfg().${framework.service_name}.length_length);
+        }
         _connection_ptr->read(read_buffer.data(), getCfg().${framework.service_name}.length_length);
         len = stoi(std::string(read_buffer.data(), getCfg().${framework.service_name}.length_length));
+
+        if (len > read_buffer.size()) {
+            read_buffer.resize(len);
+        }
         _connection_ptr->read(read_buffer.data(), len);
-        j = nlohmann::json::parse(std::string(read_buffer.data(), len));
-        return j;
+        return nlohmann::json::parse(std::string(read_buffer.data(), len));
             % endif
         % else:
             print("未完善的逻辑")
             assert False
         % endif
+    }
+    // 发送请求
+    % for api in framework.client_apis:
+    % if api.no_resp:
+    void ${api.name}(const ${api.req.type.name} &req)
+    % else:
+    ${api.resp.type.name} ${api.name}(const ${api.req.type.name} &req)
+    % endif
+    {
+        return request(req);
     }
 
     % endfor
@@ -135,10 +193,16 @@ private:
 
     % endfor
 private:
-    std::shared_ptr<${framework.service_class_name}> _server_api_ptr;
+    std::shared_ptr<${framework.service_class_name}Api> _server_api_ptr;
+    % if framework.is_server:
+    std::shared_ptr<Connection> _server_ptr;
+    % else:
     std::shared_ptr<Connection> _connection_ptr;
-    Connection::WriteCallback _write_cb;
-    Connection::ReadCallback _read_cb;
+    % endif
+    typename Connection::WriteCallback _write_cb;
+    typename Connection::ReadCallback _read_cb;
+    boost::asio::ip::tcp::endpoint _remote_ep;
+    size_t _buffer_length{0};
 
     % if isinstance(api.command_code, int):
     std::map<int, std::function<nlohmann::json (nlohmann::json)>> _callbacks;

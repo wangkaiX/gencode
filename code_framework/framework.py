@@ -86,6 +86,20 @@ class Framework:
     # def service_name(self):
     #     return self.__service_name
     @property
+    def adapt_name(self):
+        if self.__is_server:
+            suffix = 'server'
+        else:
+            suffix = 'client'
+        # return type_set.adapt_name[self._framework.adapt] + suffix
+        return "%s_%s_%s" % (type_set.adapt_name[self.__adapt],
+                             self.__service_name, suffix)
+
+    @property
+    def adapt_class_name(self):
+        return util.gen_upper_camel(self.adapt_name)
+
+    @property
     def service_name(self):
         return self.__service_name
 
@@ -159,13 +173,14 @@ class Framework:
     def __parser_api(self, api_map):
         for k, v in api_map.items():
             api = Api(k, v, self.__default_map)
+            api.no_resp = self.no_resp
             self.__apis.append(api)
             if api.opposite:
                 self.__client_apis.append(api)
             else:
                 self.__server_apis.append(api)
-            if not self.__is_server:
-                self.__server_apis, self.__client_apis = self.__client_apis, self.__server_apis
+        if not self.__is_server:
+            self.__server_apis, self.__client_apis = self.__client_apis, self.__server_apis
 
     def __parser_config(self, node_name, tree_map):
         self.__config = Node(None, node_name, tree_map[node_name])
@@ -261,7 +276,12 @@ class Api:
 
     @property
     def no_resp(self):
+        assert self.__no_resp is not None
         return self.__no_resp
+
+    @no_resp.setter
+    def no_resp(self, v):
+        self.__no_resp = v
 
     @property
     def command_code(self):

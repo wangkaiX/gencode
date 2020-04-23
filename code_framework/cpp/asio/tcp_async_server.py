@@ -15,34 +15,33 @@ class Generator(GeneratorBase):
         self.__gen_network()
 
     def __gen_network_adapt(self):
-        mako_file = os.path.join(self._mako_dir, 'adapt', '%s.h' % self._framework.adapt)
-        out_file = os.path.join(self._service_dir, self._framework.service_name, '%s.h' % self._framework.adapt_name)
-        include_list = ['network/websocket_connection.h']
+        mako_file = os.path.join(self._mako_dir, 'adapt',  '%s.h' % self._framework.adapt)
+        out_file = os.path.join(self._service_dir, self._framework.service_name, '%s.h' % self.adapt_name)
+        include_list = ['network/tcp_connection.h']
         tool.gen_code_file(mako_file, out_file,
                            framework=self._framework,
-                           apis=self._framework.apis,
+                           # apis=self._framework.apis,
+                           adapt_class_name=self.adapt_class_name,
                            log=self._log,
-                           connection_class_name="WebsocketConnection",
-                           server_apis=self._framework.server_apis,
-                           client_apis=self._framework.client_apis,
+                           connection_class_name="TcpConnection",
                            include_list=include_list,
                            )
 
     def __gen_network(self):
-        mako_file = os.path.join(self._mako_dir, 'beast', 'websocket_async_server.h')
-        out_file = os.path.join(self._service_dir, 'network', 'websocket_async_server.h')
+        mako_file = os.path.join(self._mako_dir, 'asio', 'tcp_connection.h')
+        out_file = os.path.join(self._service_dir, 'network', 'tcp_connection.h')
         tool.gen_code_file(mako_file, out_file,
                            framework=self._framework,
                            gen_upper_camel=util.gen_upper_camel,
                            log=self._log,
-                           # apis=self._framework.apis,
+                           # apis=self.__framework.apis,
                            )
 
-        mako_file = os.path.join(self._mako_dir, 'beast', 'websocket_connection.h')
-        out_file = os.path.join(self._service_dir, 'network', 'websocket_connection.h')
+        mako_file = os.path.join(self._mako_dir, 'asio', 'tcp_async_server.h')
+        out_file = os.path.join(self._service_dir, 'network', 'tcp_async_server.h')
         tool.gen_code_file(mako_file, out_file,
                            framework=self._framework,
                            gen_upper_camel=util.gen_upper_camel,
                            log=self._log,
-                           # apis=self._framework.apis,
+                           # apis=self.__framework.apis,
                            )

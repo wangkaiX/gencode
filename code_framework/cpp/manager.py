@@ -8,7 +8,7 @@ from code_framework.common import tool
 from code_framework.common.meta import Node
 from code_framework.base.manager import Manager as ManagerBase
 from code_framework.cpp.beast import websocket_async_server
-from code_framework.cpp.asio import tcp_async_client
+from code_framework.cpp.asio import tcp_async
 from util.python import util
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
@@ -48,21 +48,16 @@ class Manager(ManagerBase):
                                                              framework=framework,
                                                              log=self._log,
                                                              )
-                framework.adapt_name = generator.adapt_name
-                framework.adapt_class_name = generator.adapt_class_name
-                generator.gen()
             elif type_set.asio_tcp_async == framework.network:
-                generator = tcp_async_client.Generator(mako_dir=self._mako_dir,
-                                                       service_dir=self._service_dir,
-                                                       framework=framework,
-                                                       log=self._log,
-                                                       )
-                framework.adapt_name = generator.adapt_name
-                framework.adapt_class_name = generator.adapt_class_name
-                generator.gen()
+                generator = tcp_async.Generator(mako_dir=self._mako_dir,
+                                                service_dir=self._service_dir,
+                                                framework=framework,
+                                                log=self._log,
+                                                )
+            generator.gen()
 
         # types
-        self._gen_types()
+        # self._gen_types()
         self._gen_apis()
         self._gen_init()
         self._gen_main()
@@ -123,32 +118,65 @@ class Manager(ManagerBase):
 
     def _gen_apis(self):
         # header
-        mako_file = os.path.join(self._mako_dir, 'common', 'common_api.h')
-        out_file = os.path.join(self._service_dir, 'common', 'common_api.h')
 
-        server_apis = []
         for framework in self._frameworks:
-            server_apis += framework.server_apis
-        server_apis = util.unique(server_apis)
+            server_apis = framework.server_apis
+            server_apis = util.unique(server_apis)
+            client_apis = framework.client_apis
+            client_apis = util.unique(client_apis)
 
-        client_apis = []
-        for framework in self._frameworks:
-            client_apis += framework.client_apis
-        client_apis = util.unique(client_apis)
+            if type_set.beast_websocket_async == framework.network:
+                include_list = ["network/websocket_connection.h"]
+                connection_class_name = "WebsocketConnection"
+            elif type_set.asio_tcp_async == framework.network:
+                include_list = ["network/tcp_connection.h"]
+                connection_class_name = "TcpConnection"
+            else:
+                assert False
 
-        tool.gen_code_file(mako_file, out_file,
-                           server_apis=server_apis,
-                           client_apis=client_apis,
-                           )
+            # apis.h
+            mako_file = os.path.join(self._mako_dir, 'service', 'api.h')
+            out_file = os.path.join(self._service_dir, framework.service_name, 'api.h')
+            tool.gen_code_file(mako_file, out_file,
+                               framework=framework,
+                               adapt_name=framework.adapt_name,
+                               adapt_class_name=framework.adapt_class_name,
+                               # no_resp=framework.no_resp,
+                               include_list=include_list,
+                               connection_class_name=connection_class_name,
+                               # server_apis=server_apis,
+                               # client_apis=client_apis,
+                               )
 
-        mako_file = os.path.join(self._mako_dir, 'common', 'common_api.cpp')
-        # apis = []
-        # for framework in self._frameworks:
-        #     apis += framework.apis
-        for api in server_apis:
-            out_file = os.path.join(self._service_dir, 'common', api.name + '.cpp')
-            if not os.path.exists(out_file):
-                tool.gen_code_file(mako_file, out_file,
-                                   api=api,
-                                   log=self._log,
-                                   )
+            # server_apis
+            mako_file = os.path.join(self._mako_dir, 'service', 'server_api.cpp')
+            for api in server_apis:
+                out_file = os.path.join(self._service_dir, framework.service_name, api.name + '.cpp')
+                if not os.path.exists(out_file):
+                    tool.gen_code_file(mako_file, out_file,
+                                       framework=framework,
+                                       # no_resp=framework.no_resp,
+                                       api=api,
+                                       log=self._log,
+                                       )
+            # client_apis.h
+            mako_file = os.path.join(self._mako_dir, 'service', 'client_apis.cpp')
+            out_file = os.path.join(self._service_dir, framework.service_name, 'client_apis.cpp')
+            tool.gen_code_file(mako_file, out_file,
+                               framework=framework,
+                               # no_resp=framework.no_resp,
+                               # server_apis=server_apis,
+                               # client_apis=client_apis,
+                               )
+
+            # types
+            mako_file = os.path.join(self._mako_dir, 'service', 'types.h')
+            out_file = os.path.join(self._service_dir, framework.service_name, 'types.h')
+            nodes = framework.nodes
+            enums = framework.enums
+            std_includes = ['vector', 'string']
+            tool.gen_code_file(mako_file, out_file,
+                               nodes=nodes,
+                               std_includes=std_includes,
+                               enums=enums,
+                               )

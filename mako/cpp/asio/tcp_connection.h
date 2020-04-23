@@ -1,3 +1,4 @@
+#pragma once
 #include <chrono>
 #include <boost/asio.hpp>
 
@@ -26,6 +27,16 @@ public:
     ~TcpConnection()
     {
         this->close();
+    }
+
+    const boost::asio::ip::tcp::endpoint remote_endpoint() const
+    {
+        return socket_.remote_endpoint();
+    }
+
+    const boost::asio::ip::tcp::endpoint local_endpoint() const
+    {
+        return socket_.local_endpoint();
     }
 
     template <typename Rep, typename Period>
@@ -95,3 +106,9 @@ private:
         return ec;
     }
 };
+
+#include "spdlog/fmt/ostr.h"
+inline std::ostream &operator<<(std::ostream &os, const boost::asio::ip::tcp::endpoint &ep)
+{
+    return os << ep.address().to_string() << ":" << ep.port();
+}
