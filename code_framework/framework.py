@@ -5,6 +5,7 @@ from code_framework.common import tool
 from code_framework.common import type_set
 from code_framework.common.meta import Node
 from code_framework.common import enum_type
+# from code_framework.common import error_code
 # from code_framework.common import type_set
 from code_framework.common import protocol_parser
 # from code_framework.common import generator
@@ -15,6 +16,7 @@ import util.python.util as util
 
 class Framework:
     def __init__(self, service_name, network, adapt, protocol_filename,
+                 error_code,
                  heartbeat_interval_second,
                  heartbeat_miss_max, no_resp,
                  server_ip, server_port,
@@ -27,6 +29,7 @@ class Framework:
         self.__length_length = length_length
         self.__no_resp = no_resp
         self.__is_server = is_server
+        self.__error_code = error_code
 
         self.__service_name = service_name
         if is_server:
@@ -81,6 +84,10 @@ class Framework:
 
         # parser
         self.__parser(self.__tree_map)
+
+    @property
+    def error_code(self):
+        return self.__error_code
 
     # @property
     # def service_name(self):

@@ -16,19 +16,19 @@ class Manager:
                  # 项目生成路径
                  service_dir,
                  # 错误码配置文件
-                 error_code,
+                 # error_code,
                  # 错误码输出目录
-                 error_outdir,
-                 doc_outdir,
+                 # error_outdir,
+                 # doc_outdir,
                  ):
         self._project_name = project_name
         self._code_type = code_type
         self._mako_dir = mako_dir
         self._log = log
         self._service_dir = service_dir
-        self._error_code = error_code
-        self._error_outdir = error_outdir
-        self._doc_outdir = doc_outdir
+        # self._error_code = error_code
+        # self._error_outdir = error_outdir
+        # self._doc_outdir = doc_outdir
         self._frameworks = []
 
     def add(self, framework):

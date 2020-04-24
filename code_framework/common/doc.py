@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.common import tool
+from code_framework.common import tool
 
 
 # 接口文档
 class Doc:
-    def __init__(self, mako_file, doc_name, apis, enums, errnos):
+    def __init__(self, mako_file, out_file, apis, enums, errnos):
         self.__apis = apis
-        self.__doc_name = doc_name
+        self.__doc_out_file = out_file
         self.__mako_file = mako_file
         self.__enums = enums
         self.__errnos = errnos
 
-    def gen_doc(self, apis):
+    def gen(self):
         tool.gen_code_file(self.__mako_file,
-                           self.__doc_name,
+                           self.__doc_out_file,
                            apis=self.__apis,
                            dict2json=tool.dict2json,
                            url_param2text=tool.url_param2text,

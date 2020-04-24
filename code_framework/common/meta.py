@@ -29,6 +29,10 @@ class Member:
             self._note = self._name
 
     @property
+    def full_path(self):
+        return self._full_path
+
+    @property
     def grpc_index(self):
         assert self._grpc_index is not None
         return self._grpc_index

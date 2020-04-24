@@ -9,6 +9,7 @@ from code_framework.common.meta import Node
 from code_framework.base.manager import Manager as ManagerBase
 from code_framework.cpp.beast import websocket_async_server
 from code_framework.cpp.asio import tcp_async
+from code_framework.common import doc
 from util.python import util
 # from data_type import err_code, err_msg, gen_title_name
 # from mako.template import Template
@@ -26,30 +27,33 @@ class Manager(ManagerBase):
                  # 项目生成路径
                  service_dir,
                  # 错误码配置文件
-                 error_code,
+                 # error_code,
                  # 错误码输出目录
-                 error_outdir,
-                 doc_outdir,
+                 # error_outdir,
+                 # doc_outdir,
                  ):
         # xxx/mako/cpp
         ManagerBase.__init__(self, project_name=project_name, code_type=type_set.cpp,
-                             mako_dir=mako_dir, service_dir=service_dir, error_code=error_code,
-                             error_outdir=error_outdir, doc_outdir=doc_outdir, log=log)
-        self._mako_dir = os.path.join(self._mako_dir, 'cpp')
+                             mako_dir=mako_dir, service_dir=service_dir,
+                             # error_code=error_code,
+                             # error_outdir=error_outdir,
+                             # doc_outdir=doc_outdir,
+                             log=log)
+        self._cpp_mako_dir = os.path.join(self._mako_dir, 'cpp')
         # self._service_dir = service_dir
         self._frameworks = []
 
     def gen(self):
         for framework in self._frameworks:
             if type_set.beast_websocket_async == framework.network:
-                # mako_dir = os.path.join(self._mako_dir, 'beast_websocket_async')
-                generator = websocket_async_server.Generator(mako_dir=self._mako_dir,
+                # mako_dir = os.path.join(self._cpp_mako_dir, 'beast_websocket_async')
+                generator = websocket_async_server.Generator(mako_dir=self._cpp_mako_dir,
                                                              service_dir=self._service_dir,
                                                              framework=framework,
                                                              log=self._log,
                                                              )
             elif type_set.asio_tcp_async == framework.network:
-                generator = tcp_async.Generator(mako_dir=self._mako_dir,
+                generator = tcp_async.Generator(mako_dir=self._cpp_mako_dir,
                                                 service_dir=self._service_dir,
                                                 framework=framework,
                                                 log=self._log,
@@ -64,7 +68,7 @@ class Manager(ManagerBase):
         self._gen_config()
 
     def _gen_main(self):
-        mako_file = os.path.join(self._mako_dir, 'main.cpp')
+        mako_file = os.path.join(self._cpp_mako_dir, 'main.cpp')
         out_file = os.path.join(self._service_dir, 'main', 'main.cpp')
         tool.gen_code_file(mako_file, out_file,
                            frameworks=self._frameworks,
@@ -74,7 +78,7 @@ class Manager(ManagerBase):
         pass
 
     def _gen_config(self):
-        mako_file = os.path.join(self._mako_dir, 'config.h')
+        mako_file = os.path.join(self._cpp_mako_dir, 'config.h')
         out_file = os.path.join(self._service_dir, 'config', 'config.h')
         std_includes = ['vector', 'string']
         config = {}
@@ -93,7 +97,7 @@ class Manager(ManagerBase):
             json.dump(config, f, ensure_ascii=False, indent=4)
 
     def _gen_types(self):
-        mako_file = os.path.join(self._mako_dir, 'common', 'types.h')
+        mako_file = os.path.join(self._cpp_mako_dir, 'common', 'types.h')
         out_file = os.path.join(self._service_dir, 'common', 'types.h')
         std_includes = ['vector', 'string']
         enums = []
@@ -135,7 +139,7 @@ class Manager(ManagerBase):
                 assert False
 
             # apis.h
-            mako_file = os.path.join(self._mako_dir, 'service', 'api.h')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'api.h')
             out_file = os.path.join(self._service_dir, framework.service_name, 'api.h')
             tool.gen_code_file(mako_file, out_file,
                                framework=framework,
@@ -149,7 +153,7 @@ class Manager(ManagerBase):
                                )
 
             # server_apis
-            mako_file = os.path.join(self._mako_dir, 'service', 'server_api.cpp')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'server_api.cpp')
             for api in server_apis:
                 out_file = os.path.join(self._service_dir, framework.service_name, api.name + '.cpp')
                 if not os.path.exists(out_file):
@@ -160,7 +164,7 @@ class Manager(ManagerBase):
                                        log=self._log,
                                        )
             # client_apis.h
-            mako_file = os.path.join(self._mako_dir, 'service', 'client_apis.cpp')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'client_apis.cpp')
             out_file = os.path.join(self._service_dir, framework.service_name, 'client_apis.cpp')
             tool.gen_code_file(mako_file, out_file,
                                framework=framework,
@@ -170,7 +174,7 @@ class Manager(ManagerBase):
                                )
 
             # types
-            mako_file = os.path.join(self._mako_dir, 'service', 'types.h')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'types.h')
             out_file = os.path.join(self._service_dir, framework.service_name, 'types.h')
             nodes = framework.nodes
             enums = framework.enums
@@ -180,3 +184,13 @@ class Manager(ManagerBase):
                                std_includes=std_includes,
                                enums=enums,
                                )
+
+            # doc
+            mako_file = os.path.join(self._mako_dir, 'doc_tcp_json.md')
+            out_file = os.path.join(self._service_dir, framework.service_name, 'doc', '%s.md' % framework.service_name)
+            doc_generator = doc.Doc(mako_file=mako_file,
+                                    out_file=out_file,
+                                    apis=framework.apis,
+                                    enums=framework.enums,
+                                    errnos=framework.error_code.errnos)
+            doc_generator.gen()

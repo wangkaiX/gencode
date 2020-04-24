@@ -6,8 +6,8 @@ class TcpConnection
 {
 public:
     using ErrorCode = boost::system::error_code;
-    using WriteCallback = std::function<void(size_t size, const ErrorCode&)>;
-    using ReadCallback = std::function<void(size_t size, const ErrorCode&)>;
+    using WriteCallback = std::function<void(const ErrorCode&, size_t)>;
+    using ReadCallback = std::function<void(const ErrorCode&, size_t)>;
     using WaitCallback = std::function<void(const ErrorCode&)>;
     using TimerCallback = std::function<void(const ErrorCode&)>;
 public:
@@ -84,10 +84,16 @@ public:
         return ec;
     }
 
-    void async_read(char *data, size_t length, WriteCallback cb)
+    void async_read(char *data, size_t length, ReadCallback cb)
     {
         using namespace boost::asio;
         boost::asio::async_read(socket_, buffer(data, length), cb);
+    }
+
+    void async_read_some(char *data, size_t length, ReadCallback cb)
+    {
+        using namespace boost::asio;
+        socket_.async_read_some(buffer(data, length), cb);
     }
 
     void close()
@@ -102,7 +108,7 @@ private:
     ErrorCode connect(const boost::asio::ip::tcp::endpoint &ep)
     {
         ErrorCode ec;
-        boost::asio::connect(socket_, ep, ec);
+        socket_.connect(ep, ec);
         return ec;
     }
 };

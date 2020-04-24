@@ -20,14 +20,10 @@ if __name__ == '__main__':
             service_dir=dst_dir,
             # 日志选取
             log=type_set.spdlog,
-            # 错误码配置文件
-            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
-            # 错误码输出目录
-            error_outdir=os.path.join(dst_dir, "src", "types", "errno"),
             # 接口文档输出目录:[docname].md包含所有文档，如果打了标签，则会另外生成 docname_[tag].md 命名格式的文档
             # TODO
             # 同时会生成docname.html格式的文档，与[md]格式的文档一一对应
-            doc_outdir=os.path.join(dst_dir, "doc", "docname.md"),
+            # doc_outdir=os.path.join(dst_dir, "doc", "docname.md"),
             )
 
     websocket_server = framework.Framework(
@@ -36,6 +32,8 @@ if __name__ == '__main__':
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
+            # 错误码配置文件
+            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
             no_resp=False,
@@ -53,6 +51,8 @@ if __name__ == '__main__':
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
+            # 错误码配置文件
+            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
             length_length=8,
@@ -73,6 +73,8 @@ if __name__ == '__main__':
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
             protocol_filename="json/api_gin.json5",
+            # 错误码配置文件
+            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
             length_length=8,

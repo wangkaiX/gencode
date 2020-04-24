@@ -10,9 +10,7 @@ def get_manager(code_type,
                 mako_dir,
                 log,
                 service_dir,
-                error_code,
-                error_outdir,
-                doc_outdir,
+                # doc_outdir,
                 ):
     if type_set.cpp == code_type:
         MT = CppM
@@ -23,7 +21,7 @@ def get_manager(code_type,
               mako_dir=mako_dir,
               log=log,
               service_dir=service_dir,
-              error_code=error_code,
-              error_outdir=error_outdir,
-              doc_outdir=doc_outdir,
+              # error_code=error_code,
+              # error_outdir=error_outdir,
+              # doc_outdir=doc_outdir,
               )

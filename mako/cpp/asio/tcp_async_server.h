@@ -1,12 +1,4 @@
-//
-// chat_server.cpp
-// ~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+#pragma once
 
 #include <cstdlib>
 #include <deque>
@@ -17,14 +9,14 @@
 #include <utility>
 #include <boost/asio.hpp>
 
-#include "tcp_connection.h"
+#include "network/tcp_connection.h"
+#include "${framework.service_name}/${framework.adapt_name}.h"
 
 //----------------------------------------------------------------------
-// template <typename Adapt>
-class TcpServer
+class ${framework.service_class_name}TcpServer
 {
 public:
-    TcpServer(boost::asio::io_context& io_context,
+    ${framework.service_class_name}TcpServer(boost::asio::io_context& io_context,
         const boost::asio::ip::tcp::endpoint& endpoint)
       : _io_context(io_context)
       , acceptor_(io_context, endpoint)
@@ -50,6 +42,8 @@ private:
             {
                 if (!ec) {
                   auto connection_ptr = std::make_shared<TcpConnection>(_io_context, std::move(socket));
+                  auto adapt_ptr = std::make_shared<${framework.adapt_class_name}<TcpConnection>>(_io_context, connection_ptr);
+                  // adapt_ptr->run();
                 }
 
                 do_accept();
