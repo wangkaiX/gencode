@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from src.common import gen
-from src.common import errno
+from code_framework.common import gen
+from code_framework.common import errno
 
 if __name__ == '__main__':
     go_path = os.environ['GOPATH']
@@ -12,18 +12,17 @@ if __name__ == '__main__':
     # dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             code_type="go",
+            framework="gin",
             # 接口配置文件路径
             filenames=[
                 "json/api_gin.json5",
                 "json/api_grpc.json5",
-                # "json/api_url.json",
                 ],
             service_name='example',
             # 错误码配置文件
             errno_configs=[
                 errno.ErrnoConfig("json/errno.config", 1000, 2000)
                 ],
-            # error_config_file="json/errno.config",
             # 错误码输出目录
             errno_dir=os.path.join(dst_dir, "app", "errno"),
             # 项目生成路径
@@ -32,8 +31,7 @@ if __name__ == '__main__':
             go_src_dir=go_src,
             # 代码格式模板目录
             mako_dir=os.path.join(os.environ['HOME'], 'gencode', 'mako'),
-            # 项目主目录路径
-            # main_dir=os.path.join(dst_dir, "cmd"),
+
             # graphql
             # 请求，应答，数据类型定义生成目录
             graphql_define_dir=os.path.join(dst_dir, "app", "graphql_api", "graphql_define"),
@@ -53,8 +51,6 @@ if __name__ == '__main__':
             # grpc
             # proto 生成路径
             proto_dir=os.path.join(dst_dir, "grpc_pb"),
-            # 一些对内的接口目录
-            # private_grpc_proto_dir=os.path.join(dst_dir, "private_grpc_pb"),
             # 业务接口生成目录
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             # proto中定义的grpc service
@@ -63,10 +59,10 @@ if __name__ == '__main__':
             grpc_service_type="Server",
             # proto文件中的包名
             proto_package_name="protopb",
-            # grpc_package="grpc_pb",
 
-            gen_server=True,
             gen_client=None,
+            gen_server=True,
+            # 当生成服务端的时候，才会生成test
             gen_test=True,
             gen_doc=True,
             gen_mock=False,

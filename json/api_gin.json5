@@ -1,9 +1,6 @@
 {
-    protocol:{
-        framework_type:"go_gin",
-        gw_url_prefix:"/app/v1/grpc",
-    },
-    "default":{
+    command_name:"type",
+    default:{
         resp:{
             code:0,
             msg:"SUCCESS",
@@ -63,11 +60,12 @@
     },
     api:{
         DataSourceInfoList:{
+            command_code:0x1000,
             api_tags:[
                 "tag1",
                 "tag2",
             ],
-            "doc_tags":[
+            doc_tags:[
                 "doc1",
                 "doc2",
             ],
@@ -89,15 +87,16 @@
         },
         DataSourceTableList:{
             note:"单个数据源的数据列表",
+            command_code:0x1001,
             req:{
                 user_id:"uid123213",
-                data_source_id:"testds001",
+                "data_source_id|Y":"testds001",
                 table_id:"",
             },
             resp:{
                 "table_list|||TableInfo":[
                     {
-                        table_id:"tb2131105",
+                        "table_id|Y":"tb2131105",
                         data_source_id:"ds3094318",
                         table_name:"t_test1",
                         alias_name:"测试表",
@@ -117,6 +116,7 @@
         },
         AccreditTableList:{
             note:"用户已授权数据列表",
+            command_code:0x1002,
             req:{
                 user_id:"uid02npf2f",
             },
@@ -146,6 +146,7 @@
             },
         },
         ApplyTable:{
+            command_code:0x1003,
             note:"申请数据源数据",
             req:{
                 "user_id|Y":"test001",
@@ -161,6 +162,7 @@
             },
         },
         UpdateApplyTable:{
+            command_code:0x1004,
             note:"更新数据表审核结果",
             req:{
                 apply_id:"ap12903-12j",
@@ -169,6 +171,7 @@
             },
         },
         QueryApplyTableList:{
+            command_code:0x1005,
             note:"查询数据审核结果",
             req:{
                 user_id:"uid01dfpjf",
@@ -192,6 +195,7 @@
             },
         },
         ApplyResultData:{
+            command_code:0x1006,
             note:"申请结果审核",
             req:{
                 data_source_id:"tmp_resource_id",
@@ -207,6 +211,7 @@
             },
         },
         UpdateApplyResultData:{
+            command_code:0x1007,
             note:"结果审核结果通知",
             req:{
                 apply_id:"apr5jtexcbaors01",
@@ -217,6 +222,7 @@
         },
         QueryApplyResultList:{
             note:"查询结果审核结果",
+            command_code:0x1008,
             req:{
                 user_id:"test001",
                 apply_id:"",
@@ -240,6 +246,7 @@
         },
         SyncDataSourceTable:{
             note:"同步数据源表信息到主控区",
+            command_code:0x1009,
             req:{
                 "table|||TableInfo":{
                     table_id:"testtb001",
@@ -262,14 +269,15 @@
                 filename:"path",
             },
             resp:{
-                "result_file|||file":"",
+                "result_file|||":"",
             },
         },
         SyncDataSourceTableStrategy:{
+            command_code:0x10010,
             note:"同步数据源表策略",
             req:{
-                data_source_id:"ds21313",
-                table_id:"tb213123",
+                "data_source_id|Y":"ds21313",
+                "table_id|Y":"tb213123",
                 user_id_list:[
                     "uid12321",
                     "usd23213",
@@ -277,6 +285,7 @@
             },
         },
         SyncDataSourceTableSample:{
+            command_code:0x10011,
             note:"同步数据源样例数据",
             req:{
                 data_source_id:"tmp_resource_id",
@@ -285,9 +294,10 @@
             },
         },
         SyncUserSandboxInfo:{
+            command_code:0x10012,
             note:"同步用户沙箱映射关系",
             req:{
-                "user|||UserInfo":{
+                "user|Y||UserInfo":{
                     user_id:"uid12321",
                     user_name:"沙箱用户",
                     sftp_ip:"0.0.0.0",
@@ -301,6 +311,7 @@
             },
         },
         ResultFileList:{
+            command_code:0x10013,
             note:"结果文件列表",
             req:{
                 user_id:"test001",
@@ -323,20 +334,5 @@
                 encoding:"utf8",
             },
         },
-    },
-    errno:{
-        Success:"成功|0",
-        errno_list:[
-            {
-                begin_no:1000,
-                end_no:2000,
-                filename:"errno.config",
-            },
-            {
-                begin_no:2001,
-                end_no:3000,
-                filename:"errno2.config",
-            },
-        ],
-    },
+    }
 }

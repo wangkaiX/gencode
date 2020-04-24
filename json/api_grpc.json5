@@ -62,7 +62,7 @@
         },
     },
     api:{
-        DataSourceInfoList:{
+        gDataSourceInfoList:{
             api_tags:[
                 "tag1",
                 "tag2",
@@ -87,7 +87,7 @@
                 ],
             },
         },
-        DataSourceTableList:{
+        gDataSourceTableList:{
             note:"单个数据源的数据列表",
             req:{
                 user_id:"uid123213",
@@ -115,7 +115,7 @@
                 ],
             },
         },
-        AccreditTableList:{
+        gAccreditTableList:{
             note:"用户已授权数据列表",
             req:{
                 user_id:"uid02npf2f",
@@ -145,7 +145,7 @@
                 ],
             },
         },
-        ApplyTable:{
+        gApplyTable:{
             note:"申请数据源数据",
             req:{
                 "user_id|Y":"test001",
@@ -160,7 +160,7 @@
                 apply_id:"apy101ijfj",
             },
         },
-        UpdateApplyTable:{
+        gUpdateApplyTable:{
             note:"更新数据表审核结果",
             req:{
                 apply_id:"ap12903-12j",
@@ -168,7 +168,7 @@
                 refuse_reason:"不通过",
             },
         },
-        QueryApplyTableList:{
+        gQueryApplyTableList:{
             note:"查询数据审核结果",
             req:{
                 user_id:"uid01dfpjf",
@@ -191,7 +191,7 @@
                 ],
             },
         },
-        ApplyResultData:{
+        gApplyResultData:{
             note:"申请结果审核",
             req:{
                 data_source_id:"tmp_resource_id",
@@ -206,7 +206,7 @@
                 apply_id:"ap2109313",
             },
         },
-        UpdateApplyResultData:{
+        gUpdateApplyResultData:{
             note:"结果审核结果通知",
             req:{
                 apply_id:"apr5jtexcbaors01",
@@ -215,7 +215,7 @@
             },
             resp:{},
         },
-        QueryApplyResultList:{
+        gQueryApplyResultList:{
             note:"查询结果审核结果",
             req:{
                 user_id:"test001",
@@ -238,7 +238,7 @@
                 ],
             },
         },
-        SyncDataSourceTable:{
+        gSyncDataSourceTable:{
             note:"同步数据源表信息到主控区",
             req:{
                 "table|||TableInfo":{
