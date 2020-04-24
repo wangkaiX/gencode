@@ -61,6 +61,7 @@
     api:{
         DataSourceInfoList:{
             command_code:0x1000,
+            opposite:true,
             api_tags:[
                 "tag1",
                 "tag2",

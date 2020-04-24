@@ -112,7 +112,7 @@ class Framework:
 
     @property
     def service_class_name(self):
-        return self.__service_class_name
+        return self.__service_class_name + "Api"
 
     @property
     def is_server(self):

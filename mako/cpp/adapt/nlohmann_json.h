@@ -91,40 +91,42 @@ public:
                 std::bind(&${framework.adapt_class_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     }
 
-    std::string receive_body(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
+    void receive_body(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
     {
         if (ec) {
             SPDLOG_ERROR("receive body error[{}]", ec.message());
-            return "";
+            return;
         }
         _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
                 std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        std::string msg(buffer.get(), length);
         try {
-            std::string msg(buffer.get(), length);
             auto json = nlohmann::json::parse(msg);
             // int command = json["${framework.command_name}"];
             % if framework.no_resp:
             return _callback(json);
             % else:
             msg = _callback(json).dump();
-            _connection_ptr->async_write(msg.c_str(), msg.size(),
-                [](const typename Connection::ErrorCode &ec, size_t)
-                {
-                    if (ec) {
-                        SPDLOG_ERROR("write error[{}]", ec.message());
-                        return;
-                    }
-                }
-                    );
             % endif
         }
         catch (std::exception &e) {
             nlohmann::json j;
             j["code"] = -1; 
             j["msg"] = "解析接口类型失败";
+            msg = j.dump();
             SPDLOG_ERROR("解析接口类型失败[{}]", j.dump(4));
-            return j.dump();
         }
+        % if not framework.no_resp:
+        _connection_ptr->async_write(msg.c_str(), msg.size(),
+            [](const typename Connection::ErrorCode &ec, size_t)
+            {
+                if (ec) {
+                    SPDLOG_ERROR("write error[{}]", ec.message());
+                    return;
+                }
+            }
+        );
+        % endif
     }
 
     % if framework.no_resp:
@@ -143,7 +145,13 @@ public:
         memcpy(write_buffer.data() + getCfg().${framework.service_name}.length_length, msg.c_str(), msg.size());
             % if framework.no_resp:
         _connection_ptr->async_write(write_buffer.data(), write_buffer.size(),
-                std::bind(&${framework.adapt_class_name}::_write_cb, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2);
+                [](const typename Connection::ErrorCode &ec, size_t)
+                {
+                    if (ec) {
+                        SPDLOG_ERROR("write error[{}]", ec.message());
+                        return;
+                    }
+                });
             % else:
         _connection_ptr->write(write_buffer.data(), write_buffer.size());
         // 接收长度
