@@ -66,11 +66,34 @@ class Manager(ManagerBase):
         self._gen_init()
         self._gen_main()
         self._gen_config()
+        self._gen_cmake()
+        self._gen_make()
+        self._gen_buildsh()
+
+    def _gen_buildsh(self):
+        mako_file = os.path.join(self._cpp_mako_dir, 'build.sh')
+        out_file = os.path.join(self._service_dir, 'build.sh')
+        tool.gen_code_file(mako_file, out_file)
+
+    def _gen_make(self):
+        mako_file = os.path.join(self._cpp_mako_dir, 'makefile')
+        out_file = os.path.join(self._service_dir, 'makefile')
+        tool.gen_code_file(mako_file, out_file,
+                           project_name=self._project_name,
+                           )
 
     def _gen_main(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'main.cpp')
         out_file = os.path.join(self._service_dir, 'main', 'main.cpp')
         tool.gen_code_file(mako_file, out_file,
+                           frameworks=self._frameworks,
+                           )
+
+    def _gen_cmake(self):
+        mako_file = os.path.join(self._cpp_mako_dir, 'CMakeLists.txt')
+        out_file = os.path.join(self._service_dir, 'CMakeLists.txt')
+        tool.gen_code_file(mako_file, out_file,
+                           project_name=self._project_name,
                            frameworks=self._frameworks,
                            )
 

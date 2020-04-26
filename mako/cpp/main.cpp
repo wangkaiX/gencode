@@ -17,9 +17,9 @@ int main()
     % for framework in frameworks:
         % if framework.is_server:
         % if framework.network == type_set.asio_tcp_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_class_name}TcpServer>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
+    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
         % elif framework.network == type_set.beast_websocket_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_class_name}WebsocketServer>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
+    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
         % endif
     // ${framework.service_name}_ptr->run();
         % endif

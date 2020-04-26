@@ -17,24 +17,21 @@
 % endif
 
 <%
-    service_class_name = framework.service_class_name
+    service_network_class_name = framework.service_network_class_name
 %>
 
 // Accepts incoming connections and launches the WebsocketConnections
-template <typename Adapt>
-class ${service_class_name}: public std::enable_shared_from_this<${service_class_name}<Adapt>>
+class ${service_network_class_name}: public std::enable_shared_from_this<${service_network_class_name}>
 {
     boost::asio::io_context& ioc_;
     boost::asio::ip::tcp::acceptor acceptor_;
-    std::shared_ptr<Adapt> adapt_ptr_;
 
 public:
-    ${gen_upper_camel(framework.service_name)}Server(
+    ${framework.service_network_class_name}(
         boost::asio::io_context& ioc,
         boost::asio::ip::tcp::endpoint endpoint)
         : ioc_(ioc)
         , acceptor_(ioc)
-        , adapt_ptr_(std::make_shared<Adapt>())
     {
         boost::beast::error_code ec;
 
@@ -95,7 +92,8 @@ private:
         }
         else {
             // Create the WebsocketConnection and run it
-            std::make_shared<WebsocketConnection<Adapt>>(std::move(socket), adapt_ptr_)->run();
+            std::shared_ptr<WebsocketConnection> connection_ptr(ioc_, std::move(socket))
+            std::make_shared<${framework.service_api_class_name}>(connection_ptr);
         }
 
         // Accept another connection

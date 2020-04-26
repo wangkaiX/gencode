@@ -11,9 +11,9 @@
 #include <string>
 #include <thread>
 #include <vector>
-// % if log == "spdlog":
+% if log == "spdlog":
 #include <spdlog/spdlog.h>
-// % endif
+% endif
 
 class WebsocketConnection : public std::enable_shared_from_this<WebsocketConnection>
 {
@@ -31,6 +31,7 @@ public:
         , _remote_ep(socket.remote_endpoint())
         , _ws(std::move(socket))
     {
+        run();
     }
 
     const boost::asio::ip::tcp::endpoint &remote_endpoint()

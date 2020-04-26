@@ -111,7 +111,17 @@ class Framework:
         return self.__service_name
 
     @property
-    def service_class_name(self):
+    def service_network_class_name(self):
+        if self.is_server:
+            if self.network in [type_set.asio_tcp_async]:
+                suffix = "TcpServer"
+        else:
+            if self.network in [type_set.asio_tcp_async]:
+                suffix = "TcpClient"
+        return self.__service_class_name + suffix
+
+    @property
+    def service_api_class_name(self):
         return self.__service_class_name + "Api"
 
     @property

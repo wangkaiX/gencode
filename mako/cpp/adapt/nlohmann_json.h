@@ -47,13 +47,16 @@ public:
     using ReceiveCallback = std::function<nlohmann::json(const nlohmann::json &)>;
     % endif
 
-        % if framework.is_server:
+## % if framework.is_server:
+## ${framework.adapt_class_name}(boost::asio::io_context &io_context, std::shared_ptr<Connection> connection_ptr)
+##: _connection_ptr(connection_ptr)
+##        % else:
+##    ${framework.adapt_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
+##        : _connection_ptr(std::make_shared<Connection>(io_context, ep))
+##        % endif
     ${framework.adapt_class_name}(boost::asio::io_context &io_context, std::shared_ptr<Connection> connection_ptr)
-        : _connection_ptr(connection_ptr)
-        % else:
-    ${framework.adapt_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
-        : _connection_ptr(std::make_shared<Connection>(io_context, ep))
-        % endif
+        : _io_context(io_context)
+        , _connection_ptr(connection_ptr)
     {
         init();
     }
@@ -201,6 +204,7 @@ private:
     std::vector<char> write_buffer;
     std::vector<char> read_buffer;
     std::shared_ptr<Connection> _connection_ptr;
+    boost::asio::io_context &_io_context;
     ReceiveCallback _callback;
     // typename Connection::WriteCallback _write_cb;
     // typename Connection::ReadCallback _read_cb;
