@@ -302,8 +302,7 @@ class Api:
 
     @property
     def command_code(self):
-        # print(self.__value_map)
-        return self.__value_map["command_code"]
+        return self.__command_code
 
     def get_default(self, name, default_value={}):
         if name not in self.__default_map.keys():
@@ -385,6 +384,8 @@ class Api:
             elif 'no_resp' == k:
                 assert isinstance(v, bool)
                 self.__no_resp = v
+            elif 'command_code' == k:
+                self.__command_code = v
             else:
                 print("不支持的节点类型[%s]" % k)
 

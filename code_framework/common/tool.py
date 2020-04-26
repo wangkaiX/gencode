@@ -67,7 +67,7 @@ def to_nodes(root):
     rl = []
     index = 0
     while len(node_map) > 0:
-        print(len(node_map))
+        # print(len(node_map))
         node = node_list[index]
         index = index + 1
         if node.type.name in node_map:
@@ -94,7 +94,7 @@ def __get_all_nodes(node_map, node_list, nodes):
 # 合并两个同类型结点
 def merge_node(node_dst, node_from):
     if node_dst.type.name != node_from.type.name and node_from.type.name not in ["Req", "Resp"]:
-        print(node_dst.type.name, node_from.type.name)
+        print("节点类型不同[%s][%s]" % (node_dst.type.name, node_from.type.name))
         assert False
     node = copy.deepcopy(node_dst)
     __merge_node(node, node_from)
@@ -176,6 +176,16 @@ def __get_dimension(obj, n):
 
 def get_dimension(obj):
     return __get_dimension(obj, 0)
+
+
+def get_fixed(t):
+    f1 = t.find("[")
+    if -1 == f1:
+        return None
+    f2 = t.find("]")
+    if -1 == f2:
+        assert False
+    return t[:f1].strip(), int(t[f1+1:f2])
 
 
 def is_enum(enums, t):

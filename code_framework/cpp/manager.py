@@ -197,7 +197,7 @@ class Manager(ManagerBase):
                                )
 
             # types
-            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'types.h')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_types.h' % framework.adapt)
             out_file = os.path.join(self._service_dir, framework.service_name, 'types.h')
             nodes = framework.nodes
             enums = framework.enums

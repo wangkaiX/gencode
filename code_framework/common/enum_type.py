@@ -20,6 +20,7 @@ class EnumValue:
 class Enum:
     def __init__(self, name, value_map):
         self.__name = name
+        self.__name, self.__base_type = tool.split(self.__name, "|", 2)
         self.__values = []
         for value in value_map['value']:
             enum_value = EnumValue(value)
@@ -29,6 +30,10 @@ class Enum:
             self.__values.append(enum_value)
         # 必须要有注释
         self.__note = value_map['note']
+
+    @property
+    def base_type(self):
+        return self.__base_type
 
     @property
     def name(self):

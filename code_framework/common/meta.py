@@ -14,11 +14,23 @@ class Member:
             self._full_path = parent._full_path + [self._name]
         else:
             self._full_path = [self._name]
-        print("name[%s], path:%s" % (self._name, self._full_path))
+        # print("name[%s], path:%s" % (self._name, self._full_path))
         self._grpc_index = None
         self._parent = parent
         self._value_map = value_map
         self._dimension = tool.get_dimension(value_map)
+        ret = tool.get_fixed(self._type)
+        self._fixed_size = None
+        if ret:
+            self._type, self._fixed_size = ret
+            print("发现定长数组[%s]type[%s]size[%s]" % (name, self._type, self._fixed_size))
+            if self._dimension == 0 and self._type.find('char') == -1:
+                print("值类型并非数组[%s]" % name)
+                assert False
+
+        if self._dimension > 1:
+            print("不支持多维数组[%s]" % name)
+            assert False
 
         # 未完善
         # if self._type:
@@ -27,6 +39,10 @@ class Member:
 
         if not self._note:
             self._note = self._name
+
+    @property
+    def fixed_size(self):
+        return self._fixed_size
 
     @property
     def full_path(self):
