@@ -15,7 +15,7 @@ class Generator(GeneratorBase):
         self.__gen_network()
 
     def __gen_network_adapt(self):
-        mako_file = os.path.join(self._mako_dir, 'adapt',  '%s.h' % self._framework.adapt)
+        mako_file = os.path.join(self._mako_dir, 'adapt',  'tcp_%s.h' % self._framework.adapt)
         out_file = os.path.join(self._service_dir, self._framework.service_name, '%s.h' % self._framework.adapt_name)
         include_list = ['network/tcp_connection.h']
         tool.gen_code_file(mako_file, out_file,

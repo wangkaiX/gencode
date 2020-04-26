@@ -19,18 +19,18 @@
 
 [ubuntu]
 sudo apt install python3 python3-pip
-sudo pip3 install mako markdown -i https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip3 install mako markdown json5 toml -i https://pypi.tuna.tsinghua.edu.cn/simple
 在.bashrc中添加
 export PYTHONPATH=$PYTHONPATH:${根目录}
 
 [centos]
 sudo yum install python3 python3-pip
-sudo pip3 install mako markdown -i https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip3 install mako markdown json5 toml -i https://pypi.tuna.tsinghua.edu.cn/simple
 在.bashrc中添加
 export PYTHONPATH=$PYTHONPATH:${根目录}
 
 [windows]
 手动安装python3
 添加环境变量[PYTHONPATH]为[gencode]的目录
-pip3 install mako markdown -i https://pypi.tuna.tsinghua.edu.cn/simple
+sudo pip3 install mako markdown json5 toml -i https://pypi.tuna.tsinghua.edu.cn/simple
 

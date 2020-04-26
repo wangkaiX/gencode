@@ -92,6 +92,7 @@ public:
         }
         _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
                 std::bind(&${framework.adapt_class_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        return len;
     }
 
     void receive_body(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)

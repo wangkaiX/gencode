@@ -1,38 +1,64 @@
-grpc:
-   api.go  grpc.proto  init_grpc.go  main.go  proto.mak  service_define.go  test.go 
-
-rest:
-    enum.mako  func.mako  gin_file.go  router.mako  run.mako  test.mako define.mako
-
-graphql
-    define.mako  enum.mako  graphql_resolver.mako  resolver.go  resolver.mako  run.mako  schema_go.mako  schema.mako  test.mako  func.mako
-
----------------------------------------------------------------------------------------------------------
-grpc:
-
-rest:
-
-graphql
-
-
-common:
-    api.go  grpc.proto  init_grpc  proto.mak service_define.go  test.go enum.mako  router.mako  init_rest.go  init_graphql.go   define.go
-    schema_go.mako schema.graphql  resolver_define.go   resolver.go  main.go
-    
-    test merge
-
 支持docker方式生成，用户不用安装很多三方依赖
 代码框架可高度配置
 根据接口描述文档，生成代码框架，测试用例，自动化测试流程
 生成接口文档
 测试用例入参可以追加新字段，不要覆盖原有字段
-接口文档有变更历史
-可以提供下载接口文档的接口
-可以指定类型的继承关系
-可以解析proto反向生成json配置,根据类型自动添加默认值
-生成的接口文件中有mock数据，已经生成的接口文件，如果有更新并且未修改过，则可以覆盖
+#接口文档有变更历史
+#可以提供下载接口文档的接口
+#可以指定类型的继承关系
+#可以解析proto反向生成json配置,根据类型自动添加默认值
+#生成的接口文件中有mock数据，已经生成的接口文件，如果有更新并且未修改过，则可以覆盖
 支持指定json中的key_name， 如无指定，则按默认规则生成(json key_name为配置文件中的key值)
 支持http url中path arg
 
 有时需要配置开发环境比较耗时，可以根据需要生成编译环境构建脚本及dockerfile构建脚本
+
+配置脚本中的参数解释
+# 模块服务名
+service_name='tcpserver_example',
+# 通信类型，主要表示用了哪个库中的什么通信
+network=type_set.asio_tcp_async,
+# 表示json、二进制、protobuf等
+adapt=type_set.nlohmann_json,
+# 接口配置文件路径
+protocol_filename="json/api_gin.json5",
+# 错误码配置文件
+error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
+# 心跳间隔
+heartbeat_interval_second=5,
+# 最大可丢失的心跳数
+heartbeat_miss_max=3,
+# 主要对于tcp这种，前面几个字节表示长度，如"00001024"
+length_length=8,
+no_resp:
 有的项目并非请求应答的形式，而是只有请求无应答，如a->b   b处理完后再调用a的独立接口完成应答，这种情况双方都用异步通信即可
+server_ip="127.0.0.1",
+server_port=12345,
+# gen_client=True,
+# 是生成对应的服务端或者是客户端代码
+is_server=True,
+# gen_server=True,
+gen_test=True,
+gen_doc=True,
+gen_mock=True,
+
+
+配置文件中的一些参数解释
+opposite
+一般服务端收到请求做出反应，但有时候也会主动推送，主要在实现的角度定义的变量名
+api
+相关的接口定义在这个部分
+default
+一些默认的请求，应答参数，如返回值中都有{code, msg...}，这样具体的接口中则不用定义
+req
+表示请求
+resp
+表示应答
+note
+接口相关的注释
+command_name
+一般在接口中会有相关的接口标识，如接口名，或者接口编号，如[queryData]/[0x1001]
+command_code
+对应的接口名或接口编号
+enum
+枚举

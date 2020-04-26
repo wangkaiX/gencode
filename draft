@@ -1,0 +1,22 @@
+grpc:
+   api.go  grpc.proto  init_grpc.go  main.go  proto.mak  service_define.go  test.go 
+
+rest:
+    enum.mako  func.mako  gin_file.go  router.mako  run.mako  test.mako define.mako
+
+graphql
+    define.mako  enum.mako  graphql_resolver.mako  resolver.go  resolver.mako  run.mako  schema_go.mako  schema.mako  test.mako  func.mako
+
+---------------------------------------------------------------------------------------------------------
+grpc:
+
+rest:
+
+graphql
+
+
+common:
+    api.go  grpc.proto  init_grpc  proto.mak service_define.go  test.go enum.mako  router.mako  init_rest.go  init_graphql.go   define.go
+    schema_go.mako schema.graphql  resolver_define.go   resolver.go  main.go
+    
+    test merge
