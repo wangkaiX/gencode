@@ -7,6 +7,7 @@ tag_dev=${project_name}_dev
 
 build_dev:
 	docker run --rm -v ${'$'}{PWD}:${'$'}{PWD} \
+					-v /tmp/docker_ccache:/tmp/ccache \
                                 -w ${'$'}{PWD} \
                                 ${'$'}{dev_image} \
                         bash build.sh
