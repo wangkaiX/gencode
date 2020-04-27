@@ -168,11 +168,18 @@ class Manager(ManagerBase):
                                framework=framework,
                                adapt_name=framework.adapt_name,
                                adapt_class_name=framework.adapt_class_name,
-                               # no_resp=framework.no_resp,
                                include_list=include_list,
                                connection_class_name=connection_class_name,
-                               # server_apis=server_apis,
-                               # client_apis=client_apis,
+                               )
+
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'api.cpp')
+            out_file = os.path.join(self._service_dir, framework.service_name, 'api.cpp')
+            tool.gen_code_file(mako_file, out_file,
+                               framework=framework,
+                               adapt_name=framework.adapt_name,
+                               adapt_class_name=framework.adapt_class_name,
+                               include_list=include_list,
+                               connection_class_name=connection_class_name,
                                )
 
             # server_apis

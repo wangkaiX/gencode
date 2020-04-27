@@ -5,12 +5,17 @@ tag_dev=${project_name}_dev
 # dev=dev
 # release=release
 
+uid=$(shell id -u)
+gid=$(shell id -g)
+
 build_dev:
-	docker run --rm -v ${'$'}{PWD}:${'$'}{PWD} \
-					-v /tmp/docker_ccache:/tmp/ccache \
-                                -w ${'$'}{PWD} \
-                                ${'$'}{dev_image} \
-                        bash build.sh
+	docker run --rm \
+	           -v ${'$'}{PWD}:/tmp/${'$'}{PWD} \
+			   -v /tmp/docker_ccache:/tmp/ccache \
+			   -v ${'$'}{PWD}/docker_build:/tmp/${'$'}{PWD}/build \
+               -w /tmp/${'$'}{PWD} \
+               ${'$'}{dev_image} \
+               bash build.sh
 
 dev:build_dev
 	docker build -t ${'$'}{repo}:${'$'}{tag_dev} .

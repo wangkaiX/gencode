@@ -113,5 +113,5 @@ if __name__ == '__main__':
     # manager.add(websocket_server)
     manager.add(tcp_client)
     manager.add(tcp_server)
-    manager.add(tcp_bin_server)
+    # manager.add(tcp_bin_server)
     manager.gen()

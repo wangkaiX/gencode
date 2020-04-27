@@ -35,11 +35,29 @@ class Generator(GeneratorBase):
                            log=self._log,
                            # apis=self.__framework.apis,
                            )
+        mako_file = os.path.join(self._mako_dir, 'asio', 'tcp_connection.cpp')
+        out_file = os.path.join(self._service_dir, 'network', 'tcp_connection.cpp')
+        tool.gen_code_file(mako_file, out_file,
+                           framework=self._framework,
+                           gen_upper_camel=util.gen_upper_camel,
+                           log=self._log,
+                           # apis=self.__framework.apis,
+                           )
 
         if self._framework.is_server:
             mako_file = os.path.join(self._mako_dir, 'asio', 'tcp_async_server.h')
             out_file = os.path.join(self._service_dir, self._framework.service_name,
                                     '%s_tcp_server.h' % self._framework.service_name)
+            tool.gen_code_file(mako_file, out_file,
+                               framework=self._framework,
+                               gen_upper_camel=util.gen_upper_camel,
+                               log=self._log,
+                               # apis=self.__framework.apis,
+                               )
+
+            mako_file = os.path.join(self._mako_dir, 'asio', 'tcp_async_server.cpp')
+            out_file = os.path.join(self._service_dir, self._framework.service_name,
+                                    '%s_tcp_server.cpp' % self._framework.service_name)
             tool.gen_code_file(mako_file, out_file,
                                framework=self._framework,
                                gen_upper_camel=util.gen_upper_camel,

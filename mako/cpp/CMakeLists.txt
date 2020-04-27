@@ -3,8 +3,10 @@ project(${project_name})
 SET(CMAKE_CXX_COMPILER      "ccache")
 SET(CMAKE_CXX_COMPILER_ARG1 "g++")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS
-    -ggdb)
+add_compile_options(
+    -pipe
+    -ggdb3
+    )
 aux_source_directory(api API_SRCS)
 aux_source_directory(service SERVICE_SRCS)
 aux_source_directory(config CONFIG_SRCS)
