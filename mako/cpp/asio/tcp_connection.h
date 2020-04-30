@@ -54,8 +54,5 @@ private:
     ErrorCode connect(const boost::asio::ip::tcp::endpoint &ep);
 };
 
-// #include "spdlog/fmt/ostr.h"
-inline std::ostream &operator<<(std::ostream &os, const boost::asio::ip::tcp::endpoint &ep)
-{
-    return os << ep.address().to_string() << ":" << ep.port();
-}
+#include "spdlog/fmt/ostr.h"
+std::ostream &operator<<(std::ostream &os, const boost::asio::ip::tcp::endpoint &ep);

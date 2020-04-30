@@ -50,7 +50,7 @@ TcpConnection::ErrorCode TcpConnection::write(const char *data, size_t length)
 
 void TcpConnection::async_write(const char *data, size_t length, WriteCallback cb)
 {
-    assert(false && "callback can not be null");
+    assert(cb && "callback can not be null");
     using namespace boost::asio;
     boost::asio::async_write(socket_, buffer(data, length), cb);
 }
@@ -65,12 +65,14 @@ TcpConnection::ErrorCode TcpConnection::read(char *data, size_t length)
 
 void TcpConnection::async_read(char *data, size_t length, ReadCallback cb)
 {
+    assert(cb && "callback can not be null");
     using namespace boost::asio;
     boost::asio::async_read(socket_, buffer(data, length), cb);
 }
 
 void TcpConnection::async_read_some(char *data, size_t length, ReadCallback cb)
 {
+    assert(cb && "callback can not be null");
     using namespace boost::asio;
     socket_.async_read_some(buffer(data, length), cb);
 }
@@ -87,10 +89,7 @@ TcpConnection::ErrorCode TcpConnection::connect(const boost::asio::ip::tcp::endp
     return ec;
 }
 
-/*
-#include "spdlog/fmt/ostr.h"
-inline std::ostream &operator<<(std::ostream &os, const boost::asio::ip::tcp::endpoint &ep)
+std::ostream &operator<<(std::ostream &os, const boost::asio::ip::tcp::endpoint &ep)
 {
     return os << ep.address().to_string() << ":" << ep.port();
 }
-*/

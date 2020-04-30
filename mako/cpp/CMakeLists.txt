@@ -7,6 +7,7 @@ add_compile_options(
     -pipe
     -ggdb3
     )
+add_definitions(-DFMT_HEADER_ONLY)
 aux_source_directory(api API_SRCS)
 aux_source_directory(service SERVICE_SRCS)
 aux_source_directory(config CONFIG_SRCS)

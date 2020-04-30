@@ -3,7 +3,7 @@
 ${framework.service_api_class_name}::${framework.service_api_class_name}(boost::asio::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr)
     : _adapt_ptr(std::make_shared<${framework.adapt_class_name}<${connection_class_name}>>(io_context, connection_ptr))
 {
-    init();
+    _adapt_ptr->init();
 }
 
 

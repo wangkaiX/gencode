@@ -22,24 +22,6 @@ constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 template <typename Connection>
 class ${framework.adapt_class_name} : public std::enable_shared_from_this<${framework.adapt_class_name}<Connection>>
 {
-    // void write_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const typename Connection::ErrorCode &ec)
-    // {
-    //     if (ec) {
-    //         SPDLOG_ERROR("已发送[{}]字节, 失败原因[{}]", size, ec.message());
-    //         SPDLOG_ERROR("断开与[{}]的连接", connection_ptr->remote_endpoint());
-    //         return;
-    //     }
-    // }
-    // 
-    // void read_cb(std::shared_ptr<Connection> connection_ptr, size_t size, const typename Connection::ErrorCode &ec)
-    // {
-    //     if (ec) {
-    //         SPDLOG_ERROR("已收到[{}]字节, 失败原因[{}]", size, ec.message());
-    //         SPDLOG_ERROR("断开与[{}]的连接", connection_ptr->remote_endpoint());
-    //         return;
-    //     }
-    // }
-
 public:
     % if framework.no_resp:
     using ReceiveCallback = std::function<void(const nlohmann::json &)>;
@@ -47,90 +29,33 @@ public:
     using ReceiveCallback = std::function<nlohmann::json(const nlohmann::json &)>;
     % endif
 
-## % if framework.is_server:
-## ${framework.adapt_class_name}(boost::asio::io_context &io_context, std::shared_ptr<Connection> connection_ptr)
-##: _connection_ptr(connection_ptr)
-##        % else:
-##    ${framework.adapt_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
-##        : _connection_ptr(std::make_shared<Connection>(io_context, ep))
-##        % endif
     ${framework.adapt_class_name}(boost::asio::io_context &io_context, std::shared_ptr<Connection> connection_ptr)
         : _io_context(io_context)
         , _connection_ptr(connection_ptr)
     {
-        init();
+    }
+
+    void init()
+    {
+        // _write_cb = std::bind(&${framework.adapt_class_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+        // _read_cb = std::bind(&${framework.adapt_class_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+
+        std::shared_ptr<char[]> buffer(new char[buffer_length]);
+        _buffer_length = buffer_length;
+
+        % if len(framework.server_apis) > 0:
+        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        % else:
+        // 防止释放
+        _connection_ptr->async_read_some(buffer.get(), _buffer_length,
+                std::bind(&${framework.adapt_class_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        % endif 
     }
 
     void set_callback(ReceiveCallback cb)
     {
         _callback = cb;
-    }
-
-    int receive_length(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
-    {
-        if (ec) {
-            SPDLOG_ERROR("receive length error[{}]", ec.message());
-            return -1;
-        }
-        int len = stoi(std::string(buffer.get(), getCfg().${framework.service_name}.length_length));
-        size_t new_buffer_length = _buffer_length;
-        // TODO 接收完body后是否需要缩小空间, 是否需要设置一个接收上限，防止过大长度
-        if (len > max_buffer_length) {
-            SPDLOG_ERROR("长度过大[{}]", len);
-            // TODO 丢弃并返回失败原因
-            // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
-            _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
-                    std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-            return -1;
-        }
-        while (len >= new_buffer_length) {
-            new_buffer_length += buffer_length;
-        }
-        if (new_buffer_length != _buffer_length) {
-            buffer.reset(new char[new_buffer_length]);
-            _buffer_length = new_buffer_length;
-        }
-        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
-                std::bind(&${framework.adapt_class_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-        return len;
-    }
-
-    void receive_body(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
-    {
-        if (ec) {
-            SPDLOG_ERROR("receive body error[{}]", ec.message());
-            return;
-        }
-        _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
-                std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-        std::string msg(buffer.get(), length);
-        try {
-            auto json = nlohmann::json::parse(msg);
-            // int command = json["${framework.command_name}"];
-            % if framework.no_resp:
-            return _callback(json);
-            % else:
-            msg = _callback(json).dump();
-            % endif
-        }
-        catch (std::exception &e) {
-            nlohmann::json j;
-            j["code"] = -1; 
-            j["msg"] = "解析接口类型失败";
-            msg = j.dump();
-            SPDLOG_ERROR("解析接口类型失败[{}]", j.dump(4));
-        }
-        % if not framework.no_resp:
-        _connection_ptr->async_write(msg.c_str(), msg.size(),
-            [](const typename Connection::ErrorCode &ec, size_t)
-            {
-                if (ec) {
-                    SPDLOG_ERROR("write error[{}]", ec.message());
-                    return;
-                }
-            }
-        );
-        % endif
     }
 
     % if framework.no_resp:
@@ -176,23 +101,101 @@ public:
             assert False
         % endif
     }
+
 private:
-    void init()
+    int receive_length(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
     {
-        // _write_cb = std::bind(&${framework.adapt_class_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
-        // _read_cb = std::bind(&${framework.adapt_class_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+        if (ec) {
+            SPDLOG_ERROR("receive length error[{}]", ec.message());
+            return -1;
+        }
+        SPDLOG_INFO("received length [{}]", length);
+        std::string str_len(buffer.get(), getCfg().${framework.service_name}.length_length);
+        int len;
+        try {
+            len = stoi(str_len);
+        }
+        catch (std::exception &e) {
+            SPDLOG_ERROR("接收长度失败[{}][{}]", e.what(), str_len);
+            % if not framework.no_resp:
+            nlohmann::json j;
+            j["code"] = -1;
+            j["msg"] = "解析数据长度失败";
+            auto msg = j.dump();
+            SPDLOG_INFO("send msg[{}]", msg);
+            _connection_ptr->async_write(msg.c_str(), msg.size(),
+                [](const typename Connection::ErrorCode &ec, size_t)
+                {
+                    if (ec) {
+                        SPDLOG_ERROR("write error[{}]", ec.message());
+                        return;
+                    }
+                }
+            );
+            % endif
+            return -1;
+        }
+        size_t new_buffer_length = _buffer_length;
+        // TODO 接收完body后是否需要缩小空间, 是否需要设置一个接收上限，防止过大长度
+        if (len > max_buffer_length) {
+            SPDLOG_ERROR("长度过大[{}]", len);
+            // TODO 丢弃并返回失败原因
+            // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
+            _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
+                    std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+            return -1;
+        }
+        while (len >= new_buffer_length) {
+            new_buffer_length += buffer_length;
+        }
+        if (new_buffer_length != _buffer_length) {
+            buffer.reset(new char[new_buffer_length]);
+            _buffer_length = new_buffer_length;
+        }
+        _connection_ptr->async_read(buffer.get(), len,
+                std::bind(&${framework.adapt_class_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        return len;
+    }
 
-        std::shared_ptr<char[]> buffer(new char[buffer_length]);
-        _buffer_length = buffer_length;
-
-        % if len(framework.server_apis) > 0:
+    void receive_body(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
+    {
+        if (ec) {
+            SPDLOG_ERROR("receive body error[{}]", ec.message());
+            return;
+        }
+        SPDLOG_INFO("received body length[{}]", length);
         _connection_ptr->async_read(buffer.get(), getCfg().${framework.service_name}.length_length,
                 std::bind(&${framework.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-        % else:
-        // 防止释放
-        _connection_ptr->async_read_some(buffer.get(), _buffer_length,
-                std::bind(&${framework.adapt_class_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-        % endif 
+        std::string msg(buffer.get(), length);
+        SPDLOG_INFO("received msg[{}]", msg);
+        try {
+            auto json = nlohmann::json::parse(msg);
+            // int command = json["${framework.command_name}"];
+            % if framework.no_resp:
+            return _callback(json);
+            % else:
+            msg = _callback(json).dump();
+            % endif
+        }
+        catch (std::exception &e) {
+            nlohmann::json j;
+            j["code"] = -1; 
+            j["msg"] = "解析接口类型失败";
+            msg = j.dump();
+            SPDLOG_ERROR("解析接口类型失败[{}][{}]", j.dump(4), e.what());
+        }
+        % if not framework.no_resp:
+        SPDLOG_INFO("send msg[{}]", msg);
+        _connection_ptr->async_write(msg.c_str(), msg.size(),
+            [](const typename Connection::ErrorCode &ec, size_t)
+            {
+                if (ec) {
+                    SPDLOG_ERROR("write error[{}]", ec.message());
+                    return;
+                }
+            }
+        );
+        % endif
     }
 
     void read_some(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t s)

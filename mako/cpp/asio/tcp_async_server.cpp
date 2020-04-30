@@ -14,9 +14,10 @@ void ${framework.service_network_class_name}::do_accept()
         [this](boost::system::error_code ec, boost::asio::ip::tcp::socket socket)
         {
             if (!ec) {
+              SPDLOG_INFO("new client [{}]", socket.remote_endpoint());
               auto connection_ptr = std::make_shared<TcpConnection>(_io_context, std::move(socket));
-              auto adapt_ptr = std::make_shared<${framework.service_api_class_name}>(_io_context, connection_ptr);
-              // adapt_ptr->run();
+              auto api_ptr = std::make_shared<${framework.service_api_class_name}>(_io_context, connection_ptr);
+              api_ptr->init();
             }
 
             do_accept();

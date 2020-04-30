@@ -56,7 +56,7 @@ if __name__ == '__main__':
             heartbeat_interval_second=5,
             heartbeat_miss_max=3,
             length_length=8,
-            no_resp=True,
+            no_resp=False,
             server_ip="127.0.0.1",
             server_port=12345,
             # gen_client=True,

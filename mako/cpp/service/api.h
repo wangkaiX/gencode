@@ -12,6 +12,8 @@ class ${framework.service_api_class_name}: public std::enable_shared_from_this<$
 {
 public:
     ${framework.service_api_class_name}(boost::asio::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr);
+
+    void init();
     // 处理请求
     % for api in framework.server_apis:
     % if framework.no_resp:
@@ -53,7 +55,6 @@ private:
     % endif
     std::map<CommandType, CallbackType> _callbacks;
 private:
-    void init();
 
     % if framework.no_resp:
     void receive_callback(const nlohmann::json &j);

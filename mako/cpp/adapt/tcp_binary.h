@@ -17,6 +17,10 @@
 constexpr size_t buffer_length = 4096;
 constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 // thread_local std::vector<char> write_buffer(buffer_length);
+//
+
+
+
 
 
 template <typename Connection>
@@ -41,10 +45,10 @@ public:
         _callback = cb;
     }
 
-    int receive_length(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
+    int receive_header(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t length)
     {
         if (ec) {
-            SPDLOG_ERROR("receive length error[{}]", ec.message());
+            SPDLOG_ERROR("receive header error[{}]", ec.message());
             return -1;
         }
         int len = stoi(std::string(buffer.get(), getCfg().${framework.service_name}.length_length));

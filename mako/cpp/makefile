@@ -10,10 +10,10 @@ gid=$(shell id -g)
 
 build_dev:
 	docker run --rm \
-	           -v ${'$'}{PWD}:/tmp/${'$'}{PWD} \
+	           -v ${'$'}{PWD}:${'$'}{PWD} \
 			   -v /tmp/docker_ccache:/tmp/ccache \
-			   -v ${'$'}{PWD}/docker_build:/tmp/${'$'}{PWD}/build \
-               -w /tmp/${'$'}{PWD} \
+			   -v ${'$'}{PWD}/docker_build:${'$'}{PWD}/build \
+               -w ${'$'}{PWD} \
                ${'$'}{dev_image} \
                bash build.sh
 
