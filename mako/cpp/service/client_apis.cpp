@@ -7,7 +7,7 @@ void ${framework.service_api_class_name}::${api.name}(const ${api.req.type.name}
 ${api.resp.type.name} ${framework.service_api_class_name}::${api.name}(const ${api.req.type.name} &req)
     % endif
 {
-    return _adapt_ptr->request(req);
+    return request(req);
 }
 
 % endfor

@@ -35,6 +35,12 @@ public:
     {
     }
 
+    ~${framework.adapt_class_name}()
+    {
+        SPDLOG_INFO("connect ref [{}]", _connection_ptr.use_count());
+        SPDLOG_INFO("disconnect remote client [{}]", _connection_ptr->remote_endpoint());
+    }
+
     void init()
     {
         // _write_cb = std::bind(&${framework.adapt_class_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
@@ -74,10 +80,11 @@ public:
         memcpy(write_buffer.data() + getCfg().${framework.service_name}.length_length, msg.c_str(), msg.size());
             % if framework.no_resp:
         _connection_ptr->async_write(write_buffer.data(), write_buffer.size(),
-                [](const typename Connection::ErrorCode &ec, size_t)
+                [this](const typename Connection::ErrorCode &ec, size_t)
                 {
                     if (ec) {
                         SPDLOG_ERROR("write error[{}]", ec.message());
+                        _callback = nullptr;
                         return;
                     }
                 });
@@ -107,6 +114,8 @@ private:
     {
         if (ec) {
             SPDLOG_ERROR("receive length error[{}]", ec.message());
+            SPDLOG_ERROR("connect ref [{}]", _connection_ptr.use_count());
+            _callback = nullptr;
             return -1;
         }
         SPDLOG_INFO("received length [{}]", length);
@@ -124,10 +133,11 @@ private:
             auto msg = j.dump();
             SPDLOG_INFO("send msg[{}]", msg);
             _connection_ptr->async_write(msg.c_str(), msg.size(),
-                [](const typename Connection::ErrorCode &ec, size_t)
+                [this](const typename Connection::ErrorCode &ec, size_t)
                 {
                     if (ec) {
                         SPDLOG_ERROR("write error[{}]", ec.message());
+                        _callback = nullptr;
                         return;
                     }
                 }
@@ -161,6 +171,7 @@ private:
     {
         if (ec) {
             SPDLOG_ERROR("receive body error[{}]", ec.message());
+            _callback = nullptr;
             return;
         }
         SPDLOG_INFO("received body length[{}]", length);
@@ -187,10 +198,11 @@ private:
         % if not framework.no_resp:
         SPDLOG_INFO("send msg[{}]", msg);
         _connection_ptr->async_write(msg.c_str(), msg.size(),
-            [](const typename Connection::ErrorCode &ec, size_t)
+            [this](const typename Connection::ErrorCode &ec, size_t)
             {
                 if (ec) {
                     SPDLOG_ERROR("write error[{}]", ec.message());
+                    _callback = nullptr;
                     return;
                 }
             }
@@ -200,7 +212,12 @@ private:
 
     void read_some(std::shared_ptr<char[]> buffer, const typename Connection::ErrorCode &ec, size_t s)
     {
-        SPDLOG_DEBUG("receive[{}]", std::string(buffer.get(), s));
+        if (ec) {
+            SPDLOG_ERROR("read_some error[{}]", ec.message());
+            _callback = nullptr;
+            return;
+        }
+        SPDLOG_INFO("receive[{}]", std::string(buffer.get(), s));
         _connection_ptr->async_read_some(buffer.get(), _buffer_length,
                 std::bind(&${framework.adapt_class_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     }

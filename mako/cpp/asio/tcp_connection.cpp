@@ -1,4 +1,8 @@
 #include "network/tcp_connection.h"
+#include <memory>
+#include <spdlog/spdlog.h>
+
+#include <boost/asio.hpp>
 
 TcpConnection::TcpConnection(boost::asio::io_context& io_context, const boost::asio::ip::tcp::endpoint &ep)
     : io_context_(io_context)
@@ -15,7 +19,7 @@ TcpConnection::TcpConnection(boost::asio::io_context& io_context, boost::asio::i
 
 TcpConnection::~TcpConnection()
 {
-    this->close();
+    SPDLOG_INFO("disconnect remote_endpoint[{}]", remote_endpoint());
 }
 
 const boost::asio::ip::tcp::endpoint TcpConnection::remote_endpoint() const
@@ -79,7 +83,7 @@ void TcpConnection::async_read_some(char *data, size_t length, ReadCallback cb)
 
 void TcpConnection::close()
 {
-    boost::asio::post(io_context_, [this]() { socket_.close(); });
+    boost::asio::post(io_context_, std::bind(&TcpConnection::close, this->shared_from_this()));
 }
 
 TcpConnection::ErrorCode TcpConnection::connect(const boost::asio::ip::tcp::endpoint &ep)

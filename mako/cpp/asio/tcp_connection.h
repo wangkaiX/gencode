@@ -2,7 +2,7 @@
 #include <chrono>
 #include <boost/asio.hpp>
 
-class TcpConnection
+class TcpConnection : public std::enable_shared_from_this<TcpConnection>
 {
 public:
     using ErrorCode = boost::system::error_code;

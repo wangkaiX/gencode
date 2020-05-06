@@ -2,16 +2,22 @@
 
 #include <memory>
 #include <map>
+#include <spdlog/spdlog.h>
 #include "${framework.service_name}/types.h"
-#include "${framework.service_name}/${framework.adapt_name}.h"
 % for include in include_list:
 #include "${include}"
 % endfor
+
+#include "config/config.h"
+
+constexpr size_t buffer_length = 4096;
+constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 
 class ${framework.service_api_class_name}: public std::enable_shared_from_this<${framework.service_api_class_name}>
 {
 public:
     ${framework.service_api_class_name}(boost::asio::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr);
+    ~${framework.service_api_class_name}();
 
     void init();
     // 处理请求
@@ -33,8 +39,6 @@ public:
     % endfor
 
 private:
-    std::shared_ptr<${framework.adapt_class_name}<${connection_class_name}>> _adapt_ptr;
-    // ${framework.adapt_class_name}
 
     % if isinstance(api.command_code, int):
     using CommandType = int;
@@ -65,9 +69,43 @@ private:
     // 处理请求
     % for api in framework.server_apis:
         % if framework.no_resp:
-    void ${api.name}(const nlohmann::json &json);
+    void ${api.name}_json(const nlohmann::json &j);
         % else:
-    nlohmann::json ${api.name}(const nlohmann::json &json);
+    nlohmann::json ${api.name}_json(const nlohmann::json &j);
         % endif
     % endfor
+public:
+    % if framework.no_resp:
+    using ReceiveCallback = std::function<void(const nlohmann::json &)>;
+    % else:
+    using ReceiveCallback = std::function<nlohmann::json(const nlohmann::json &)>;
+    % endif
+
+    void init_adapt();
+
+    % if framework.no_resp:
+    void request(const nlohmann::json &j);
+    % else:
+    nlohmann::json request(const nlohmann::json &j);
+    % endif
+
+private:
+    int receive_length(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
+
+    void receive_body(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
+
+    void read_some(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t s);
+private:
+    std::vector<char> write_buffer;
+    std::vector<char> read_buffer;
+    std::shared_ptr<TcpConnection> _connection_ptr;
+    boost::asio::io_context &_io_context;
+    ReceiveCallback _callback;
+    boost::asio::ip::tcp::endpoint _remote_ep;
+    size_t _buffer_length{0};
+
+private:
+    void default_read_handler(const TcpConnection::ErrorCode &ec, size_t s);
+    void default_write_handler(const TcpConnection::ErrorCode &ec, size_t s);
+
 };

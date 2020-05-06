@@ -8,7 +8,6 @@ using namespace std;
 % for framework in frameworks:
     % if framework.is_server:
 #include "${framework.service_name}/${framework.service_name}_tcp_server.h"
-#include "${framework.service_name}/${framework.adapt_name}.h"
     % endif
 % endfor
 #include "config/config.h"
