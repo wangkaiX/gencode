@@ -26,4 +26,4 @@ while count > 0:
     # print("send byte:", sb)
     resp = tcp_client.recv(1000)
     count = count - 1
-    # print(resp.decode(encoding="utf8"))
+    print(resp.decode(encoding="utf8"))

@@ -1,8 +1,11 @@
 #pragma once
-#include <string>
 % for include in std_includes:
 #include <${include}>
 % endfor
+
+struct CommandHeader
+{
+};
 
 % for enum in enums:
 % if enum.base_type:
@@ -47,5 +50,9 @@ struct ${node.type.cpp}
     % endif
 % endfor
 };
+
+void buffer2${node.type.cpp}(std::shared_ptr<char[]> buffer, ${node.type.cpp} st)
+{
+}
 
 % endfor

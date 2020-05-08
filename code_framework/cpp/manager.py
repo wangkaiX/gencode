@@ -162,7 +162,13 @@ class Manager(ManagerBase):
                 assert False
 
             # apis.h
-            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'api.h')
+            if framework.adapt == type_set.nlohmann_json:
+                api_mako_filename_prefix = 'nlohmann_json'
+            elif framework.adapt == type_set.binary:
+                api_mako_filename_prefix = 'binary'
+            else:
+                assert False
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_api.h' % api_mako_filename_prefix)
             out_file = os.path.join(self._service_dir, framework.service_name, 'api.h')
             tool.gen_code_file(mako_file, out_file,
                                framework=framework,
@@ -172,7 +178,7 @@ class Manager(ManagerBase):
                                connection_class_name=connection_class_name,
                                )
 
-            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'api.cpp')
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_api.cpp' % api_mako_filename_prefix)
             out_file = os.path.join(self._service_dir, framework.service_name, 'api.cpp')
             tool.gen_code_file(mako_file, out_file,
                                framework=framework,
@@ -204,7 +210,7 @@ class Manager(ManagerBase):
                                )
 
             # types
-            mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_types.h' % framework.adapt)
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_types.h' % api_mako_filename_prefix)
             out_file = os.path.join(self._service_dir, framework.service_name, 'types.h')
             nodes = framework.nodes
             enums = framework.enums

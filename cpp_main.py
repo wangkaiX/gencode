@@ -45,7 +45,7 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_server = framework.Framework(
+    tcp_server_json = framework.Framework(
             service_name='tcpserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
@@ -66,7 +66,8 @@ if __name__ == '__main__':
             gen_doc=True,
             gen_mock=True,
             )
-    tcp_bin_server = framework.Framework(
+
+    tcp_server_binary = framework.Framework(
             service_name='tcpbinserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.binary,
@@ -88,7 +89,7 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_client = framework.Framework(
+    tcp_client_json = framework.Framework(
             service_name='tcpclient_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
@@ -110,8 +111,31 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
+    tcp_client_binary = framework.Framework(
+            service_name='tcpclient_binary',
+            network=type_set.asio_tcp_async,
+            adapt=type_set.binary,
+            # 接口配置文件路径
+            protocol_filename="json/bin.json5",
+            # 错误码配置文件
+            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
+            heartbeat_interval_second=5,
+            heartbeat_miss_max=3,
+            length_length=8,
+            no_resp=True,
+            server_ip="127.0.0.1",
+            server_port=12345,
+            # gen_client=True,
+            is_server=False,
+            # gen_server=True,
+            gen_test=True,
+            gen_doc=True,
+            gen_mock=True,
+            )
+
     # manager.add(websocket_server)
-    manager.add(tcp_client)
-    manager.add(tcp_server)
-    # manager.add(tcp_bin_server)
+    manager.add(tcp_client_json)
+    manager.add(tcp_server_json)
+    manager.add(tcp_server_binary)
+    manager.add(tcp_client_binary)
     manager.gen()
