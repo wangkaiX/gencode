@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.14)
 project(${project_name})
 SET(CMAKE_CXX_COMPILER      "ccache")
 SET(CMAKE_CXX_COMPILER_ARG1 "g++")
-set(CMAKE_CXX_STANDARD 17)
 add_compile_options(
     -pipe
     -ggdb3
+    -std=c++1z
     )
 add_definitions(-DFMT_HEADER_ONLY)
 aux_source_directory(api API_SRCS)
@@ -28,13 +28,5 @@ set(SOURCES
     main/main.cpp)
 
 add_executable(${project_name} ${'$'}{SOURCES})
-## target_include_directories(example PUBLIC api)
 target_include_directories(${project_name} PUBLIC .)
-# target_include_directories(example PUBLIC service)
 target_link_libraries(${project_name} pthread)
-
-
-# add_subdirectory(service)
-# add_subdirectory(main)
-# add_subdirectory(api)
-# target_include_directories(example main service api)
