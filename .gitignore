@@ -6,3 +6,5 @@
 /*_example
 **/go.mod
 **/go.sum
+**/build
+/chat
