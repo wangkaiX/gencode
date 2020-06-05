@@ -17,6 +17,7 @@ class ${framework.service_api_class_name}: public std::enable_shared_from_this<$
 {
 public:
     ${framework.service_api_class_name}(boost::asio::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr);
+    ${framework.service_api_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep);
     ~${framework.service_api_class_name}();
 
     void init();

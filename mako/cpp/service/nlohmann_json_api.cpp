@@ -7,6 +7,12 @@ ${framework.service_api_class_name}::${framework.service_api_class_name}(boost::
 {
 }
 
+${framework.service_api_class_name}::${framework.service_api_class_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
+    : _io_context(io_context)
+    , _connection_ptr(std::make_shared<TcpConnection>(io_context, ep))
+{
+}
+
 ${framework.service_api_class_name}::~${framework.service_api_class_name}()
 {   
     SPDLOG_INFO("destroy ${framework.service_api_class_name}");

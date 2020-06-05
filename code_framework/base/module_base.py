@@ -140,8 +140,10 @@ class ModuleBase:
     def __parser(self, tree_map):
         # self.__parser_import(tree_map['import'])
         self.__parser_default(tree_map['default'])
-        self.__parser_enum(tree_map['enum'])
-        self.__parser_config('config', tree_map)
+        if 'enum' in tree_map:
+            self.__parser_enum(tree_map['enum'])
+        if 'config' in tree_map:
+            self.__parser_config('config', tree_map)
         self.__parser_api(tree_map['api'])
         self.__parser_nodes()
 
