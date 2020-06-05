@@ -5,81 +5,49 @@ from code_framework.common import tool
 from code_framework.common import type_set
 from code_framework.common.meta import Node
 from code_framework.common import enum_type
-# from code_framework.common import error_code
-# from code_framework.common import type_set
 from code_framework.common import protocol_parser
-# from code_framework.common import generator
 import util.python.util as util
-# from code_framework.go.gin import gin as go_gin
-# import copy
 
 
-class Framework:
-    def __init__(self, service_name, network, adapt, protocol_filename,
+class ModuleBase:
+    def __init__(self, service_name, adapt, protocol_filename,
                  error_code,
-                 heartbeat_interval_second,
-                 heartbeat_miss_max, no_resp,
-                 server_ip, server_port,
-                 is_server, gen_doc, gen_test,
-                 gen_mock, length_length=None,
+                 no_resp,
+                 ip, port,
+                 length_length,
                  ):
-        self.__network = network
-        self.__adapt = adapt
-        self.__protocol_filename = protocol_filename
-        self.__length_length = length_length
-        self.__no_resp = no_resp
-        self.__is_server = is_server
-        self.__error_code = error_code
+        self._adapt = adapt
+        self._protocol_filename = protocol_filename
+        self._no_resp = no_resp
+        self._error_code = error_code
 
-        self.__service_name = service_name
-        if is_server:
-            self.__service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'server'))
-        else:
-            self.__service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'client'))
+        self._service_name = service_name
+        # self._service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'server'))
+        # self._service_class_name = util.gen_upper_camel("%s_%s" % (service_name, 'client'))
         # config ######
-        cfg = {}
-        if heartbeat_interval_second:
-            cfg["heartbeat_interval_second"] = heartbeat_interval_second
-        if heartbeat_miss_max:
-            cfg["heartbeat_miss_max"] = heartbeat_miss_max
-        if is_server and server_ip:
-            cfg["ip"] = server_ip
-        elif not is_server:
-            cfg["ip"] = server_ip
+        self._config = {}
+        config = {}
+        config["ip"] = ip
+        config["port"] = port
+        if length_length:
+            config["length_length"] = length_length
 
-        cfg["port"] = server_port
-        if type_set.is_tcp(self.__network):
-            cfg["length_length"] = self.__length_length
-        '''
-        self.heartbeat_interval_second = heartbeat_interval_second
-        self.heartbeat_miss_max = heartbeat_miss_max
-        self.server_ip = server_ip
-        self.server_port = server_port
-        '''
-        self.config = {}
-        self.config[service_name] = cfg
+        self._config[service_name] = config
         ###############
-        self.__is_server = is_server
-        # self.__gen_client = gen_client
-        # self.__gen_server = gen_server
-        self.gen_doc = gen_doc
-        self.gen_test = gen_test
 
         parser = protocol_parser.Parser(protocol_filename)
         self.__tree_map = parser.parse()
 
-        self.__apis = []
-        self.__client_apis = []
-        self.__server_apis = []
+        self._apis = []
+        self._client_apis = []
+        self._server_apis = []
 
-        self.__config = None
-        self.__default_map = None
-        self.__enums = []
+        self._default_map = None
+        self._enums = []
         # self.__imports = []
-        # 所以的结构类型
-        self.__nodes = []
+        # 所有的结构类型
+        self._nodes = []
         # self.__node_map = {}
-
         # self.__method = None
 
         # parser
@@ -123,10 +91,6 @@ class Framework:
     @property
     def service_api_class_name(self):
         return self.__service_class_name + "Api"
-
-    @property
-    def is_server(self):
-        return self.__is_server
 
     @property
     def no_resp(self):
@@ -423,17 +387,9 @@ class Api:
     def api_tags(self):
         return self.__api_tags
 
-    # @api_tags.setter
-    # def api_tags(self, value):
-    #     self.__api_tags = value
-
     @property
     def doc_tags(self):
         return self.__doc_tags
-
-    # @doc_tag.setter
-    # def doc_tags(self, value):
-    #     self.__doc_tags = value
 
     @property
     def context(self):
