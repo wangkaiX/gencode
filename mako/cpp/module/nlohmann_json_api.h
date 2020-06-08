@@ -17,9 +17,9 @@ constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 class ${module.module_class_impl_name}: public std::enable_shared_from_this<${module.module_class_impl_name}>
 {
 public:
-    ${module.module_class_impl_name}(net::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr);
+    ${module.module_class_impl_name}(net::io_context &io_context, std::shared_ptr<TcpConnection> connection_ptr);
     ${module.module_class_impl_name}(net::io_context &io_context, const net::ip::tcp::endpoint &ep);
-    ${module.module_class_impl_name}(std::shared_ptr<${connection_class_name}> connection_ptr);
+    ${module.module_class_impl_name}(std::shared_ptr<TcpConnection> connection_ptr);
     ${module.module_class_impl_name}(const net::ip::tcp::endpoint &ep);
     ~${module.module_class_impl_name}();
 

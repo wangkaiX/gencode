@@ -51,7 +51,7 @@ inline void to_json(nlohmann::json &j, const ${node.type.name} &obj)
     };
 }
 
-<% from code_module import module %>
+<% from code_framework.base import module_base %>
 
 inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
 {
@@ -62,7 +62,7 @@ inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
         less_fields += "[${member.name}]";
     }
     else {
-        % if isinstance(member, module.Node):
+        % if isinstance(member, module_base.Node):
         try {
             j.at("${member.name}").get_to(obj.${member.name});
         }

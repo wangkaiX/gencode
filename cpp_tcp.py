@@ -11,7 +11,7 @@ from code_framework.server.tcp_server import TcpServer
 
 if __name__ == '__main__':
     dst_dir = os.path.join("example", "cppexample_service")
-    mako_dir = os.path.join(os.environ['HOME'], 'gencode', 'mako'),
+    mako_dir = os.path.join(os.environ['HOME'], 'gencode', 'mako')
     # manager = manager.get_manager(
     #         code_type="cpp",
     #         service_name="project_example",

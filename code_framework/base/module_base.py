@@ -27,8 +27,10 @@ class ModuleBase:
         self._is_server = is_server
         if is_server:
             self._module_class_name = util.gen_upper_camel(module_name) + 'Server'
+            self._module_class_impl_name = util.gen_upper_camel(module_name) + 'ServerImpl'
         else:
             self._module_class_name = util.gen_upper_camel(module_name) + 'Client'
+            self._module_class_impl_name = util.gen_upper_camel(module_name) + 'ClientImpl'
 
         self._module_name = module_name
         # config ######
@@ -95,8 +97,8 @@ class ModuleBase:
     #     return self._module_class_name + suffix
 
     @property
-    def module_api_class_name(self):
-        return self._module_class_name + "Api"
+    def module_class_impl_name(self):
+        return self._module_class_impl_name
 
     @property
     def no_resp(self):

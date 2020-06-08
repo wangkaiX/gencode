@@ -56,6 +56,7 @@ class TcpBase(ModuleBase):
         tool.gen_code_file(mako_file, out_file,
                            module=self,
                            # include_list=include_list
+                           connection_class_name='TcpConnection',
                            )
 
         mako_file = os.path.join(self._cpp_mako_dir, 'module', '%s_api.cpp' % self.adapt)

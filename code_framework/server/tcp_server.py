@@ -34,6 +34,7 @@ class TcpServer(TcpBase):
         self.gen_tcp_server()
 
     def gen_tcp_server(self):
+        tcp_dir = concat(self._util_dir, 'cpp', 'tcp')
         for filename in ['tcp_connection.h', 'tcp_connection.cpp', 'tcp_server.h', 'tcp_server.cpp']:
-            util.copy_file(concat(self.__util_dir, filename), concat(self._module_dir, 'net', filename))
-        util.copy_dir(concat(self.__util_dir, 'common'), self._module_dir, 'net', 'common')
+            util.copy_file(concat(tcp_dir, filename), concat(self._module_dir, 'net', filename))
+        util.copy_dir(concat(self._util_dir, 'cpp', 'common'), self._module_dir, 'net', 'common')

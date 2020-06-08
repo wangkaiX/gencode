@@ -393,6 +393,6 @@ def markdown_full_path(full_path):
 
 
 def get_util_dir():
-    util_dir = os.path.join(os.path.realpath(__file__), "..", "..", "util", "cpp", "tcp")
+    util_dir = os.path.join(os.path.realpath(__file__), "..", "..", "..", "util")
     util_dir = os.path.abspath(util_dir)
     return util_dir
