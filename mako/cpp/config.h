@@ -32,16 +32,7 @@ struct ${node.type.cpp}
 % endfor
 };
 
-// inline void to_json(nlohmann::json &j, const ${node.type.name} &obj)
-// {
-//     j = nlohmann::json{
-//         % for member in members:
-//         {"${member.name}", obj.${member.name}},
-//         % endfor
-//     };
-// }
-
-<% from code_framework import framework %>
+<% from code_module import module %>
 
 inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
 {
@@ -63,7 +54,8 @@ inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
 
 struct LoadConfig
 {
-public:
+private:
+    friend Config &getCfg();
     LoadConfig(const std::string &filename)
     {
         std::ifstream ifs(filename);

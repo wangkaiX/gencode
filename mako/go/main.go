@@ -21,9 +21,9 @@ func main() {
 from src.common import code_type
 %>
 % for protocol in protocols:
-	% if protocol.framework_type == code_type.grpc:
+	% if protocol.module_type == code_type.grpc:
 	go InitGrpc()
-	% elif protocol.framework_type == code_type.go_gin:
+	% elif protocol.module_type == code_type.go_gin:
 	go InitGin()
 	% endif
 % endfor

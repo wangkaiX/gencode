@@ -10,20 +10,20 @@ from src.common import tool
 
 
 class GoProtocolGeneratorBase(ProtocolGeneratorBase):
-    def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, service_dir, go_src_dir, gen_doc):
+    def __init__(self, protocol, **kwargs):  # protocol, mako_dir, errno_out_dir, module_dir, go_src_dir, gen_doc):
         ProtocolGeneratorBase.__init__(self, protocol, **kwargs)
         self.__go_src_dir = kwargs['go_src_dir']
-        self.__package_service_dir = tool.package_name(self.service_dir, self.__go_src_dir)
+        self.__package_module_dir = tool.package_name(self.module_dir, self.__go_src_dir)
         self.__package_errno_dir = tool.package_name(self.errno_dir, self.go_src_dir)
-        # self.__service_name = kwargs['service_name']
+        # self.__module_name = kwargs['module_name']
 
     @property
     def package_errno_dir(self):
         return self.__package_errno_dir
 
     @property
-    def package_service_dir(self):
-        return self.__package_service_dir
+    def package_module_dir(self):
+        return self.__package_module_dir
 
     @property
     def go_src_dir(self):
@@ -40,7 +40,7 @@ class GoProtocolGeneratorBase(ProtocolGeneratorBase):
         pass
         # mako_file = os.path.join(self.mako_dir, 'go', 'test_init.go')
         # filename = os.path.join(test_dir, 'test_init.go')
-        # tool.gen_code_file(mako_file, filename, package_service_dir=self.__package_service_dir)
+        # tool.gen_code_file(mako_file, filename, package_module_dir=self.__package_module_dir)
 
     # def gen_errno(self):
     #     errno_mako = os.path.join(self.mako_dir, 'go', 'errno.go')
@@ -56,15 +56,15 @@ class GoProtocolGeneratorBase(ProtocolGeneratorBase):
     def __gen_config(self, configs):
         # config.go
         mako_file = os.path.join(self.__mako_dir, 'go', 'config.go')
-        out_file = os.path.join(self.__service_dir, 'app', 'define', 'config.go')
+        out_file = os.path.join(self.__module_dir, 'app', 'define', 'config.go')
         tool.gen_code_file(mako_file, out_file, configs=configs, gen_upper_camel=util.gen_upper_camel)
         # config.toml
         mako_file = os.path.join(self.mako_dir, 'go', 'config.toml')
-        out_file = os.path.join(self.service_dir, 'configs', 'config.toml')
+        out_file = os.path.join(self.module_dir, 'configs', 'config.toml')
         tool.gen_code_file(mako_file, out_file, configs=configs)
 
     def gen_init(self):
-        out_file = os.path.join(self.__service_dir, 'cmd', 'init.go')
+        out_file = os.path.join(self.__module_dir, 'cmd', 'init.go')
         if not os.path.exists(out_file):
             mako_file = os.path.join(self.__mako_dir, 'go', 'init.go')
             tool.gen_code_file(mako_file, out_file)

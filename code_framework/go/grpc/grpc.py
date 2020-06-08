@@ -21,11 +21,11 @@ class GoGrpc(GoProtocolGeneratorBase):
         self.__proto_package_name = kwargs['proto_package_name']
         self.__proto_dir = kwargs['proto_dir']
         # self.__grpc_dir = kwargs['grpc_api_dir']
-        self.__grpc_service_name = kwargs['grpc_service_name']
-        if 'grpc_service_type' not in kwargs.keys():
-            self.__grpc_service_type = 'GrpcServer'
+        self.__grpc_module_name = kwargs['grpc_module_name']
+        if 'grpc_module_type' not in kwargs.keys():
+            self.__grpc_module_type = 'GrpcServer'
         else:
-            self.__grpc_service_type = kwargs['grpc_service_type']
+            self.__grpc_module_type = kwargs['grpc_module_type']
 
         self.__package_api_dir = tool.package_name(self.__api_dir, self.go_src_dir)
         self.__package_proto_dir = tool.package_name(self.__proto_dir, self.go_src_dir)
@@ -39,7 +39,7 @@ class GoGrpc(GoProtocolGeneratorBase):
         self.gen_makefile()
         self.gen_pb()
 
-        self.gen_service_type()
+        self.gen_module_type()
         self.gen_check_arg()
         self.gen_init()
         GoProtocolGeneratorBase.gen_code(self)
@@ -79,8 +79,8 @@ class GoGrpc(GoProtocolGeneratorBase):
                                filename,
                                api=api,
                                package_proto_dir=self.__package_proto_dir,
-                               package_service_dir=self.package_service_dir,
-                               grpc_service_name=self.__grpc_service_name,
+                               package_module_dir=self.package_module_dir,
+                               grpc_module_name=self.__grpc_module_name,
                                json_input=tool.dict2json(api.req.value_map),
                                gen_upper_camel=util.gen_upper_camel,
                                )
@@ -93,7 +93,7 @@ class GoGrpc(GoProtocolGeneratorBase):
                            filename,
                            package_name=self.__proto_package_name,
                            apis=self.protocol.apis,
-                           grpc_service_name=self.__grpc_service_name,
+                           grpc_module_name=self.__grpc_module_name,
                            gen_upper_camel=util.gen_upper_camel,
                            nodes=self.protocol.nodes,
                            enums=self.protocol.enums,
@@ -108,13 +108,13 @@ class GoGrpc(GoProtocolGeneratorBase):
                            proto_package_name=self.__proto_package_name,
                            )
 
-    def gen_service_type(self):
-        mako_file = os.path.join(self.__grpc_mako_dir, 'service_type.go')
-        filename = os.path.join(self.__api_dir, "%s.go" % self.__grpc_service_type)
+    def gen_module_type(self):
+        mako_file = os.path.join(self.__grpc_mako_dir, 'module_type.go')
+        filename = os.path.join(self.__api_dir, "%s.go" % self.__grpc_module_type)
         tool.gen_code_file(mako_file,
                            filename,
                            package_name=self.__package_api_name,
-                           grpc_service_type=self.__grpc_service_type,
+                           grpc_module_type=self.__grpc_module_type,
                            )
 
     def gen_check_arg(self):
@@ -123,7 +123,7 @@ class GoGrpc(GoProtocolGeneratorBase):
         tool.gen_code_file(mako_file,
                            filename,
                            package_name=self.__package_api_name,
-                           grpc_service_type=self.__grpc_service_type,
+                           grpc_module_type=self.__grpc_module_type,
                            package_proto_dir=self.__package_proto_dir,
                            gen_upper_camel=util.gen_upper_camel,
                            apis=self.protocol.apis,
@@ -131,12 +131,12 @@ class GoGrpc(GoProtocolGeneratorBase):
 
     def gen_init(self):
         mako_file = os.path.join(self.__grpc_mako_dir, 'init_grpc.go')
-        filename = os.path.join(self.service_dir, 'cmd', 'init_grpc.go')
+        filename = os.path.join(self.module_dir, 'cmd', 'init_grpc.go')
         # if not os.path.exists(output_file):
         tool.gen_code_file(mako_file,
                            filename,
                            package_api_dir=self.__package_api_dir,
                            package_proto_dir=self.__package_proto_dir,
-                           package_service_dir=self.package_service_dir,
-                           grpc_service_name=self.__grpc_service_name,
+                           package_module_dir=self.package_module_dir,
+                           grpc_module_name=self.__grpc_module_name,
                            )

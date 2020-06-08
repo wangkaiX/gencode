@@ -18,7 +18,7 @@ public:
     ${resp.get_type()} send_${interface_name}(const struct ${req.get_type()} &request)
     {   
         nlohmann::json j = request;
-        j["service_name"] = "${interface_name}";
+        j["module_name"] = "${interface_name}";
         return nlohmann::json::parse(client_.send(j).body().c_str());
     }
 

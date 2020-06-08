@@ -138,10 +138,10 @@ def assert_adapt_type(code_type, adapt_type):
         assert False
 
 
-def assert_framework_type(code_type, network):
-    # print(code_type, framework, type_set.code_framework_types)
-    if code_type not in type_set.code_framework_types and network not in type_set.code_framework_types[code_type]:
-        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_framework_types, code_type, network))
+def assert_module_type(code_type, network):
+    # print(code_type, module, type_set.code_module_types)
+    if code_type not in type_set.code_module_types and network not in type_set.code_module_types[code_type]:
+        print("暂时支持的框架类型[%s] 当前[%s][%s]" % (type_set.code_module_types, code_type, network))
         assert False
 
 
@@ -390,3 +390,9 @@ def markdown_full_path(full_path):
     for p in full_path[1:]:
         r = r + p + "::"
     return r[:-2]
+
+
+def get_util_dir():
+    util_dir = os.path.join(os.path.realpath(__file__), "..", "..", "util", "cpp", "tcp")
+    util_dir = os.path.abspath(util_dir)
+    return util_dir

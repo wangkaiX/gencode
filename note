@@ -15,7 +15,7 @@
 
 配置脚本中的参数解释
 # 模块服务名
-service_name='tcpserver_example',
+module_name='tcpserver_example',
 
 # 通信类型，主要表示用了哪个库中的什么通信
 network=type_set.asio_tcp_async,

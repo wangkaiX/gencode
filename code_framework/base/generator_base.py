@@ -3,9 +3,9 @@
 
 
 class GeneratorBase:
-    def __init__(self, framework, service_dir, mako_dir, log):
+    def __init__(self, module, module_dir, mako_dir, log):
         # protected
-        self._framework = framework
-        self._service_dir = service_dir
+        self._module = module
+        self._module_dir = module_dir
         self._log = log
         self._mako_dir = mako_dir

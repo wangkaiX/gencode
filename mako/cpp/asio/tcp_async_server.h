@@ -10,13 +10,13 @@
 #include <boost/asio.hpp>
 
 #include "network/tcp_connection.h"
-#include "${framework.service_name}/api.h"
+#include "${module.module_name}/api.h"
 
 //----------------------------------------------------------------------
-class ${framework.service_network_class_name}
+class ${module.service_network_class_name}
 {
 public:
-    ${framework.service_network_class_name}(boost::asio::io_context& io_context,
+    ${module.service_network_class_name}(boost::asio::io_context& io_context,
         const boost::asio::ip::tcp::endpoint& endpoint);
 
     // void setReadCallback(TcpConnection::ReadCallback &cb)

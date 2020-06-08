@@ -10,13 +10,13 @@ if __name__ == '__main__':
     service_dir = os.path.join(os.environ['GOPATH'], "src", "example")
     gin = GoGenerator(
             # gin
-            framework_type="gin",
+            module_type="gin",
             # 接口配置文件路径
             filenames=[
                 "json/api_gin.json5",
                 "json/api_grpc.json5",
                 ],
-            service_name='example',
+            module_name='example',
             # 错误码配置文件
             errno_configs=[
                 errno.ErrnoConfig("json/errno.config", 1000, 2000)

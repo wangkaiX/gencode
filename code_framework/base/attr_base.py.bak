@@ -5,11 +5,11 @@ from src.common import errno
 
 
 class AttrBase:
-    def __init__(self, service_name, errno_configs, mako_dir, errno_dir, service_dir, go_src_dir, gen_doc):
-        self.__service_name = service_name
+    def __init__(self, module_name, errno_configs, mako_dir, errno_dir, module_dir, go_src_dir, gen_doc):
+        self.__module_name = module_name
         self.__errno_dir = errno_dir
         self.__gen_doc = gen_doc
-        self.__service_dir = service_dir
+        self.__module_dir = module_dir
         self.__mako_dir = mako_dir
 
         errno_gen = errno.ErrnoGen(errno_configs)
@@ -20,8 +20,8 @@ class AttrBase:
         return self.__errnos
 
     @property
-    def service_name(self):
-        return self.__service_name
+    def module_name(self):
+        return self.__module_name
 
     # @property
     # def errno_configs(self):
@@ -36,8 +36,8 @@ class AttrBase:
         return self.__gen_doc
 
     @property
-    def service_dir(self):
-        return self.__service_dir
+    def module_dir(self):
+        return self.__module_dir
 
     @property
     def mako_dir(self):

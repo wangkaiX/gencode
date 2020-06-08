@@ -6,8 +6,8 @@ import os
 from code_framework.common import error_code as ec
 # from code_framework.common import meta
 from code_framework.common import type_set
-from code_framework import manager
-from code_framework import framework
+from code_module import manager
+from code_module import module
 
 if __name__ == '__main__':
     dst_dir = os.path.join("chat", "chat_client")
@@ -26,8 +26,8 @@ if __name__ == '__main__':
             # doc_outdir=os.path.join(dst_dir, "doc", "docname.md"),
             )
 
-    tcp_client = framework.Framework(
-            service_name='chat_client',
+    tcp_client = module.Framework(
+            module_name='chat_client',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径

@@ -12,13 +12,13 @@ if __name__ == '__main__':
     # dst_dir2 = os.environ['GOPATH'] + "/src/abc2"  # env['GOPATH'] + "/src/"
     gen.gen_code_files(
             code_type="go",
-            framework="gin",
+            module="gin",
             # 接口配置文件路径
             filenames=[
                 "json/api_gin.json5",
                 "json/api_grpc.json5",
                 ],
-            service_name='example',
+            module_name='example',
             # 错误码配置文件
             errno_configs=[
                 errno.ErrnoConfig("json/errno.config", 1000, 2000)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             # 业务接口生成目录
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             # proto中定义的grpc service
-            grpc_service_name="GrpcExampleServer",
+            grpc_module_name="GrpcExampleServer",
             # 实例化的grpc接口对应的类名
             grpc_service_type="Server",
             # proto文件中的包名

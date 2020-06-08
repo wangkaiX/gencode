@@ -14,7 +14,7 @@ class Manager:
                  # log
                  log,
                  # 项目生成路径
-                 service_dir,
+                 module_dir,
                  # 错误码配置文件
                  # error_code,
                  # 错误码输出目录
@@ -25,21 +25,21 @@ class Manager:
         self._code_type = code_type
         self._mako_dir = mako_dir
         self._log = log
-        self._service_dir = service_dir
+        self._module_dir = module_dir
         # self._error_code = error_code
         # self._error_outdir = error_outdir
         # self._doc_outdir = doc_outdir
-        self._frameworks = []
+        self._modules = []
 
-    def add(self, framework):
-        tool.assert_framework_type(self._code_type, framework.network)
-        self._frameworks.append(framework)
+    def add(self, module):
+        tool.assert_module_type(self._code_type, module.network)
+        self._modules.append(module)
 
     #  def gen(self):
-    #      for framework in self._frameworks:
+    #      for module in self._modules:
     #          if type_set.cpp == self._code_type:
-    #              self._gen_cpp(framework)
+    #              self._gen_cpp(module)
 
-    #  def _gen_cpp(self, framework):
-    #      manager = cppM(mako_dir=self._mako_dir, service_dir=self._service_dir, framework=framework)
+    #  def _gen_cpp(self, module):
+    #      manager = cppM(mako_dir=self._mako_dir, module_dir=self._module_dir, module=module)
     #      manager.gen()

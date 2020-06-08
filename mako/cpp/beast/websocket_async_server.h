@@ -17,7 +17,7 @@
 % endif
 
 <%
-    service_network_class_name = framework.service_network_class_name
+    service_network_class_name = module.service_network_class_name
 %>
 
 // Accepts incoming connections and launches the WebsocketConnections
@@ -27,7 +27,7 @@ class ${service_network_class_name}: public std::enable_shared_from_this<${servi
     boost::asio::ip::tcp::acceptor acceptor_;
 
 public:
-    ${framework.service_network_class_name}(
+    ${module.service_network_class_name}(
         boost::asio::io_context& ioc,
         boost::asio::ip::tcp::endpoint endpoint)
         : ioc_(ioc)
@@ -93,7 +93,7 @@ private:
         else {
             // Create the WebsocketConnection and run it
             std::shared_ptr<WebsocketConnection> connection_ptr(ioc_, std::move(socket))
-            std::make_shared<${framework.service_api_class_name}>(connection_ptr);
+            std::make_shared<${module.service_api_class_name}>(connection_ptr);
         }
 
         // Accept another connection

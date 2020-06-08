@@ -6,11 +6,11 @@ using namespace std;
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/daily_file_sink.h>
 
-% for framework in frameworks:
-    % if framework.is_server:
-#include "${framework.service_name}/${framework.service_name}_tcp_server.h"
+% for module in modules:
+    % if module.is_server:
+#include "${module.module_name}/${module.module_name}_tcp_server.h"
     % else:
-#include "${framework.service_name}/api.h"
+#include "${module.module_name}/api.h"
     % endif
 % endfor
 #include "config/config.h"
@@ -44,19 +44,19 @@ int main()
     signal(SIGABRT, sigsegv);
     using namespace boost;
     asio::io_context io_context;
-    % for framework in frameworks:
-        % if framework.is_server:
-            % if framework.network == type_set.asio_tcp_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
-            % elif framework.network == type_set.beast_websocket_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
+    % for module in modules:
+        % if module.is_server:
+            % if module.network == type_set.asio_tcp_async:
+    auto ${module.module_name}_ptr = std::make_shared<${module.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
+            % elif module.network == type_set.beast_websocket_async:
+    auto ${module.module_name}_ptr = std::make_shared<${module.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
             % endif
-    // ${framework.service_name}_ptr->init();
+    // ${module.module_name}_ptr->init();
         % else:
-            % if framework.network == type_set.asio_tcp_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
-            % elif framework.network == type_set.beast_websocket_async:
-    auto ${framework.service_name}_ptr = std::make_shared<${framework.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${framework.service_name}.port));
+            % if module.network == type_set.asio_tcp_async:
+    auto ${module.module_name}_ptr = std::make_shared<${module.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
+            % elif module.network == type_set.beast_websocket_async:
+    auto ${module.module_name}_ptr = std::make_shared<${module.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
             % endif
         % endif
 

@@ -19,7 +19,7 @@ def gen_code_files(filenames,
                    **kwargs):
     '''
     mako_dir, errno_out_file,
-    service_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock,
+    module_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock,
     **kwargs):
     '''
     __code_type = kwargs['code_type']
@@ -29,7 +29,7 @@ def gen_code_files(filenames,
         parse = get_parser(filename)
         protocol = meta.Protocol(parse(filename).parser())
         protocols.append(protocol)
-        # protocol.gen_code_file(  # mako_dir, errno_out_file, service_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock,
+        # protocol.gen_code_file(  # mako_dir, errno_out_file, module_dir, gen_server, gen_client, gen_test, gen_doc, gen_mock,
         #                       **kwargs)
     if __code_type == code_type.go:
         generator = GoGenerator(protocols, **kwargs)

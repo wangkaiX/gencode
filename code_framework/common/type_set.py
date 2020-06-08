@@ -56,8 +56,8 @@ adapt_name[binary] = 'adapt_binary'
 spdlog = 'spdlog'
 
 
-code_framework_types = {}
-code_framework_types[cpp] = [beast_websocket_async, asio_tcp_async]
+code_module_types = {}
+code_module_types[cpp] = [beast_websocket_async, asio_tcp_async]
 
 code_adapt_types = {}
 code_adapt_types[cpp] = [binary, rapid_json, binary]

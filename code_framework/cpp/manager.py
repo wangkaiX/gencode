@@ -25,7 +25,7 @@ class Manager(ManagerBase):
                  # log
                  log,
                  # 项目生成路径
-                 service_dir,
+                 module_dir,
                  # 错误码配置文件
                  # error_code,
                  # 错误码输出目录
@@ -34,28 +34,28 @@ class Manager(ManagerBase):
                  ):
         # xxx/mako/cpp
         ManagerBase.__init__(self, project_name=project_name, code_type=type_set.cpp,
-                             mako_dir=mako_dir, service_dir=service_dir,
+                             mako_dir=mako_dir, module_dir=module_dir,
                              # error_code=error_code,
                              # error_outdir=error_outdir,
                              # doc_outdir=doc_outdir,
                              log=log)
         self._cpp_mako_dir = os.path.join(self._mako_dir, 'cpp')
-        # self._service_dir = service_dir
-        self._frameworks = []
+        # self._module_dir = module_dir
+        self._modules = []
 
     def gen(self):
-        for framework in self._frameworks:
-            if type_set.beast_websocket_async == framework.network:
+        for module in self._modules:
+            if type_set.beast_websocket_async == module.network:
                 # mako_dir = os.path.join(self._cpp_mako_dir, 'beast_websocket_async')
                 generator = websocket_async_server.Generator(mako_dir=self._cpp_mako_dir,
-                                                             service_dir=self._service_dir,
-                                                             framework=framework,
+                                                             module_dir=self._module_dir,
+                                                             module=module,
                                                              log=self._log,
                                                              )
-            elif type_set.asio_tcp_async == framework.network:
+            elif type_set.asio_tcp_async == module.network:
                 generator = tcp_async.Generator(mako_dir=self._cpp_mako_dir,
-                                                service_dir=self._service_dir,
-                                                framework=framework,
+                                                module_dir=self._module_dir,
+                                                module=module,
                                                 log=self._log,
                                                 )
             generator.gen()
@@ -72,29 +72,29 @@ class Manager(ManagerBase):
 
     def _gen_buildsh(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'build.sh')
-        out_file = os.path.join(self._service_dir, 'build.sh')
+        out_file = os.path.join(self._module_dir, 'build.sh')
         tool.gen_code_file(mako_file, out_file)
 
     def _gen_make(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'makefile')
-        out_file = os.path.join(self._service_dir, 'makefile')
+        out_file = os.path.join(self._module_dir, 'makefile')
         tool.gen_code_file(mako_file, out_file,
                            project_name=self._project_name,
                            )
 
     def _gen_main(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'main.cpp')
-        out_file = os.path.join(self._service_dir, 'main', 'main.cpp')
+        out_file = os.path.join(self._module_dir, 'main', 'main.cpp')
         tool.gen_code_file(mako_file, out_file,
-                           frameworks=self._frameworks,
+                           modules=self._modules,
                            )
 
     def _gen_cmake(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'CMakeLists.txt')
-        out_file = os.path.join(self._service_dir, 'CMakeLists.txt')
+        out_file = os.path.join(self._module_dir, 'CMakeLists.txt')
         tool.gen_code_file(mako_file, out_file,
                            project_name=self._project_name,
-                           frameworks=self._frameworks,
+                           modules=self._modules,
                            )
 
     def _gen_init(self):
@@ -102,11 +102,11 @@ class Manager(ManagerBase):
 
     def _gen_config(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'config.h')
-        out_file = os.path.join(self._service_dir, 'config', 'config.h')
+        out_file = os.path.join(self._module_dir, 'config', 'config.h')
         std_includes = ['vector', 'string']
         config = {}
-        for framework in self._frameworks:
-            config = dict(config, **(framework.config))
+        for module in self._modules:
+            config = dict(config, **(module.config))
         print("config:", config)
         node = Node(None, "config", config)
         nodes = tool.to_nodes(node)
@@ -115,22 +115,22 @@ class Manager(ManagerBase):
                            nodes=nodes,
                            std_includes=std_includes,
                            )
-        out_file = os.path.join(self._service_dir, "config.json")
+        out_file = os.path.join(self._module_dir, "config.json")
         with open(out_file, "w") as f:
             json.dump(config, f, ensure_ascii=False, indent=4)
 
     def _gen_types(self):
         mako_file = os.path.join(self._cpp_mako_dir, 'common', 'types.h')
-        out_file = os.path.join(self._service_dir, 'common', 'types.h')
+        out_file = os.path.join(self._module_dir, 'common', 'types.h')
         std_includes = ['vector', 'string']
         enums = []
         nodes = []
-        for framework in self._frameworks:
-            nodes += framework.nodes
+        for module in self._modules:
+            nodes += module.nodes
         nodes = tool.to_nodes(nodes)
 
-        for framework in self._frameworks:
-            enums += framework.enums
+        for module in self._modules:
+            enums += module.enums
 
         enums = util.unique(enums)
         for enum in enums:
@@ -146,74 +146,74 @@ class Manager(ManagerBase):
     def _gen_apis(self):
         # header
 
-        for framework in self._frameworks:
-            server_apis = framework.server_apis
-            server_apis = util.unique(server_apis)
-            client_apis = framework.client_apis
-            client_apis = util.unique(client_apis)
+        for module in self._modules:
+            request_apis = module.request_apis
+            request_apis = util.unique(request_apis)
+            request_apis = module.request_apis
+            request_apis = util.unique(request_apis)
 
-            if type_set.beast_websocket_async == framework.network:
+            if type_set.beast_websocket_async == module.network:
                 include_list = ["network/websocket_connection.h"]
                 connection_class_name = "WebsocketConnection"
-            elif type_set.asio_tcp_async == framework.network:
+            elif type_set.asio_tcp_async == module.network:
                 include_list = ["network/tcp_connection.h"]
                 connection_class_name = "TcpConnection"
             else:
                 assert False
 
             # apis.h
-            if framework.adapt == type_set.nlohmann_json:
+            if module.adapt == type_set.nlohmann_json:
                 api_mako_filename_prefix = 'nlohmann_json'
-            elif framework.adapt == type_set.binary:
+            elif module.adapt == type_set.binary:
                 api_mako_filename_prefix = 'binary'
             else:
                 assert False
             mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_api.h' % api_mako_filename_prefix)
-            out_file = os.path.join(self._service_dir, framework.service_name, 'api.h')
+            out_file = os.path.join(self._module_dir, module.module_name, 'api.h')
             tool.gen_code_file(mako_file, out_file,
-                               framework=framework,
-                               adapt_name=framework.adapt_name,
-                               adapt_class_name=framework.adapt_class_name,
+                               module=module,
+                               adapt_name=module.adapt_name,
+                               adapt_class_name=module.adapt_class_name,
                                include_list=include_list,
                                connection_class_name=connection_class_name,
                                )
 
             mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_api.cpp' % api_mako_filename_prefix)
-            out_file = os.path.join(self._service_dir, framework.service_name, 'api.cpp')
+            out_file = os.path.join(self._module_dir, module.module_name, 'api.cpp')
             tool.gen_code_file(mako_file, out_file,
-                               framework=framework,
-                               adapt_name=framework.adapt_name,
-                               adapt_class_name=framework.adapt_class_name,
+                               module=module,
+                               adapt_name=module.adapt_name,
+                               adapt_class_name=module.adapt_class_name,
                                include_list=include_list,
                                connection_class_name=connection_class_name,
                                )
 
-            # server_apis
+            # request_apis
             mako_file = os.path.join(self._cpp_mako_dir, 'service', 'server_api.cpp')
-            for api in server_apis:
-                out_file = os.path.join(self._service_dir, framework.service_name, api.name + '.cpp')
+            for api in request_apis:
+                out_file = os.path.join(self._module_dir, module.module_name, api.name + '.cpp')
                 if not os.path.exists(out_file):
                     tool.gen_code_file(mako_file, out_file,
-                                       framework=framework,
-                                       # no_resp=framework.no_resp,
+                                       module=module,
+                                       # no_resp=module.no_resp,
                                        api=api,
                                        log=self._log,
                                        )
-            # client_apis.h
-            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'client_apis.cpp')
-            out_file = os.path.join(self._service_dir, framework.service_name, 'client_apis.cpp')
+            # request_apis.h
+            mako_file = os.path.join(self._cpp_mako_dir, 'service', 'request_apis.cpp')
+            out_file = os.path.join(self._module_dir, module.module_name, 'request_apis.cpp')
             tool.gen_code_file(mako_file, out_file,
-                               framework=framework,
-                               # no_resp=framework.no_resp,
-                               # server_apis=server_apis,
-                               # client_apis=client_apis,
+                               module=module,
+                               # no_resp=module.no_resp,
+                               # request_apis=request_apis,
+                               # request_apis=request_apis,
                                )
 
             # types
             mako_file = os.path.join(self._cpp_mako_dir, 'service', '%s_types.h' % api_mako_filename_prefix)
-            out_file = os.path.join(self._service_dir, framework.service_name, 'types.h')
-            nodes = framework.nodes
-            enums = framework.enums
+            out_file = os.path.join(self._module_dir, module.module_name, 'types.h')
+            nodes = module.nodes
+            enums = module.enums
             std_includes = ['vector', 'string']
             tool.gen_code_file(mako_file, out_file,
                                nodes=nodes,
@@ -223,10 +223,10 @@ class Manager(ManagerBase):
 
             # doc
             mako_file = os.path.join(self._mako_dir, 'doc_tcp_json.md')
-            out_file = os.path.join(self._service_dir, framework.service_name, 'doc', '%s.md' % framework.service_name)
+            out_file = os.path.join(self._module_dir, module.module_name, 'doc', '%s.md' % module.module_name)
             doc_generator = doc.Doc(mako_file=mako_file,
                                     out_file=out_file,
-                                    apis=framework.apis,
-                                    enums=framework.enums,
-                                    errnos=framework.error_code.errnos)
+                                    apis=module.apis,
+                                    enums=module.enums,
+                                    errnos=module.error_code.errnos)
             doc_generator.gen()

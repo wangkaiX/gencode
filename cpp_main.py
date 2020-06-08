@@ -6,8 +6,8 @@ import os
 from code_framework.common import error_code as ec
 # from code_framework.common import meta
 from code_framework.common import type_set
-from code_framework import manager
-from code_framework import framework
+from code_module import manager
+from code_module import module
 
 if __name__ == '__main__':
     dst_dir = os.path.join("example", "cppexample_service")
@@ -26,8 +26,8 @@ if __name__ == '__main__':
             # doc_outdir=os.path.join(dst_dir, "doc", "docname.md"),
             )
 
-    websocket_server = framework.Framework(
-            service_name='websocket_example',
+    websocket_server = module.Framework(
+            module_name='websocket_example',
             network=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -45,8 +45,8 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_server_json = framework.Framework(
-            service_name='tcpserver_example',
+    tcp_server_json = module.Framework(
+            module_name='tcpserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -67,8 +67,8 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_server_binary = framework.Framework(
-            service_name='tcpbinserver_example',
+    tcp_server_binary = module.Framework(
+            module_name='tcpbinserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.binary,
             # 接口配置文件路径
@@ -89,8 +89,8 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_client_json = framework.Framework(
-            service_name='tcpclient_example',
+    tcp_client_json = module.Framework(
+            module_name='tcpclient_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -111,8 +111,8 @@ if __name__ == '__main__':
             gen_mock=True,
             )
 
-    tcp_client_binary = framework.Framework(
-            service_name='tcpclient_binary',
+    tcp_client_binary = module.Framework(
+            module_name='tcpclient_binary',
             network=type_set.asio_tcp_async,
             adapt=type_set.binary,
             # 接口配置文件路径

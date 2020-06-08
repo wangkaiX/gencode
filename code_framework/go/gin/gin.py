@@ -37,7 +37,7 @@ class GoGinGenerator(GoGenerator):
                                    api=api,
                                    package_name=self.__api_package_name,
                                    package_go_gin_define=self.__package_define,
-                                   package_service_dir=self.package_service_dir,
+                                   package_module_dir=self.package_module_dir,
                                    gen_lower_camel=util.gen_lower_camel,
                                    go_gin_define_dir=self.__define_dir,
                                    json_output=tool.dict2json(api.resp.value_map),
@@ -53,8 +53,8 @@ class GoGinGenerator(GoGenerator):
             tool.gen_code_file(mako_file, filename,
                                api=api,
                                input_text=input_text,
-                               package_service_dir=self.package_service_dir,
-                               service_dir=self.service_dir,
+                               package_module_dir=self.package_module_dir,
+                               module_dir=self.module_dir,
                                url_param2text=tool.url_param2text,
                                gen_upper_camel=util.gen_upper_camel,
                                )
@@ -79,7 +79,7 @@ class GoGinGenerator(GoGenerator):
                            out_file,
                            package_name=self.__api_package_name,
                            package_define=self.__package_define,
-                           package_service_dir=self.package_service_dir,
+                           package_module_dir=self.package_module_dir,
                            apis=self.protocol.apis,
                            gen_lower_camel=util.gen_lower_camel,
                            # has_file=self.protocol.has_file,
@@ -87,11 +87,11 @@ class GoGinGenerator(GoGenerator):
                            )
 
     def gen_init(self):
-        out_file = os.path.join(self.service_dir, 'cmd', 'init_gin.go')
+        out_file = os.path.join(self.module_dir, 'cmd', 'init_gin.go')
         mako_file = os.path.join(self.__gin_mako_dir, 'init.go')
         # if not os.path.exists(out_file):
         tool.gen_code_file(mako_file,
                            out_file,
                            package_api=self.__package_api,
-                           package_service_dir=self.package_service_dir,
+                           package_module_dir=self.package_module_dir,
                            )

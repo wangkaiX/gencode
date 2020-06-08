@@ -12,8 +12,8 @@ aux_source_directory(api API_SRCS)
 aux_source_directory(service SERVICE_SRCS)
 aux_source_directory(config CONFIG_SRCS)
 aux_source_directory(network NETWORK_SRCS)
-% for framework in frameworks:
-aux_source_directory(${framework.service_name} ${framework.service_name.upper()}_SRCS)
+% for module in modules:
+aux_source_directory(${module.module_name} ${module.module_name.upper()}_SRCS)
 % endfor
 # aux_source_directory(websocket_example WEBSOCKETEXAMPLE_SRCS)
 # ${'$'}{WEBSOCKETEXAMPLE_SRCS}
@@ -22,8 +22,8 @@ set(SOURCES
     ${'$'}{SERVICE_SRCS}
     ${'$'}{CONFIG_SRCS}
     ${'$'}{NETWORK_SRCS}
-% for framework in frameworks:
-    ${'$'}{${framework.service_name.upper()}_SRCS}
+% for module in modules:
+    ${'$'}{${module.module_name.upper()}_SRCS}
 % endfor
     main/main.cpp)
 
