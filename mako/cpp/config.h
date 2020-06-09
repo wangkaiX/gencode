@@ -32,7 +32,7 @@ struct ${node.type.cpp}
 % endfor
 };
 
-<% from code_module import module %>
+##<% from code_framework.base import base %>
 
 inline void from_json(const nlohmann::json &j, ${node.type.name} &obj)
 {

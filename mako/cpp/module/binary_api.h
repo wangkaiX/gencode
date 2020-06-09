@@ -3,7 +3,7 @@
 #include <memory>
 #include <map>
 #include <spdlog/spdlog.h>
-#include "${module.module_name}/types.h"
+#include "${module.name}/types.h"
 % for include in include_list:
 #include "${include}"
 % endfor

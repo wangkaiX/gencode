@@ -18,7 +18,7 @@ if __name__ == '__main__':
                 "json/api_gin.json5",
                 "json/api_grpc.json5",
                 ],
-            module_name='example',
+            name='example',
             # 错误码配置文件
             errno_configs=[
                 errno.ErrnoConfig("json/errno.config", 1000, 2000)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             # 业务接口生成目录
             grpc_api_dir=os.path.join(dst_dir, "app", "grpc_api"),
             # proto中定义的grpc service
-            grpc_module_name="GrpcExampleServer",
+            grpc_name="GrpcExampleServer",
             # 实例化的grpc接口对应的类名
             grpc_service_type="Server",
             # proto文件中的包名

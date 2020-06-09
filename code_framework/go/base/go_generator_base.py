@@ -11,10 +11,10 @@ import toml
 
 
 class GeneratorGoBase(GeneratorBase):
-    def __init__(self, protocols, **kwargs):  # protocol, mako_dir, errno_out_dir, module_dir, go_src_dir, gen_doc):
+    def __init__(self, protocols, **kwargs):  # protocol, mako_dir, errno_out_dir, dir, go_src_dir, gen_doc):
         GeneratorBase.__init__(self, protocols, **kwargs)
         go_src_dir = kwargs['go_src_dir']
-        self.__package_module_dir = tool.package_name(self.module_dir, go_src_dir)
+        self.__package_dir = tool.package_name(self.dir, go_src_dir)
         self.__package_errno_dir = tool.package_name(self.errno_dir, go_src_dir)
 
     def gen_code(self):
@@ -26,10 +26,10 @@ class GeneratorGoBase(GeneratorBase):
         # GeneratorGoBase.gen_init(self)
 
     def gen_main(self):
-        out_file = os.path.join(self.module_dir, 'cmd', 'main.go')
+        out_file = os.path.join(self.dir, 'cmd', 'main.go')
         # if not os.path.exists(out_file):
         mako_file = os.path.join(self.mako_dir, 'go', 'main.go')
-        tool.gen_code_file(mako_file, out_file, protocols=self.protocols, package_module_dir=self.__package_module_dir)
+        tool.gen_code_file(mako_file, out_file, protocols=self.protocols, package_dir=self.__package_dir)
 
     def gen_config(self):
         # config.go
@@ -44,7 +44,7 @@ class GeneratorGoBase(GeneratorBase):
         for protocol in self.protocols[1:]:
             config = tool.merge_node(config, protocol.config)
         mako_file = os.path.join(self.mako_dir, 'go', 'config.go')
-        out_file = os.path.join(self.module_dir, 'app', 'define', 'config.go')
+        out_file = os.path.join(self.dir, 'app', 'define', 'config.go')
         tool.gen_code_file(mako_file, out_file, config=config, nodes=nodes, gen_upper_camel=util.gen_upper_camel)
         # config.toml
         config_map = {}
@@ -52,7 +52,7 @@ class GeneratorGoBase(GeneratorBase):
             config_map = {**config_map, **(config.value_map)}
         config_text = toml.dumps(config_map)
         mako_file = os.path.join(self.mako_dir, 'go', 'config.toml')
-        out_file = os.path.join(self.module_dir, 'configs', 'config.toml')
+        out_file = os.path.join(self.dir, 'configs', 'config.toml')
         tool.gen_code_file(mako_file, out_file, config_text=config_text)
 
     def gen_errno(self):
@@ -64,7 +64,7 @@ class GeneratorGoBase(GeneratorBase):
         tool.gen_code_file(mako_file, errno_file, errnos=self.errnos, package_name=package_name)
 
     def gen_init(self):
-        out_file = os.path.join(self.module_dir, 'cmd', 'init.go')
+        out_file = os.path.join(self.dir, 'cmd', 'init.go')
         if not os.path.exists(out_file):
             mako_file = os.path.join(self.mako_dir, 'go', 'init.go')
             tool.gen_code_file(mako_file, out_file)

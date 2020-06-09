@@ -9,15 +9,15 @@
 #include <utility>
 #include <boost/asio.hpp>
 
-#include "network/tcp_connection.h"
-#include "${module.module_name}/api.h"
+#include "net/tcp_connection.h"
+// #include "${module.name}/api.h"
 
 //----------------------------------------------------------------------
-class ${module.service_network_class_name}
+class ${module.network_server_class_name}
 {
 public:
-    ${module.service_network_class_name}(boost::asio::io_context& io_context,
-        const boost::asio::ip::tcp::endpoint& endpoint);
+    ${module.network_server_class_name}(net::io_context& io_context,
+        const tcp::endpoint& endpoint);
 
     // void setReadCallback(TcpConnection::ReadCallback &cb)
     // {
@@ -34,6 +34,6 @@ private:
 
     // TcpConnection::ReadCallback _read_callback;
     // TcpConnection::ReadCallback _write_callback;
-    boost::asio::io_context &_io_context;
-    boost::asio::ip::tcp::acceptor acceptor_;
+    net::io_context &_io_context;
+    tcp::acceptor acceptor_;
 };

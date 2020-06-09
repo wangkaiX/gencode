@@ -27,7 +27,7 @@ if __name__ == '__main__':
             )
 
     tcp_client = module.Framework(
-            module_name='chat_client',
+            name='chat_client',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径

@@ -22,7 +22,7 @@ class ServiceBase:
         self._modules = []
 
     def add(self, module):
-        # tool.assert_module_type(self._code_type, module.network)
+        # tool.assert_type(self._code_type, module.network)
         self._modules.append(module)
 
     #  def gen(self):
@@ -31,5 +31,5 @@ class ServiceBase:
     #              self._gen_cpp(module)
 
     #  def _gen_cpp(self, module):
-    #      manager = cppM(mako_dir=self._mako_dir, module_dir=self._module_dir, module=module)
+    #      manager = cppM(mako_dir=self._mako_dir, dir=self._dir, module=module)
     #      manager.gen()

@@ -10,8 +10,8 @@ concat = os.path.join
 
 
 class TcpServer(TcpBase):
-    def __init__(self, module_name, protocol_file, error_code,
-                 mako_dir, module_dir,
+    def __init__(self, name, protocol_file, error_code,
+                 mako_dir, dir,
                  adapt,
                  heartbeat_interval_second, heartbeat_miss_max,
                  retry_count,
@@ -19,8 +19,8 @@ class TcpServer(TcpBase):
                  no_resp,
                  ip, port):
 
-        TcpBase.__init__(self, module_name=module_name, protocol_file=protocol_file, error_code=error_code,
-                         mako_dir=mako_dir, module_dir=module_dir,
+        TcpBase.__init__(self, name=name, protocol_file=protocol_file, error_code=error_code,
+                         mako_dir=mako_dir, dir=dir,
                          adapt=adapt,
                          heartbeat_interval_second=heartbeat_interval_second, heartbeat_miss_max=heartbeat_miss_max,
                          retry_count=retry_count,
@@ -36,5 +36,5 @@ class TcpServer(TcpBase):
     def gen_tcp_server(self):
         tcp_dir = concat(self._util_dir, 'cpp', 'tcp')
         for filename in ['tcp_connection.h', 'tcp_connection.cpp', 'tcp_server.h', 'tcp_server.cpp']:
-            util.copy_file(concat(tcp_dir, filename), concat(self._module_dir, 'net', filename))
-        util.copy_dir(concat(self._util_dir, 'cpp', 'common'), concat(self._module_dir, 'net', 'common'))
+            util.copy_file(concat(tcp_dir, filename), concat(self._dir, 'net', filename))
+        util.copy_dir(concat(self._util_dir, 'cpp', 'common'), concat(self._dir, 'net', 'common'))

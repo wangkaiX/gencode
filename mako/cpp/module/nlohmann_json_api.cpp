@@ -1,75 +1,87 @@
-#include "${module.module_name}/api.h"
+#include "${module.name}/api_impl.h"
 #include <cassert>
 
-${module.module_class_impl_name}::${module.module_class_impl_name}(boost::asio::io_context &io_context, std::shared_ptr<TcpConnection> connection_ptr)
+${module.class_impl_name}::${module.class_impl_name}(net::io_context &io_context, std::shared_ptr<TcpConnection> connection_ptr)
     : _io_context(io_context)
     , _connection_ptr(connection_ptr)
 {
 }
 
-${module.module_class_impl_name}::${module.module_class_impl_name}(boost::asio::io_context &io_context, const boost::asio::ip::tcp::endpoint &ep)
+${module.class_impl_name}::${module.class_impl_name}(net::io_context &io_context, const net::ip::tcp::endpoint &ep)
     : _io_context(io_context)
     , _connection_ptr(std::make_shared<TcpConnection>(io_context, ep))
 {
 }
 
-${module.module_class_impl_name}::~${module.module_class_impl_name}()
-{   
-    SPDLOG_INFO("destroy ${module.module_class_impl_name}");
+${module.class_impl_name}::${module.class_impl_name}(std::shared_ptr<TcpConnection> connection_ptr)
+    : _io_context(_inner_ctx)
+    , _connection_ptr(connection_ptr)
+{
 }
 
-void ${module.module_class_impl_name}::init_adapt()
-{   
-    // _write_cb = std::bind(&${module.module_class_impl_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
-    // _read_cb = std::bind(&${module.module_class_impl_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+${module.class_impl_name}::${module.class_impl_name}(const net::ip::tcp::endpoint &ep)
+    : _io_context(_inner_ctx)
+    , _connection_ptr(std::make_shared<TcpConnection>(_io_context, ep))
+{
+}
 
-    std::shared_ptr<char[]> buffer(new char[buffer_length]);
+${module.class_impl_name}::~${module.class_impl_name}()
+{   
+    SPDLOG_INFO("destroy ${module.class_impl_name}");
+}
+
+void ${module.class_impl_name}::init_adapt()
+{   
+    // _write_cb = std::bind(&${module.class_impl_name}::write_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+    // _read_cb = std::bind(&${module.class_impl_name}::read_cb, this, _connection_ptr, std::placeholders::_1, std::placeholders::_2);
+
+    std::shared_ptr<std::byte[]> buffer(new std::byte[buffer_length]);
     _buffer_length = buffer_length;
 
     % if len(module.request_apis) > 0:
-    _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
-            std::bind(&${module.module_class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+    _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
+            std::bind(&${module.class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     % else:
     // 防止释放
     _connection_ptr->async_read_some(buffer.get(), _buffer_length,
-            std::bind(&${module.module_class_impl_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+            std::bind(&${module.class_impl_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     % endif
 }
 
 % if module.no_resp:
-void ${module.module_class_impl_name}::request(const nlohmann::json &j)
+void ${module.class_impl_name}::request(const nlohmann::json &j)
 % else:
-nlohmann::json ${module.module_class_impl_name}::request(const nlohmann::json &j)
+nlohmann::json ${module.class_impl_name}::request(const nlohmann::json &j)
 % endif
 {   
     auto msg = j.dump();
-    int len = getCfg().${module.module_name}.length_length + msg.size();
+    int len = getCfg().${module.name}.length_length + msg.size();
     if (len > write_buffer.size()) {
         write_buffer.resize(len);
     }
-    snprintf(write_buffer.data(), getCfg().${module.module_name}.length_length+1, "%d", len);
-    memcpy(write_buffer.data() + getCfg().${module.module_name}.length_length, msg.c_str(), msg.size());
+    snprintf((char*)write_buffer.data(), getCfg().${module.name}.length_length+1, "%d", len);
+    memcpy(write_buffer.data() + getCfg().${module.name}.length_length, msg.c_str(), msg.size());
     % if module.no_resp:
     _connection_ptr->async_write(write_buffer.data(), write_buffer.size(),
-            std::bind(&${module.module_class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+            std::bind(&${module.class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     % else:
     _connection_ptr->write(write_buffer.data(), write_buffer.size());
     // 接收长度
-    if (getCfg().${module.module_name}.length_length > read_buffer.size()) {
-        read_buffer.resize(getCfg().${module.module_name}.length_length);
+    if (getCfg().${module.name}.length_length > read_buffer.size()) {
+        read_buffer.resize(getCfg().${module.name}.length_length);
     }
-    _connection_ptr->read(read_buffer.data(), getCfg().${module.module_name}.length_length);
-    len = std::stoi(std::string(read_buffer.data(), getCfg().${module.module_name}.length_length));
+    _connection_ptr->read(read_buffer.data(), getCfg().${module.name}.length_length);
+    len = std::stoi(std::string((char*)read_buffer.data(), getCfg().${module.name}.length_length));
 
     if (len > read_buffer.size()) {
         read_buffer.resize(len);
     }
     _connection_ptr->read(read_buffer.data(), len);
-    return nlohmann::json::parse(std::string(read_buffer.data(), len));
+    return nlohmann::json::parse(std::string((char*)read_buffer.data(), len));
     % endif
 }
 
-int ${module.module_class_impl_name}::receive_length(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length)
+int ${module.class_impl_name}::receive_length(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t length)
 {
     if (ec) {
         SPDLOG_ERROR("receive length error[{}]", ec.message());
@@ -77,7 +89,7 @@ int ${module.module_class_impl_name}::receive_length(std::shared_ptr<char[]> buf
         return -1;
     }
     SPDLOG_INFO("received length [{}]", length);
-    std::string str_len(buffer.get(), getCfg().${module.module_name}.length_length);
+    std::string str_len((char*)buffer.get(), getCfg().${module.name}.length_length);
     int len;
     try {
         len = std::stoi(str_len);
@@ -90,8 +102,8 @@ int ${module.module_class_impl_name}::receive_length(std::shared_ptr<char[]> buf
         j["msg"] = "解析数据长度失败";
         auto msg = j.dump();
         SPDLOG_INFO("send msg[{}]", msg);
-        _connection_ptr->async_write(msg.c_str(), msg.size(),
-                std::bind(&${module.module_class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _connection_ptr->async_write((const std::byte*)msg.c_str(), msg.size(),
+                std::bind(&${module.class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
         % endif
         return -1;
     }
@@ -101,32 +113,32 @@ int ${module.module_class_impl_name}::receive_length(std::shared_ptr<char[]> buf
         SPDLOG_ERROR("长度过大[{}]", len);
         // TODO 丢弃并返回失败原因
         // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
-        _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
-                std::bind(&${module.module_class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+        _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
+                std::bind(&${module.class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
         return -1;
     }
     while (len >= new_buffer_length) {
         new_buffer_length += buffer_length;
     }
     if (new_buffer_length != _buffer_length) {
-        buffer.reset(new char[new_buffer_length]);
+        buffer.reset(new std::byte[new_buffer_length]);
         _buffer_length = new_buffer_length;
     }
     _connection_ptr->async_read(buffer.get(), len,
-            std::bind(&${module.module_class_impl_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+            std::bind(&${module.class_impl_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     return len;
 }
 
-void ${module.module_class_impl_name}::receive_body(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length)
+void ${module.class_impl_name}::receive_body(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t length)
 {   
     if (ec) {
         SPDLOG_ERROR("receive body error[{}]", ec.message());
         return;
     }
     SPDLOG_INFO("received body length[{}]", length);
-    _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
-            std::bind(&${module.module_class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
-    std::string msg(buffer.get(), length);
+    _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
+            std::bind(&${module.class_impl_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+    std::string msg((char*)buffer.get(), length);
     SPDLOG_INFO("received msg[{}]", msg);
     try {
         auto json = nlohmann::json::parse(msg);
@@ -146,24 +158,24 @@ void ${module.module_class_impl_name}::receive_body(std::shared_ptr<char[]> buff
     } 
     % if not module.no_resp: 
     SPDLOG_INFO("send msg[{}]", msg);
-    _connection_ptr->async_write(msg.c_str(), msg.size(),
-            std::bind(&${module.module_class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    _connection_ptr->async_write((const std::byte*)msg.c_str(), msg.size(),
+            std::bind(&${module.class_impl_name}::default_write_handler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     % endif
 }
 
 
-void ${module.module_class_impl_name}::read_some(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t s)
+void ${module.class_impl_name}::read_some(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t s)
 {
     if (ec) {
         SPDLOG_ERROR("read_some error[{}]", ec.message());
         return;
     }
-    SPDLOG_INFO("receive[{}]", std::string(buffer.get(), s));
+    SPDLOG_INFO("receive[{}]", std::string((char*)buffer.get(), s));
     _connection_ptr->async_read_some(buffer.get(), _buffer_length,
-            std::bind(&${module.module_class_impl_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
+            std::bind(&${module.class_impl_name}::read_some, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
 }
 
-void ${module.module_class_impl_name}::default_read_handler(const TcpConnection::ErrorCode &ec, size_t s)
+void ${module.class_impl_name}::default_read_handler(const TcpConnection::ErrorCode &ec, size_t s)
 {
     if (ec) {
         SPDLOG_ERROR("read byte [{}] error[{}]", s, ec.message());
@@ -171,7 +183,7 @@ void ${module.module_class_impl_name}::default_read_handler(const TcpConnection:
     }
 }
 
-void ${module.module_class_impl_name}::default_write_handler(const TcpConnection::ErrorCode &ec, size_t s)
+void ${module.class_impl_name}::default_write_handler(const TcpConnection::ErrorCode &ec, size_t s)
 {
     if (ec) {
         SPDLOG_ERROR("write byte [{}] error[{}]", s, ec.message());
@@ -180,23 +192,23 @@ void ${module.module_class_impl_name}::default_write_handler(const TcpConnection
 }
 
 
-void ${module.module_class_impl_name}::init()
+void ${module.class_impl_name}::init()
 {
-    % for api in module.request_apis:
-    _callbacks[${api.command_code}] = std::bind(&${module.module_class_impl_name}::${api.name}_json, this, std::placeholders::_1);
+    % for api in module.response_apis:
+    _callbacks[${api.command_code}] = std::bind(&${module.class_impl_name}::${api.name}_json, this, std::placeholders::_1);
     % endfor
 
     init_adapt();
 
 ## % if len(module.request_apis) > 0:
-## _adapt_ptr->set_callback(std::bind(&${module.module_class_impl_name}::receive_callback, this->shared_from_this(), std::placeholders::_1));
+## _adapt_ptr->set_callback(std::bind(&${module.class_impl_name}::receive_callback, this->shared_from_this(), std::placeholders::_1));
 ## % endif
 }
 
 % if module.no_resp:
-void ${module.module_class_impl_name}::receive_callback(const nlohmann::json &j)
+void ${module.class_impl_name}::receive_callback(const nlohmann::json &j)
 % else:
-nlohmann::json ${module.module_class_impl_name}::receive_callback(const nlohmann::json &j)
+nlohmann::json ${module.class_impl_name}::receive_callback(const nlohmann::json &j)
 % endif
 {
     CommandType command = j["${module.command_name}"];
@@ -210,11 +222,11 @@ nlohmann::json ${module.module_class_impl_name}::receive_callback(const nlohmann
 }
 
 // 处理请求
-% for api in module.request_apis:
+% for api in module.response_apis:
 % if module.no_resp:
-void ${module.module_class_impl_name}::${api.name}_json(const nlohmann::json &j)
+void ${module.class_impl_name}::${api.name}_json(const nlohmann::json &j)
 % else:
-nlohmann::json ${module.module_class_impl_name}::${api.name}_json(const nlohmann::json &j)
+nlohmann::json ${module.class_impl_name}::${api.name}_json(const nlohmann::json &j)
 % endif
 {
     try {

@@ -26,7 +26,7 @@ func Test${gen_upper_camel(api.name)}(t *testing.T) {
     if err != nil {
         log.Fatal(err)
     }
-    client := pb.New${gen_upper_camel(grpc_module_name)}Client(conn)
+    client := pb.New${gen_upper_camel(grpc_name)}Client(conn)
     in := &pb.${gen_upper_camel(api.req.name)}{}
 	buf := []byte(`${json_input}`)
 	err = json.Unmarshal(buf, in)

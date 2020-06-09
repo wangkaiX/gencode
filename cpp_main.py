@@ -27,7 +27,7 @@ if __name__ == '__main__':
             )
 
     websocket_server = module.Framework(
-            module_name='websocket_example',
+            name='websocket_example',
             network=type_set.beast_websocket_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -46,7 +46,7 @@ if __name__ == '__main__':
             )
 
     tcp_server_json = module.Framework(
-            module_name='tcpserver_example',
+            name='tcpserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             )
 
     tcp_server_binary = module.Framework(
-            module_name='tcpbinserver_example',
+            name='tcpbinserver_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.binary,
             # 接口配置文件路径
@@ -90,7 +90,7 @@ if __name__ == '__main__':
             )
 
     tcp_client_json = module.Framework(
-            module_name='tcpclient_example',
+            name='tcpclient_example',
             network=type_set.asio_tcp_async,
             adapt=type_set.nlohmann_json,
             # 接口配置文件路径
@@ -112,7 +112,7 @@ if __name__ == '__main__':
             )
 
     tcp_client_binary = module.Framework(
-            module_name='tcpclient_binary',
+            name='tcpclient_binary',
             network=type_set.asio_tcp_async,
             adapt=type_set.binary,
             # 接口配置文件路径

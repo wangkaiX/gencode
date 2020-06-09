@@ -3,7 +3,7 @@ syntax = "proto3";
 package ${package_name};
 // 不要修改此文件
 
-service ${grpc_module_name} {
+service ${grpc_name} {
 % for api in apis:
     // ${api.note}
     rpc ${gen_upper_camel(api.name)}(${api.req.type.proto}) returns (${api.resp.type.proto}){}

@@ -1,6 +1,6 @@
 {
     protocol:{
-        module_type:"grpc",
+        type:"grpc",
         gw_url_prefix:"/app/v1/grpc",
     },
     "default":{

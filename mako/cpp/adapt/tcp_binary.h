@@ -7,7 +7,7 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-// #include "${module.module_name}/types.h"
+// #include "${module.name}/types.h"
 #include "config/config.h"
 
 % for include in include_list:
@@ -51,14 +51,14 @@ public:
             SPDLOG_ERROR("receive header error[{}]", ec.message());
             return -1;
         }
-        int len = stoi(std::string(buffer.get(), getCfg().${module.module_name}.length_length));
+        int len = stoi(std::string(buffer.get(), getCfg().${module.name}.length_length));
         size_t new_buffer_length = _buffer_length;
         // TODO 接收完body后是否需要缩小空间, 是否需要设置一个接收上限，防止过大长度
         if (len > max_buffer_length) {
             SPDLOG_ERROR("长度过大[{}]", len);
             // TODO 丢弃并返回失败原因
             // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
-            _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+            _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
                     std::bind(&${module.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
             return -1;
         }
@@ -69,7 +69,7 @@ public:
             buffer.reset(new char[new_buffer_length]);
             _buffer_length = new_buffer_length;
         }
-        _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+        _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
                 std::bind(&${module.adapt_class_name}::receive_body, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
         return len;
     }
@@ -80,7 +80,7 @@ public:
             SPDLOG_ERROR("receive body error[{}]", ec.message());
             return;
         }
-        _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+        _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
                 std::bind(&${module.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
         std::string msg(buffer.get(), length);
         try {
@@ -120,12 +120,12 @@ public:
     {
         auto msg = j.dump();
         % if module.length_length:
-        int len = getCfg().${module.module_name}.length_length + msg.size();
+        int len = getCfg().${module.name}.length_length + msg.size();
         if (len > write_buffer.size()) {
             write_buffer.resize(len);
         }
-        snprintf(write_buffer.data(), getCfg().${module.module_name}.length_length+1, "%d", len);
-        memcpy(write_buffer.data() + getCfg().${module.module_name}.length_length, msg.c_str(), msg.size());
+        snprintf(write_buffer.data(), getCfg().${module.name}.length_length+1, "%d", len);
+        memcpy(write_buffer.data() + getCfg().${module.name}.length_length, msg.c_str(), msg.size());
             % if module.no_resp:
         _connection_ptr->async_write(write_buffer.data(), write_buffer.size(),
                 [](const typename Connection::ErrorCode &ec, size_t)
@@ -138,11 +138,11 @@ public:
             % else:
         _connection_ptr->write(write_buffer.data(), write_buffer.size());
         // 接收长度
-        if (getCfg().${module.module_name}.length_length > read_buffer.size()) {
-            read_buffer.resize(getCfg().${module.module_name}.length_length);
+        if (getCfg().${module.name}.length_length > read_buffer.size()) {
+            read_buffer.resize(getCfg().${module.name}.length_length);
         }
-        _connection_ptr->read(read_buffer.data(), getCfg().${module.module_name}.length_length);
-        len = stoi(std::string(read_buffer.data(), getCfg().${module.module_name}.length_length));
+        _connection_ptr->read(read_buffer.data(), getCfg().${module.name}.length_length);
+        len = stoi(std::string(read_buffer.data(), getCfg().${module.name}.length_length));
 
         if (len > read_buffer.size()) {
             read_buffer.resize(len);
@@ -165,7 +165,7 @@ private:
         _buffer_length = buffer_length;
 
         % if len(module.request_apis) > 0:
-        _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+        _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
                 std::bind(&${module.adapt_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
         % else:
         // 防止释放

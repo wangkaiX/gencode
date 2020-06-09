@@ -7,10 +7,10 @@
 % endfor
 
 namespace safehouse{
-class ${module_name}
+class ${name}
 {
 public:
-    ${module_name}(const char *address, unsigned short port, const char *target)
+    ${name}(const char *address, unsigned short port, const char *target)
         :client_(address, port, target)
         {}
 
@@ -18,7 +18,7 @@ public:
     ${resp.get_type()} send_${interface_name}(const struct ${req.get_type()} &request)
     {   
         nlohmann::json j = request;
-        j["module_name"] = "${interface_name}";
+        j["name"] = "${interface_name}";
         return nlohmann::json::parse(client_.send(j).body().c_str());
     }
 

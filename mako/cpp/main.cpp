@@ -7,10 +7,9 @@ using namespace std;
 #include <spdlog/sinks/daily_file_sink.h>
 
 % for module in modules:
+#include "${module.name}/api.h"
     % if module.is_server:
-#include "${module.module_name}/${module.module_name}_tcp_server.h"
-    % else:
-#include "${module.module_name}/api.h"
+#include "${module.name}/${module.network_server_name}.h"
     % endif
 % endfor
 #include "config/config.h"
@@ -42,24 +41,14 @@ int main()
     init_log();
     signal(SIGSEGV, sigsegv);
     signal(SIGABRT, sigsegv);
-    using namespace boost;
-    asio::io_context io_context;
+    net::io_context io_context;
     % for module in modules:
         % if module.is_server:
-            % if module.network == type_set.asio_tcp_async:
-    auto ${module.module_name}_ptr = std::make_shared<${module.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
-            % elif module.network == type_set.beast_websocket_async:
-    auto ${module.module_name}_ptr = std::make_shared<${module.service_network_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
-            % endif
-    // ${module.module_name}_ptr->init();
+    auto ${module.name}_ptr = std::make_shared<${module.network_server_class_name}>(io_context, tcp::endpoint(tcp::v4(), getCfg().${module.name}.port));
         % else:
-            % if module.network == type_set.asio_tcp_async:
-    auto ${module.module_name}_ptr = std::make_shared<${module.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
-            % elif module.network == type_set.beast_websocket_async:
-    auto ${module.module_name}_ptr = std::make_shared<${module.service_api_class_name}>(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), getCfg().${module.module_name}.port));
-            % endif
+    auto ${module.name}_ptr = std::make_shared<${module.connection_class_name}>(io_context, tcp::endpoint(tcp::v4(), getCfg().${module.name}.port));
+    ${module.name}_ptr->init();
         % endif
-
     % endfor
     SPDLOG_INFO("service start!");
     io_context.run();

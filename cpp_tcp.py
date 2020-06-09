@@ -6,7 +6,7 @@ import os
 # from code_framework.common import meta
 from code_framework.common import type_set
 from code_framework.common import error_code as ec
-# from code_module import manager
+from code_framework.cpp.service import CppService
 from code_framework.server.tcp_server import TcpServer
 
 if __name__ == '__main__':
@@ -28,10 +28,10 @@ if __name__ == '__main__':
     #         )
 
     tcp_server_json = TcpServer(
-            module_name='tcpserver_example',
+            name='tcpserver_example',
             adapt=type_set.nlohmann_json,
             mako_dir=mako_dir,
-            module_dir=os.path.join(dst_dir, 'tcpserver_example'),
+            dir=os.path.join(dst_dir, 'tcpserver_example'),
             # 接口配置文件路径
             protocol_file="json/api_gin.json5",
             # 错误码配置文件
@@ -50,6 +50,7 @@ if __name__ == '__main__':
             service_name="cpp_example_service",
             mako_dir=mako_dir,
             service_dir=dst_dir,
+            error_code=ec.ErrerCode("json/errno.config", 1000, 2000),
             )
-    cpp_example_service.add(cpp_example_service)
+    cpp_example_service.add(tcp_server_json)
     cpp_example_service.gen()

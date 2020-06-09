@@ -3,29 +3,29 @@
 #include <memory>
 #include <map>
 #include <spdlog/spdlog.h>
-#include "${module.module_name}/types.h"
+#include "${module.name}/types.h"
 ## % for include in include_list:
 ## #include "${include}"
 ## % endfor
 
 #include "config/config.h"
-#include "common/net.h"
+#include "net/tcp_connection.h"
 
 constexpr size_t buffer_length = 4096;
 constexpr size_t max_buffer_length = 4 * 1024 * 1024;
 
-class ${module.module_class_impl_name}: public std::enable_shared_from_this<${module.module_class_impl_name}>
+class ${module.class_impl_name}: public std::enable_shared_from_this<${module.class_impl_name}>
 {
 public:
-    ${module.module_class_impl_name}(net::io_context &io_context, std::shared_ptr<TcpConnection> connection_ptr);
-    ${module.module_class_impl_name}(net::io_context &io_context, const net::ip::tcp::endpoint &ep);
-    ${module.module_class_impl_name}(std::shared_ptr<TcpConnection> connection_ptr);
-    ${module.module_class_impl_name}(const net::ip::tcp::endpoint &ep);
-    ~${module.module_class_impl_name}();
+    ${module.class_impl_name}(net::io_context &io_context, std::shared_ptr<TcpConnection> connection_ptr);
+    ${module.class_impl_name}(net::io_context &io_context, const net::ip::tcp::endpoint &ep);
+    ${module.class_impl_name}(std::shared_ptr<TcpConnection> connection_ptr);
+    ${module.class_impl_name}(const net::ip::tcp::endpoint &ep);
+    ~${module.class_impl_name}();
 
     void init();
     // 处理请求
-    % for api in module.request_apis:
+    % for api in module.response_apis:
     % if module.no_resp:
     void ${api.name}(const ${api.req.type.name} &req);
     % else:
@@ -56,10 +56,10 @@ private:
     % endif
     % if module.no_resp:
     using CallbackType = std::function<void(const nlohmann::json&)>;
-    using MemberCallbackType = void (${module.module_class_impl_name}::*)(const nlohmann::json&);
+    using MemberCallbackType = void (${module.class_impl_name}::*)(const nlohmann::json&);
     % else:
     using CallbackType = std::function<nlohmann::json (const nlohmann::json&)>;
-    using MemberCallbackType = nlohmann::json (${module.module_class_impl_name}::*)(const nlohmann::json&);
+    using MemberCallbackType = nlohmann::json (${module.class_impl_name}::*)(const nlohmann::json&);
     % endif
     std::map<CommandType, CallbackType> _callbacks;
 private:
@@ -71,7 +71,7 @@ private:
     % endif
 
     // 处理请求
-    % for api in module.request_apis:
+    % for api in module.response_apis:
         % if module.no_resp:
     void ${api.name}_json(const nlohmann::json &j);
         % else:
@@ -94,18 +94,19 @@ public:
     % endif
 
 private:
-    int receive_length(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
+    int receive_length(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
 
-    void receive_body(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
+    void receive_body(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t length);
 
-    void read_some(std::shared_ptr<char[]> buffer, const TcpConnection::ErrorCode &ec, size_t s);
+    void read_some(std::shared_ptr<std::byte[]> buffer, const TcpConnection::ErrorCode &ec, size_t s);
 private:
-    std::vector<char> write_buffer;
-    std::vector<char> read_buffer;
+    std::vector<std::byte> write_buffer;
+    std::vector<std::byte> read_buffer;
     std::shared_ptr<TcpConnection> _connection_ptr;
-    boost::asio::io_context &_io_context;
+    net::io_context _inner_ctx;
+    net::io_context &_io_context;
     ReceiveCallback _callback;
-    boost::asio::ip::tcp::endpoint _remote_ep;
+    tcp::endpoint _remote_ep;
     size_t _buffer_length{0};
 
 private:

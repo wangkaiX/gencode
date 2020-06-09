@@ -10,8 +10,8 @@ import util.python.util as util
 
 
 class ModuleBase:
-    def __init__(self, module_name, adapt, protocol_file,
-                 mako_dir, module_dir,
+    def __init__(self, name, adapt, protocol_file,
+                 mako_dir, dir,
                  error_code,
                  no_resp,
                  ip, port,
@@ -22,24 +22,27 @@ class ModuleBase:
         self._no_resp = no_resp
         self._error_code = error_code
         self._mako_dir = mako_dir
-        self._module_dir = module_dir
+        self._dir = dir
         self._util_dir = tool.get_util_dir()
         self._is_server = is_server
-        if is_server:
-            self._module_class_name = util.gen_upper_camel(module_name) + 'Server'
-            self._module_class_impl_name = util.gen_upper_camel(module_name) + 'ServerImpl'
-        else:
-            self._module_class_name = util.gen_upper_camel(module_name) + 'Client'
-            self._module_class_impl_name = util.gen_upper_camel(module_name) + 'ClientImpl'
+        self._config_node = None
+        self._name = name
+        self._upper_name = util.gen_upper_camel(name)
 
-        self._module_name = module_name
+        if is_server:
+            self._class_name = self._upper_name + 'Server'
+            self._class_impl_name = self._upper_name + 'ServerImpl'
+        else:
+            self._class_name = self._upper_name + 'Client'
+            self._class_impl_name = self._upper_name + 'ClientImpl'
+
         # config ######
         self._config = {}
         config = {}
         config["ip"] = ip
         config["port"] = port
 
-        self._config[module_name] = config
+        self._config[name] = config
         ###############
 
         parser = protocol_parser.Parser(protocol_file)
@@ -61,12 +64,16 @@ class ModuleBase:
         self.__parser(self._tree_map)
 
     @property
+    def is_server(self):
+        return self._is_server
+
+    @property
     def error_code(self):
         return self._error_code
 
     # @property
-    # def module_name(self):
-    #     return self._module_name
+    # def name(self):
+    #     return self._name
 
     # @property
     # def adapt_name(self):
@@ -76,29 +83,33 @@ class ModuleBase:
     #         suffix = 'client'
     #     # return type_set.adapt_name[self._module.adapt] + suffix
     #     return "%s_%s_%s" % (type_set.adapt_name[self._adapt],
-    #                          self._module_name, suffix)
+    #                          self._name, suffix)
 
     @property
     def adapt_class_name(self):
         return util.gen_upper_camel(self.adapt_name)
 
     @property
-    def module_name(self):
-        return self._module_name
+    def name(self):
+        return self._name
 
     # @property
-    # def module_network_class_name(self):
+    # def network_class_name(self):
     #     if self.is_server:
     #         if self.network in [type_set.asio_tcp_async]:
     #             suffix = "TcpServer"
     #     else:
     #         if self.network in [type_set.asio_tcp_async]:
     #             suffix = "TcpClient"
-    #     return self._module_class_name + suffix
+    #     return self._class_name + suffix
 
     @property
-    def module_class_impl_name(self):
-        return self._module_class_impl_name
+    def class_impl_name(self):
+        return self._class_impl_name
+
+    @property
+    def class_name(self):
+        return self._class_name
 
     @property
     def no_resp(self):
@@ -139,9 +150,9 @@ class ModuleBase:
         return False
 
     def gen_code_file(self, **kwargs):
-        # mako_dir, errno_out_file, module_dir,
+        # mako_dir, errno_out_file, dir,
         # gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
-        # generatorManager = generator.GeneratorManager(self._code_type, self._module_type, **kwargs)
+        # generatorManager = generator.GeneratorManager(self._code_type, self._type, **kwargs)
         # generatorManager.gen()
         pass
 
@@ -151,7 +162,7 @@ class ModuleBase:
         if 'enum' in tree_map:
             self.__parser_enum(tree_map['enum'])
         if 'config' in tree_map:
-            self.parser_config()
+            self.__parser_config()
         self.__parser_api(tree_map['api'])
         self.__parser_nodes()
 
@@ -173,9 +184,11 @@ class ModuleBase:
         if not self._is_server:
             self._response_apis, self._request_apis = self._request_apis, self._response_apis
 
-    def parser_config(self):
+    def __parser_config(self):
         node_name = 'config'
-        self._config_node = Node(None, node_name, self._tree_map[node_name])
+        config = tool.dict_key_clean(self._tree_map[node_name])
+        self._config = dict(self._config, **(config))
+        # self._config_node = Node(None, node_name, self._tree_map[node_name])
         # for k, v in config_map.items():
         #     self._configs.append(Node(None, k, v))
 
@@ -217,9 +230,12 @@ class ModuleBase:
     def request_apis(self):
         return util.unique(self._request_apis)
 
-    # @property
-    # def config(self):
-    #     return self._config
+    @property
+    def config(self):
+        return self._config
+        # if not self._config_node:
+        #     self.__parser_config()
+        # return self._config_node
 
     @property
     def enums(self):

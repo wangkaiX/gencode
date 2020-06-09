@@ -1,4 +1,4 @@
-#include "${module.module_name}/api.h"
+#include "${module.name}/api.h"
 #include <cassert>
 
 ${module.service_api_class_name}::${module.service_api_class_name}(boost::asio::io_context &io_context, std::shared_ptr<${connection_class_name}> connection_ptr)
@@ -65,7 +65,7 @@ int ${module.service_api_class_name}::receive_header(std::shared_ptr<char[]> buf
         return -1;
     }
     SPDLOG_INFO("received length [{}]", length);
-    std::string str_len(buffer.get(), getCfg().${module.module_name}.length_length);
+    std::string str_len(buffer.get(), getCfg().${module.name}.length_length);
     int len;
     try {
         len = std::stoi(str_len);
@@ -89,7 +89,7 @@ int ${module.service_api_class_name}::receive_header(std::shared_ptr<char[]> buf
         SPDLOG_ERROR("长度过大[{}]", len);
         // TODO 丢弃并返回失败原因
         // _connection_ptr->async_write(write_buffer.get(), write_buffer.size(), this->_write_cb)
-        _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+        _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
                 std::bind(&${module.service_api_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
         return -1;
     }
@@ -112,7 +112,7 @@ void ${module.service_api_class_name}::receive_body(std::shared_ptr<char[]> buff
         return;
     }
     SPDLOG_INFO("received body length[{}]", length);
-    _connection_ptr->async_read(buffer.get(), getCfg().${module.module_name}.length_length,
+    _connection_ptr->async_read(buffer.get(), getCfg().${module.name}.length_length,
             std::bind(&${module.service_api_class_name}::receive_length, this->shared_from_this(), buffer, std::placeholders::_1, std::placeholders::_2));
     std::string msg(buffer.get(), length);
     SPDLOG_INFO("received msg[{}]", msg);

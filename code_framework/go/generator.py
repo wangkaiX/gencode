@@ -10,8 +10,8 @@ from src.base.generator_base import GeneratorBase
 class GoGenerator(GeneratorBase):
     def __init__(self, **kwargs):
         GeneratorBase.__init__(self, **kwargs)
-        self._server_dir = os.path.join(self._module_dir, "server")
-        self._client_dir = os.path.join(self._module_dir, "client")
+        self._server_dir = os.path.join(self._dir, "server")
+        self._client_dir = os.path.join(self._dir, "client")
         # server
         self._server_app_dir = os.path.join(self._server_dir, "app")
         self._server_api_dir = os.path.join(self._server_dir, "api")
@@ -26,4 +26,4 @@ class GoGenerator(GeneratorBase):
         self._client_cmd_dir = os.path.join(self._client_dir, "cmd")
         self._client_test_dir = os.path.join(self._client_dir, "test")
 
-        # self._package_module_dir = tool.package_name(self._module_dir, self._server_dir)
+        # self._package_dir = tool.package_name(self._dir, self._server_dir)
