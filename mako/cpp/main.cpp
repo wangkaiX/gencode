@@ -46,7 +46,7 @@ int main()
         % if module.is_server:
     auto ${module.name}_ptr = std::make_shared<${module.network_server_class_name}>(io_context, tcp::endpoint(tcp::v4(), getCfg().${module.name}.port));
         % else:
-    auto ${module.name}_ptr = std::make_shared<${module.connection_class_name}>(io_context, tcp::endpoint(tcp::v4(), getCfg().${module.name}.port));
+    auto ${module.name}_ptr = std::make_shared<${module.class_name}>(io_context, tcp::endpoint(tcp::v4(), getCfg().${module.name}.port));
     ${module.name}_ptr->init();
         % endif
     % endfor

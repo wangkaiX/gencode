@@ -10,7 +10,7 @@ import os
 
 class TcpBase(ModuleBase):
     def __init__(self, name, protocol_file, error_code,
-                 mako_dir, dir,
+                 mako_dir, project_dir,
                  adapt,
                  heartbeat_interval_second, heartbeat_miss_max,
                  retry_count,
@@ -19,8 +19,8 @@ class TcpBase(ModuleBase):
                  ip, port,
                  is_server):
         ModuleBase.__init__(self, name=name, protocol_file=protocol_file,
-                            mako_dir=mako_dir, dir=dir,
-                            adapt=adapt,
+                            mako_dir=mako_dir,
+                            adapt=adapt, project_dir=project_dir,
                             error_code=error_code,
                             no_resp=no_resp, ip=ip, port=port, is_server=is_server)
 
@@ -66,19 +66,19 @@ class TcpBase(ModuleBase):
         # api_mako_filename_prefix = self.adapt
         if self.is_server:
             mako_file = os.path.join(self._cpp_mako_dir, 'tcp_server', 'tcp_server.h')
-            out_file = os.path.join(self._dir, "%s.h" % self.__network_server_name)
+            out_file = os.path.join(self._module_dir, "%s.h" % self.__network_server_name)
             tool.gen_code_file(mako_file, out_file,
                                module=self,
                                )
 
             mako_file = os.path.join(self._cpp_mako_dir, 'tcp_server', 'tcp_server.cpp')
-            out_file = os.path.join(self._dir, "%s.cpp" % self.__network_server_name)
+            out_file = os.path.join(self._module_dir, "%s.cpp" % self.__network_server_name)
             tool.gen_code_file(mako_file, out_file,
                                module=self,
                                )
 
         mako_file = os.path.join(self._cpp_mako_dir, 'module', '%s_api.h' % self.adapt)
-        out_file = os.path.join(self._dir, 'api_impl.h')
+        out_file = os.path.join(self._module_dir, 'api_impl.h')
         tool.gen_code_file(mako_file, out_file,
                            module=self,
                            # include_list=include_list
@@ -86,13 +86,13 @@ class TcpBase(ModuleBase):
                            )
 
         mako_file = os.path.join(self._cpp_mako_dir, 'module', '%s_api.cpp' % self.adapt)
-        out_file = os.path.join(self._dir, 'api_impl.cpp')
+        out_file = os.path.join(self._module_dir, 'api_impl.cpp')
         tool.gen_code_file(mako_file, out_file,
                            module=self,
                            )
 
         mako_file = os.path.join(self._cpp_mako_dir, 'module', 'api.h')
-        out_file = os.path.join(self._dir, 'api.h')
+        out_file = os.path.join(self._module_dir, 'api.h')
         tool.gen_code_file(mako_file, out_file,
                            module=self,
                            )
@@ -100,7 +100,7 @@ class TcpBase(ModuleBase):
         # response_apis
         mako_file = os.path.join(self._cpp_mako_dir, 'module', 'response_api.cpp')
         for api in self.response_apis:
-            out_file = os.path.join(self._dir, api.name + '.cpp')
+            out_file = os.path.join(self._module_dir, api.name + '.cpp')
             if not os.path.exists(out_file):
                 tool.gen_code_file(mako_file, out_file,
                                    module=self,
@@ -108,14 +108,14 @@ class TcpBase(ModuleBase):
                                    )
         # request_apis.h
         mako_file = os.path.join(self._cpp_mako_dir, 'module', 'request_apis.cpp')
-        out_file = os.path.join(self._dir, 'request_apis.cpp')
+        out_file = os.path.join(self._module_dir, 'request_apis.cpp')
         tool.gen_code_file(mako_file, out_file,
                            module=self,
                            )
 
         # types
         mako_file = os.path.join(self._cpp_mako_dir, 'module', '%s_types.h' % self.adapt)
-        out_file = os.path.join(self._dir, 'types.h')
+        out_file = os.path.join(self._module_dir, 'types.h')
         nodes = self.nodes
         enums = self.enums
         std_includes = ['vector', 'string']
@@ -127,7 +127,7 @@ class TcpBase(ModuleBase):
 
         # doc
         mako_file = os.path.join(self._mako_dir, 'doc_tcp_json.md')
-        out_file = os.path.join(self._dir, 'doc', '%s.md' % self.name)
+        out_file = os.path.join(self._module_dir, 'doc', '%s.md' % self.name)
         doc_generator = doc.Doc(mako_file=mako_file,
                                 out_file=out_file,
                                 apis=self.apis,

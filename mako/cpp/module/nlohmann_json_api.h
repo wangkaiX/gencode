@@ -11,8 +11,10 @@
 #include "config/config.h"
 #include "net/tcp_connection.h"
 
-constexpr size_t buffer_length = 4096;
-constexpr size_t max_buffer_length = 4 * 1024 * 1024;
+// constexpr size_t buffer_length = 4096;
+// constexpr size_t max_buffer_length = 4 * 1024 * 1024;
+#define buffer_length 4096
+#define max_buffer_length (4 * 1024 * 1024)
 
 class ${module.class_impl_name}: public std::enable_shared_from_this<${module.class_impl_name}>
 {

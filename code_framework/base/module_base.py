@@ -7,11 +7,12 @@ from code_framework.common.meta import Node
 from code_framework.common import enum_type
 from code_framework.common import protocol_parser
 import util.python.util as util
+import os
 
 
 class ModuleBase:
     def __init__(self, name, adapt, protocol_file,
-                 mako_dir, dir,
+                 mako_dir, project_dir,
                  error_code,
                  no_resp,
                  ip, port,
@@ -22,7 +23,8 @@ class ModuleBase:
         self._no_resp = no_resp
         self._error_code = error_code
         self._mako_dir = mako_dir
-        self._dir = dir
+        self._module_dir = os.path.join(project_dir, 'module', name)
+        self._project_dir = project_dir
         self._util_dir = tool.get_util_dir()
         self._is_server = is_server
         self._config_node = None
@@ -150,7 +152,7 @@ class ModuleBase:
         return False
 
     def gen_code_file(self, **kwargs):
-        # mako_dir, errno_out_file, dir,
+        # mako_dir, errno_out_file, module_dir,
         # gen_server, gen_client, gen_test, gen_doc, gen_mock, **kwargs):
         # generatorManager = generator.GeneratorManager(self._code_type, self._type, **kwargs)
         # generatorManager.gen()

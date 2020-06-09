@@ -9,9 +9,10 @@ import os
 concat = os.path.join
 
 
-class TcpServer(TcpBase):
+class TcpClient(TcpBase):
     def __init__(self, name, protocol_file, error_code,
-                 mako_dir, project_dir,
+                 project_dir,
+                 mako_dir,
                  adapt,
                  heartbeat_interval_second, heartbeat_miss_max,
                  retry_count,
@@ -27,14 +28,14 @@ class TcpServer(TcpBase):
                          length_length=length_length,
                          no_resp=no_resp,
                          ip=ip, port=port,
-                         is_server=True)
+                         is_server=False)
 
     def gen(self):
         self.gen_apis()
-        self.gen_tcp_server()
+        self.gen_tcp_client()
 
-    def gen_tcp_server(self):
+    def gen_tcp_client(self):
         tcp_dir = concat(self._util_dir, 'cpp', 'tcp')
-        for filename in ['tcp_connection.h', 'tcp_connection.cpp', 'tcp_server.h', 'tcp_server.cpp']:
+        for filename in ['tcp_connection.h', 'tcp_connection.cpp']:
             util.copy_file(concat(tcp_dir, filename), concat(self._project_dir, 'common', 'net', filename))
         util.copy_dir(concat(self._util_dir, 'cpp', 'common'), concat(self._project_dir, 'common', 'net', 'common'))
