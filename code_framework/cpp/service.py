@@ -6,7 +6,7 @@ import json
 from code_framework.common import type_set
 from code_framework.common import tool
 from code_framework.common.meta import Node
-from code_framework.base.manager import Manager as ManagerBase
+from code_framework.base.service_base import ServiceBase
 from code_framework.cpp.beast import websocket_async_server
 from code_framework.cpp.asio import tcp_async
 from code_framework.common import doc
@@ -17,23 +17,18 @@ from util.python import util
 # from read_config import gen_request_response
 
 
-class Manager(ManagerBase):
+class CppService(ServiceBase):
     def __init__(self,
-                 project_name,
+                 service_name_name,
                  # 代码格式模板目录
                  mako_dir,
-                 # log
-                 log,
                  # 项目生成路径
-                 module_dir,
-                 # 错误码配置文件
-                 # error_code,
-                 # 错误码输出目录
-                 # error_outdir,
-                 # doc_outdir,
+                 service_dir,
+                 # 错误码
+                 error_code,
                  ):
         # xxx/mako/cpp
-        ManagerBase.__init__(self, project_name=project_name, code_type=type_set.cpp,
+        ServiceBase.__init__(self, service_name=service_name, code_type=type_set.cpp,
                              mako_dir=mako_dir, module_dir=module_dir,
                              # error_code=error_code,
                              # error_outdir=error_outdir,
@@ -79,7 +74,7 @@ class Manager(ManagerBase):
         mako_file = os.path.join(self._cpp_mako_dir, 'makefile')
         out_file = os.path.join(self._module_dir, 'makefile')
         tool.gen_code_file(mako_file, out_file,
-                           project_name=self._project_name,
+                           service_name=self._service_name,
                            )
 
     def _gen_main(self):
@@ -93,7 +88,7 @@ class Manager(ManagerBase):
         mako_file = os.path.join(self._cpp_mako_dir, 'CMakeLists.txt')
         out_file = os.path.join(self._module_dir, 'CMakeLists.txt')
         tool.gen_code_file(mako_file, out_file,
-                           project_name=self._project_name,
+                           service_name=self._service_name,
                            modules=self._modules,
                            )
 

@@ -45,6 +45,11 @@ if __name__ == '__main__':
             port=12345,
             )
 
-    tcp_server_json.gen()
-    # manager.add(tcp_server_json)
-    # manager.gen()
+    # tcp_server_json.gen()
+    cpp_example_service = CppService(
+            service_name="cpp_example_service",
+            mako_dir=mako_dir,
+            service_dir=dst_dir,
+            )
+    cpp_example_service.add(cpp_example_service)
+    cpp_example_service.gen()
